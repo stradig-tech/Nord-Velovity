@@ -1,0 +1,229 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+
+{% block title %}Booking Details | Nord Velocity Portal{% endblock %}
+
+{% block admin_content %}
+
+
+        <!-- Dashboard Content -->
+        <div class="admin-content-inner">            
+            <div class="admin-page-header">
+                <h2>Lapland Northern Lights</h2>
+                <button class="btn btn-purple-light" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;"><i class="ph-bold ph-note-pencil"></i> Edit Package</button>
+            </div>
+            
+            <!-- Package Overview Section -->
+            <div class="booking-detail-overview">
+                
+                <!-- 2x2 Image Grid -->
+                <div class="booking-image-grid">
+                    <img src="/static/images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg" alt="Lapland">
+                    <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="Lapland Room">
+                    <img src="/static/images/packages/7111_13901216855_cca37b8607_b_800_600_nofilter.jpg" alt="Lapland Activity">
+                    <img src="/static/images/packages/65535_54407223633_9fc6ebf472_c_800_600_nofilter.jpg" alt="Lapland Snow">
+                </div>
+                
+                <!-- Package Details -->
+                <div class="booking-info-panel">
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0 0 0.5rem 0;">Destination: Rovaniemi, Finland</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem 0;"><i class="ph-bold ph-map-pin"></i> 5855 W Century Blvd, Rovaniemi - 90045</p>
+                    
+                    <p style="font-size: 0.85rem; color: #64748b; line-height: 1.6; margin: 0 0 2rem 0;">Tolerably behavior may admit daughters offending her ask own. Praise effect wishes to change way and any wanted. Lively use looked latter regard had. Does he part last.</p>
+                    
+                    <!-- Features Grid -->
+                    <div class="booking-features-grid">
+                        <div class="feature-item">
+                            <div class="feat-icon" style="background: #eef2ff; color: #4f46e5;"><i class="ph-fill ph-person-simple-walk"></i></div>
+                            <div class="feat-text">
+                                <span>Tour Type</span>
+                                <strong>Adventure</strong>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feat-icon" style="background: #eef2ff; color: #4f46e5;"><i class="ph-fill ph-users-three"></i></div>
+                            <div class="feat-text">
+                                <span>Guide Type</span>
+                                <strong>Fully Guided</strong>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feat-icon" style="background: #eef2ff; color: #4f46e5;"><i class="ph-fill ph-star"></i></div>
+                            <div class="feat-text">
+                                <span>Highlight</span>
+                                <strong>Aurora View</strong>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feat-icon" style="background: #eef2ff; color: #4f46e5;"><i class="ph-fill ph-clock"></i></div>
+                            <div class="feat-text">
+                                <span>Duration</span>
+                                <strong>5 Days / 4 Nights</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Current Reservation Card -->
+                    <div class="current-reservation-card">
+                        <p class="res-title">Current Reservation:</p>
+                        <div class="res-user">
+                            <img src="/static/images/team/testimonial-author-img4.png" alt="Lori">
+                            <strong>Lori Stevens</strong>
+                        </div>
+                        <div class="res-details">
+                            <div>
+                                <span>Departure:</span>
+                                <strong>18 Dec 2026 9:00AM</strong>
+                            </div>
+                            <div>
+                                <span>Return:</span>
+                                <strong>22 Dec 2026 8:00PM</strong>
+                            </div>
+                            <div>
+                                <span>Total Amount:</span>
+                                <strong style="color: #10b981;">$1528</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- Bookings Table -->
+            <div class="admin-card" style="padding: 0; overflow: hidden; margin-top: 2rem;">
+                <div style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9;">
+                    <h3 class="card-title" style="margin: 0;">Bookings</h3>
+                </div>
+                
+                <div style="padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="admin-search" style="background: white; border: 1px solid #e2e8f0; width: 400px;">
+                        <input type="text" placeholder="Search">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                    </div>
+                    <select style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85rem; color: #64748b; outline: none; appearance: none; background: white url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'4 6 8 10 12 6\'/></svg>') no-repeat right 0.75rem center; padding-right: 2.5rem; width: 200px;">
+                        <option>Sort by</option>
+                        <option>Newest First</option>
+                        <option>Oldest First</option>
+                    </select>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 900px;" class="admin-detail-table">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th>Booked by</th>
+                                <th>Departure</th>
+                                <th>Return</th>
+                                <th>Guests</th>
+                                <th>Amount</th>
+                                <th>Payment</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Row 1 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/testimonial-author-img4.png" alt="User">
+                                        <span>Lori Stevens</span>
+                                    </div>
+                                </td>
+                                <td>18 Dec 2026</td>
+                                <td>22 Dec 2026</td>
+                                <td>04</td>
+                                <td style="color: #10b981; font-weight: 700;">$1025</td>
+                                <td><span class="badge badge-green">Full payment</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 2 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img1.png" alt="User">
+                                        <span>Billy Vasquez</span>
+                                    </div>
+                                </td>
+                                <td>23 Dec 2026</td>
+                                <td>26 Dec 2026</td>
+                                <td>03</td>
+                                <td style="color: #10b981; font-weight: 700;">$847</td>
+                                <td><span class="badge badge-blue">Half payment</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Inline Separator Row -->
+                            <tr class="table-separator-row">
+                                <td colspan="7">Booking Available (27 Dec to 1 Jan)</td>
+                            </tr>
+                            
+                            <!-- Row 3 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img2.png" alt="User">
+                                        <span>Carolyn Ortiz</span>
+                                    </div>
+                                </td>
+                                <td>2 Jan 2027</td>
+                                <td>5 Jan 2027</td>
+                                <td>02</td>
+                                <td style="color: #10b981; font-weight: 700;">$900</td>
+                                <td><span class="badge badge-orange">Pay on Arrival</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 4 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img3.png" alt="User">
+                                        <span>Louis Ferguson</span>
+                                    </div>
+                                </td>
+                                <td>6 Jan 2027</td>
+                                <td>10 Jan 2027</td>
+                                <td>05</td>
+                                <td style="color: #10b981; font-weight: 700;">$1458</td>
+                                <td><span class="badge badge-green">Full payment</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 5 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/testimonial-author-img4.png" alt="User">
+                                        <span>Dennis Barrett</span>
+                                    </div>
+                                </td>
+                                <td>11 Jan 2027</td>
+                                <td>14 Jan 2027</td>
+                                <td>02</td>
+                                <td style="color: #10b981; font-weight: 700;">$879</td>
+                                <td><span class="badge badge-blue">Half payment</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Table Footer -->
+                <div style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9;">
+                    <span style="font-size: 0.8rem; color: #64748b;">Showing 1 to 5 of 20 entries</span>
+                    
+                    <div style="display: flex; gap: 0.25rem;">
+                        <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #94a3b8; cursor: pointer;">Prev</button>
+                        <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 4px;">1</button>
+                        <button style="background: #4f46e5; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: white; cursor: pointer; border-radius: 4px; font-weight: 600;">2</button>
+                        <span style="padding: 0.4rem 0.25rem; font-size: 0.8rem; color: #94a3b8;">..</span>
+                        <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 4px;">15</button>
+                        <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #0f172a; cursor: pointer; font-weight: 600;">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+{% endblock %}

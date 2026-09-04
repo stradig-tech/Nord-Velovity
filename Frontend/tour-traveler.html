@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Traveler Details | Nord Velocity{% endblock %}
+
+{% block content %}
+<section class="booking-banner" style="background-color: #F8FAFC; padding: 3rem 0; margin-bottom: 2rem; border-radius: 0 0 40px 40px;">
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div class="breadcrumb" style="font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">
+                    <i class="ph-bold ph-house"></i> Home &bull; Tour Packages &bull; Tour Details &bull; Booking
+                </div>
+                <h1 style="font-size: 2.5rem; font-weight: 800; color: #0F172A; margin: 0;">Traveler Information</h1>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Stepper -->
+    <div class="container" style="margin-bottom: 3rem;">
+        <div class="booking-stepper" style="display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto; position: relative;">
+            <div style="position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #E2E8F0; z-index: 1;"></div>
+            
+            <div class="step" style="text-align: center; z-index: 2; position: relative;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #EEF2FF; border: 2px solid #C7D2FE; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem auto; font-size: 0.9rem;">1</div>
+                <div style="font-weight: 700; color: #0F172A; font-size: 0.9rem;">Tour Review</div>
+            </div>
+            
+            <div class="step active" style="text-align: center; z-index: 2; position: relative;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #4F46E5; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem auto; font-size: 0.9rem;">2</div>
+                <div style="font-weight: 700; color: #4F46E5; font-size: 0.9rem;">Traveler Info</div>
+            </div>
+            
+            <div class="step" style="text-align: center; z-index: 2; position: relative;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #F1F5F9; border: 2px solid #CBD5E1; color: #64748B; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem auto; font-size: 0.9rem;">3</div>
+                <div style="font-weight: 600; color: #0F172A; font-size: 0.9rem;">Make Payment</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="booking-content" style="padding-bottom: 5rem;">
+        <div class="container">
+            <div>
+                
+                <!-- Left Column: Details -->
+                <div class="booking-left">
+                    <h2 style="font-size: 1.5rem; font-weight: 800; color: #0F172A; margin-bottom: 1.5rem;">Traveler Info</h2>
+                    
+                    <form action="{% if tour.slug %}{% url 'bookings:create' tour.slug %}{% else %}#{% endif %}" method="POST">
+                        {% csrf_token %}
+                        <!-- Primary Contact -->
+                        <div class="booking-card" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 1.5rem; padding: 1.5rem;">
+                            <h4 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 700; color: #0F172A;">Primary Contact Details</h4>
+                            <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.5rem;">This person will receive all booking confirmations and updates.</p>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">First Name *</label>
+                                    <input type="text" required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem;" placeholder="e.g. John">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Last Name *</label>
+                                    <input type="text" required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem;" placeholder="e.g. Doe">
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Email Address *</label>
+                                    <input type="email" required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem;" placeholder="e.g. john@example.com">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Phone Number *</label>
+                                    <input type="tel" required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem;" placeholder="+1 (555) 000-0000">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Country/Region *</label>
+                                <select required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem; background: white;">
+                                    <option value="" disabled selected>Select a country</option>
+                                    <option value="US">United States</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="AU">Australia</option>
+                                    <option value="FI">Finland</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Traveler 1 -->
+                        <div class="booking-card" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 1.5rem; padding: 1.5rem;">
+                            <h4 style="margin: 0 0 1.5rem 0; font-size: 1.1rem; font-weight: 700; color: #0F172A;">Traveler 1 (Adult)</h4>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">First Name *</label>
+                                    <input type="text" required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem;" placeholder="First name on passport">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Last Name *</label>
+                                    <input type="text" required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem;" placeholder="Last name on passport">
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Date of Birth *</label>
+                                    <input type="date" required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Gender *</label>
+                                    <select required style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem; background: white;">
+                                        <option value="" disabled selected>Select gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Special Requests -->
+                        <div class="booking-card" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 1.5rem; padding: 1.5rem;">
+                            <h4 style="margin: 0 0 1rem 0; font-size: 1.1rem; font-weight: 700; color: #0F172A;">Special Requests (Optional)</h4>
+                            <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.5rem;">Let us know if you have any dietary requirements or special needs.</p>
+                            
+                            <textarea style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 0.9rem; min-height: 100px; resize: vertical;" placeholder="Type your requests here..."></textarea>
+                        </div>
+                        
+                        <div style="text-align: right; margin-top: 2rem;">
+                            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; font-size: 1rem;">Proceed to Payment</button>
+                        </div>
+                    </form>
+                    
+                </div>
+                
+                <!-- Right Column: Summary -->
+                <div class="booking-right">
+                    
+                    <!-- Price Summary Card -->
+                    <div class="summary-card" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden;">
+                        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #E2E8F0; background: #F8FAFC;">
+                            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Price Summary</h4>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem;">
+                                <span style="color: #64748B;">Base Price</span>
+                                <span style="font-weight: 600;">&euro;1,660</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem;">
+                                <span style="color: #64748B; display: flex; align-items: center; gap: 0.5rem;">Total Discount <span style="background: #EF4444; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;">10% off</span></span>
+                                <span style="font-weight: 600; color: #10B981;">-&euro;160</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-size: 0.9rem; padding-bottom: 1.5rem; border-bottom: 1px solid #E2E8F0;">
+                                <span style="color: #64748B;">Taxes & Fees</span>
+                                <span style="font-weight: 600;">Included</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 800; font-size: 1.1rem;">Payable Now</span>
+                                <span style="font-weight: 900; font-size: 1.5rem; color: #0F172A;">&euro;1,500</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sign In Card -->
+                    <div class="summary-card" style="border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
+                        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #E2E8F0; background: #F8FAFC;">
+                            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Sign In Now To Book An Online</h4>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">Email id</label>
+                                <input type="email" placeholder="Enter your email" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F1F5F9; border-radius: 8px; font-size: 0.9rem; outline: none;">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">Mobile number</label>
+                                <input type="tel" placeholder="Enter your mobile number" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F1F5F9; border-radius: 8px; font-size: 0.9rem; outline: none;">
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                                <input type="checkbox" id="hasAccount" style="accent-color: #4F46E5;">
+                                <label for="hasAccount" style="font-size: 0.85rem; color: #64748B; cursor: pointer;">I Already Have Booking Account</label>
+                            </div>
+                            
+                            <button class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700; margin-bottom: 1.5rem;">Book as Guest</button>
+                            
+                            <div style="position: relative; text-align: center; margin-bottom: 1.5rem;">
+                                <hr style="border: none; border-top: 1px solid #E2E8F0; position: absolute; width: 100%; top: 50%; transform: translateY(-50%); z-index: 1;">
+                                <span style="background: white; padding: 0 10px; position: relative; z-index: 2; font-size: 0.75rem; color: #94A3B8;">Or via social media</span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem;">
+                                <button style="flex: 1; padding: 0.5rem; border-radius: 6px; border: none; background: #1877F2; color: white; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                                    <i class="ph-bold ph-facebook-logo"></i> Facebook
+                                </button>
+                                <button style="flex: 1; padding: 0.5rem; border-radius: 6px; border: none; background: #DB4437; color: white; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                                    <i class="ph-bold ph-google-logo"></i> Google
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+    </section>
+<!-- Footer Section -->     
+{% endblock %}

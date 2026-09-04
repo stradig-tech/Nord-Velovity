@@ -1,0 +1,69 @@
+"""
+URL configuration for nordvelocity project.
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/6.1/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from core.views import home_view, about_view, faq_view, contact_view
+
+from django.views.generic import RedirectView
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('payments/', include('payments.urls')),
+    path('tours/', include('tours.urls')),
+    path('packages/', RedirectView.as_view(url='/tours/', permanent=True)),
+    path('transport/', include('chauffeur.urls')),
+    path('chauffeur/', RedirectView.as_view(url='/transport/', permanent=True)),
+    path('cabs/', RedirectView.as_view(url='/transport/vehicles/', permanent=True)),
+    path('accounts/', include('accounts.urls')),
+    path('bookings/', include('bookings.urls')),
+    path('login/', RedirectView.as_view(url='/accounts/login/', permanent=False)),
+    path('signup/', RedirectView.as_view(url='/accounts/signup/', permanent=False)),
+    path('dashboard/', RedirectView.as_view(url='/accounts/dashboard/', permanent=False)),
+    path('my-bookings/', RedirectView.as_view(url='/accounts/my-bookings/', permanent=False)),
+    path('my-wishlist/', RedirectView.as_view(url='/accounts/my-wishlist/', permanent=False)),
+    path('destination/', RedirectView.as_view(url='/tours/destinations/', permanent=True)),
+    path('destinations/', RedirectView.as_view(url='/tours/destinations/', permanent=True)),
+    path('about/', about_view, name='about'),
+    path('faq/', faq_view, name='faq'),
+    path('contact/', contact_view, name='contact'),
+    path('blog/', include('content.urls')),
+    path('custom-admin/', include('core.admin_urls')),
+    path('', home_view, name='home'),
+]
+
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    from django.views.static import serve
+    from django.urls import re_path
+
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [
+        re_path(r'^(?:.*/)?images/(?P<path>.*)$', serve, {'document_root': settings.STATICFILES_DIRS[0] / 'images'}),
+        re_path(r'^style\.css$', serve, {'document_root': settings.STATICFILES_DIRS[0], 'path': 'style.css'}),
+        re_path(r'^signin\.svg$', serve, {'document_root': settings.STATICFILES_DIRS[0], 'path': 'signin.svg'}),
+    ]
+
+
+
+
+
+
+
+
+

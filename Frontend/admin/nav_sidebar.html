@@ -1,0 +1,182 @@
+{% load static i18n %}
+<nav class="sticky" id="nav-sidebar" aria-label="{% translate 'Sidebar' %}" style="width: 260px; min-width: 260px; max-width: 260px; height: 100vh; max-height: 100vh; background: #0F172A; color: #94A3B8; display: flex; flex-direction: column; border-right: 1px solid #1E293B; padding: 0; box-shadow: 2px 0 12px rgba(0,0,0,0.15); position: sticky; top: 0; left: 0; flex-shrink: 0; z-index: 100; overflow: hidden;">
+    
+    <!-- Brand Header -->
+    <div class="admin-brand" style="padding: 1.25rem 1rem; border-bottom: 1px solid #1E293B; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+        <a href="/admin/" style="display: flex; align-items: center; justify-content: center; text-decoration: none; width: 100%;" title="{{ site_settings.site_name|default:'Nord Velocity' }} Admin">
+            <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo-admin.png' %}{% endif %}" alt="{{ site_settings.site_name|default:'Nord Velocity' }}" style="height: 95px; width: auto; max-width: 180px; object-fit: contain; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5)); transition: transform 0.2s ease;">
+        </a>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="admin-nav" style="padding: 1rem 0.75rem; flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #334155 #0F172A;">
+        
+        <!-- Section: Core Operations -->
+        <p class="admin-nav-title" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 800; padding: 0 0.75rem; margin: 0.35rem 0 0.5rem 0;">Core Operations</p>
+        <ul style="list-style: none; padding: 0; margin: 0 0 1.25rem 0; display: flex; flex-direction: column; gap: 0.25rem;">
+            <li>
+                <a href="/admin/" class="nav-item {% if request.path == '/admin/' %}active{% endif %}">
+                    <i class="ph-bold ph-squares-four" style="font-size: 1.2rem; color: #6366F1;"></i> 
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/bookings/booking/" class="nav-item {% if '/bookings/booking/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-calendar-check" style="font-size: 1.2rem; color: #10B981;"></i> 
+                    <span>Bookings</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/tours/tour/" class="nav-item {% if '/tours/tour/' in request.path and not '/tourdate/' in request.path and not '/tourreview/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-compass" style="font-size: 1.2rem; color: #F59E0B;"></i> 
+                    <span>Tour Packages</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/tours/country/" class="nav-item {% if '/tours/country/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-globe" style="font-size: 1.2rem; color: #38BDF8;"></i> 
+                    <span>Countries</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/tours/destination/" class="nav-item {% if '/tours/destination/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-map-pin" style="font-size: 1.2rem; color: #34D399;"></i> 
+                    <span>Tour Places & Cities</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/tours/experiencetype/" class="nav-item {% if '/tours/experiencetype/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-sparkle" style="font-size: 1.2rem; color: #A78BFA;"></i> 
+                    <span>Tour Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/tours/tourdate/" class="nav-item {% if '/tours/tourdate/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-clock-countdown" style="font-size: 1.2rem; color: #FBBF24;"></i> 
+                    <span>Tour Inventory & Dates</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/chauffeur/vehicle/" class="nav-item {% if '/chauffeur/vehicle/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-car" style="font-size: 1.2rem; color: #EC4899;"></i> 
+                    <span>VIP Chauffeur Fleet</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/chauffeur/fixedroute/" class="nav-item {% if '/chauffeur/fixedroute/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-arrows-left-right" style="font-size: 1.2rem; color: #A855F7;"></i> 
+                    <span>Fixed Airport Routes</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/accounts/customuser/" class="nav-item {% if '/accounts/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-users" style="font-size: 1.2rem; color: #3B82F6;"></i> 
+                    <span>Guests & Users</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Section: Marketing & Homepage Content -->
+        <p class="admin-nav-title" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 800; padding: 0 0.75rem; margin: 1.25rem 0 0.5rem 0;">Marketing & Content</p>
+        <ul style="list-style: none; padding: 0; margin: 0 0 1.25rem 0; display: flex; flex-direction: column; gap: 0.25rem;">
+            <li>
+                <a href="/admin/core/homeoffercard/" class="nav-item {% if '/homeoffercard/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-percent" style="font-size: 1.2rem; color: #F43F5E;"></i> 
+                    <span>Discounts & Offers</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/core/partnerlogo/" class="nav-item {% if '/partnerlogo/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-handshake" style="font-size: 1.2rem; color: #0EA5E9;"></i> 
+                    <span>Partner Logos</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/payments/coupon/" class="nav-item {% if '/payments/' in request.path or '/coupon/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-tag" style="font-size: 1.2rem; color: #14B8A6;"></i> 
+                    <span>Promo Coupons</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/tours/tourreview/" class="nav-item {% if '/tourreview/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-star" style="font-size: 1.2rem; color: #EAB308;"></i> 
+                    <span>Reviews & Ratings</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/content/blogpost/" class="nav-item {% if '/content/' in request.path or '/blogpost/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-article" style="font-size: 1.2rem; color: #8B5CF6;"></i> 
+                    <span>Blog & Stories</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/core/contactsubmission/" class="nav-item {% if '/contactsubmission/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-envelope" style="font-size: 1.2rem; color: #38BDF8;"></i> 
+                    <span>Inquiries & Leads</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Section: Platform Configuration -->
+        <p class="admin-nav-title" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 800; padding: 0 0.75rem; margin: 1.25rem 0 0.5rem 0;">Platform Configuration</p>
+        <ul style="list-style: none; padding: 0; margin: 0 0 0.5rem 0; display: flex; flex-direction: column; gap: 0.25rem;">
+            <li>
+                <a href="/admin/core/sitesetting/1/change/" class="nav-item {% if '/sitesetting/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-gear" style="font-size: 1.2rem; color: #94A3B8;"></i> 
+                    <span>Site Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/core/navbaritem/" class="nav-item {% if '/navbaritem/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-navigation-arrow" style="font-size: 1.2rem; color: #38BDF8;"></i> 
+                    <span>Navigation Icons</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/core/megamenupromo/" class="nav-item {% if '/megamenupromo/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-megaphone" style="font-size: 1.2rem; color: #F59E0B;"></i> 
+                    <span>Mega Menu Promos</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/core/companymenuitem/" class="nav-item {% if '/companymenuitem/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-compass" style="font-size: 1.2rem; color: #EC4899;"></i> 
+                    <span>Company Menu Items</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/core/faqitem/" class="nav-item {% if '/faqitem/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-question" style="font-size: 1.2rem; color: #64748B;"></i> 
+                    <span>FAQs</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/core/testimonial/" class="nav-item {% if '/testimonial/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-quotes" style="font-size: 1.2rem; color: #64748B;"></i> 
+                    <span>Testimonials</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/core/teammember/" class="nav-item {% if '/teammember/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-users-three" style="font-size: 1.2rem; color: #A78BFA;"></i> 
+                    <span>Team Leadership</span>
+                </a>
+            </li>
+        </ul>
+
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="admin-sidebar-footer" style="padding: 1rem 1.25rem; border-top: 1px solid #1E293B; display: flex; align-items: center; justify-content: space-between; background: #0B1120; flex-shrink: 0; margin-top: auto;">
+        <form id="sidebar-logout-form" method="post" action="{% url 'admin:logout' %}" style="margin: 0; display: inline;">
+            {% csrf_token %}
+            <button type="submit" style="background: none; border: none; color: #EF4444; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; padding: 0; font-family: inherit;">
+                <i class="ph-bold ph-sign-out" style="font-size: 1.1rem;"></i> Log Out
+            </button>
+        </form>
+        <a href="{% url 'home' %}" target="_blank" style="color: #60A5FA; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="ph-bold ph-arrow-square-out" style="font-size: 1.1rem;"></i> Live Site
+        </a>
+    </div>
+
+</nav>

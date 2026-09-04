@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nord Velocity | Tours</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Google Fonts: Inter & Caveat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+<header class="navbar">         <div class="navbar-container">             <!-- Logo -->             <a href="index.html" class="logo">                 <img src="images/brand/logo%20bg-transparent.png" alt="Nord Velocity" style="height: 90px; width: auto; object-fit: contain; transform: scale(1.2); transform-origin: left center;">             </a>              <!-- Navigation Links -->             <nav class="nav-links">                 <a href="index.html" class="nav-link">Home</a>                                  <div class="dropdown">                     <a href="destination.html" class="nav-link dropdown-toggle" aria-expanded="false">Destination <i class="ph ph-caret-down"></i></a>                     <div class="megamenu">                         <div class="mega-sidebar bg-light-blue">                             <ul class="mega-nav-list">                                 <li><a href="#"><i class="ph-bold ph-caret-right text-muted"></i> Finland</a></li>                                 <li><a href="#"><i class="ph-bold ph-caret-right text-muted"></i> Scandinavia</a></li>                                 <li><a href="#"><i class="ph-bold ph-caret-right text-muted"></i> Northern Europe</a></li>                                 <li><a href="#"><i class="ph-bold ph-caret-right text-muted"></i> Western Europe</a></li>                                 <li><a href="#"><i class="ph-bold ph-caret-right text-muted"></i> Eastern Europe</a></li>                                 <li><a href="#"><i class="ph-bold ph-caret-right text-muted"></i> Southern Europe</a></li>                             </ul>                             <a href="#" class="btn btn-outline btn-customize">Customize Package</a>                         </div>                         <div class="mega-content">                             <h4 class="mega-title text-center">Finland Top Destinations</h4>                             <div class="mega-dest-grid">                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/helsinki,architecture/all?random=30" alt="Helsinki"><span>Helsinki</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/rovaniemi,winter/all?random=31" alt="Rovaniemi"><span>Rovaniemi</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/turku,finland/all?random=32" alt="Turku"><span>Turku</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/tampere,finland/all?random=33" alt="Tampere"><span>Tampere</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/levi,ski/all?random=34" alt="Levi"><span>Levi</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/savonlinna,castle/all?random=35" alt="Savonlinna"><span>Savonlinna</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/espoo,city/all?random=36" alt="Espoo"><span>Espoo</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/oulu,city/all?random=37" alt="Oulu"><span>Oulu</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/porvoo,finland/all?random=38" alt="Porvoo"><span>Porvoo</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/vaasa,finland/all?random=39" alt="Vaasa"><span>Vaasa</span></a>                             </div>                         </div>                         <div class="mega-promo" style="background-image: url('https://loremflickr.com/400/600/lapland,aurora/all?random=40');">                             <div class="mega-promo-overlay"></div>                             <div class="mega-promo-content">                                 <span class="promo-up-to">up to</span>                                 <h2 class="promo-discount-large">30<span class="percent">%</span></h2>                                 <h3 class="promo-sale">off<br>SALE</h3>                                 <p class="promo-desc">(winter offer for<br>Lapland & Helsinki upto<br>30%.)</p>                                 <a href="#" class="btn btn-primary">See Packages</a>                             </div>                         </div>                     </div>                 </div>                  <div class="dropdown">                     <a href="about.html" class="nav-link dropdown-toggle" aria-expanded="false">Company <i class="ph ph-caret-down"></i></a>                     <div class="megamenu">                         <div class="mega-sidebar bg-light-blue">                             <ul class="mega-nav-list">                                 <li><a href="about.html"><i class="ph-bold ph-caret-right text-muted"></i> About Us</a></li>                                 <li><a href="#"><i class="ph-bold ph-caret-right text-muted"></i> Our Services</a></li>                                 <li><a href="faq.html"><i class="ph-bold ph-caret-right text-muted"></i> FAQ</a></li>                                                                  <li><a href="contact.html"><i class="ph-bold ph-caret-right text-muted"></i> Contact Support</a></li>                                 <li><a href="blog.html"><i class="ph-bold ph-caret-right text-muted"></i> Blog</a></li>                             </ul>                             <a href="#" class="btn btn-outline btn-customize">View All Articles</a>                         </div>                         <div class="mega-content">                             <h4 class="mega-title text-center">Discover Nord Velocity</h4>                             <div class="mega-dest-grid">                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/office,team/all?random=80" alt="About Us"><span>About Us</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/travel,service/all?random=81" alt="Our Services"><span>Our Services</span></a>                                 <a href="faq.html" class="mega-dest-item"><img src="https://loremflickr.com/150/150/question,support/all?random=82" alt="FAQ"><span>FAQ</span></a>                                                                  <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/headset,support/all?random=84" alt="Contact Support"><span>Contact</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/writing,blog/all?random=85" alt="Blog"><span>Blog</span></a>                             </div>                         </div>                         <div class="mega-promo" style="background-image: url('https://loremflickr.com/400/600/laptop,coffee/all?random=1');">                             <div class="mega-promo-overlay"></div>                             <div class="mega-promo-content">                                 <h3 class="promo-sale" style="margin-bottom: 0.5rem; font-weight: 600;">2026 Travel<br>Report</h3>                                 <p class="promo-desc" style="margin-bottom: 1.5rem;">Discover the emerging trends shaping the future of global tourism.</p>                                 <a href="#" class="btn btn-primary">Read Now</a>                             </div>                         </div>                     </div>                 </div>                  <div class="dropdown">                     <a href="tour.html" class="nav-link dropdown-toggle active" aria-expanded="false">Tour <i class="ph ph-caret-down"></i></a>                     <div class="megamenu">                         <div class="mega-sidebar bg-light-blue">                             <ul class="mega-nav-list">                                 <li><a href="tour-packages.html"><i class="ph-bold ph-caret-right text-muted"></i> Tour Package</a></li>                                 <li><a href="#"><i class="ph-bold ph-caret-right text-muted"></i> Hotel</a></li>                             </ul>                             <a href="#" class="btn btn-outline btn-customize">Plan with AI</a>                         </div>                         <div class="mega-content">                             <h4 class="mega-title text-center">Featured Tour Categories</h4>                             <div class="mega-dest-grid">                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/nature,travel/all?random=1" alt="Luxury"><span>Luxury</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/nature,travel/all?random=2" alt="Adventure"><span>Adventure</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/nature,travel/all?random=3" alt="Family"><span>Family</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/nature,travel/all?random=4" alt="Honeymoon"><span>Honeymoon</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/nature,travel/all?random=5" alt="Cultural"><span>Cultural</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/lapland,aurora/all?random=50" alt="Northern Lights"><span>Northern Lights</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/icebreaker,ship/all?random=51" alt="Icebreaker"><span>Icebreaker</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/finland,lake/all?random=52" alt="Lakeland"><span>Lakeland</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/skiing,snow/all?random=53" alt="Winter Sports"><span>Winter Sports</span></a>                                 <a href="#" class="mega-dest-item"><img src="https://loremflickr.com/150/150/nature,travel/all?random=10" alt="City Breaks"><span>City Breaks</span></a>                             </div>                         </div>                         <div class="mega-promo" style="background-image: url('https://loremflickr.com/400/600/finland,husky/all?random=60');">                             <div class="mega-promo-overlay"></div>                             <div class="mega-promo-content">                                 <h3 class="promo-sale" style="font-weight: 600; margin-bottom: 0;">15% OFF</h3>                                 <p class="promo-desc" style="font-size: 1.1rem; margin-bottom: 1.5rem;">Winter<br>Packages</p>                                 <a href="#" class="btn btn-primary">Book Now</a>                             </div>                         </div>                     </div>                 </div>                 <a href="transport.html" class="nav-link">Transport</a>
+                <a href="contact.html" class="nav-link">Contact</a>             </nav>              <!-- Action Buttons -->             <div class="nav-actions"><a href="login.html" class="btn btn-primary">Log In / Sign Up</a></div>                     <button class="mobile-menu-toggle"><i class="ph-bold ph-list"></i></button>
+        </div>
+    </header>
+<!-- Top Bar -->     <div class="top-bar">         <div class="top-bar-container">             <div class="top-bar-left">                 <i class="ph-fill ph-star" style="color: #F59E0B;"></i> 4.9 Rated by <strong>10,000+</strong> Travelers Worldwide.             </div>             <div class="top-bar-right">                 <div class="currency-selector">                     <i class="ph ph-globe"></i> EUR &euro;                 </div>                 <a href="#" class="top-bar-icon"><i class="ph ph-shopping-cart"></i></a>                 <a href="#" class="top-bar-icon"><i class="ph ph-user-circle"></i></a>             </div>         </div>     </div>
+
+<!-- Hero Section for Tours -->
+<section class="page-hero" style="background-image: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.4)), url('images/hero/Winter-landscape-19-2-scaled.jpg'); background-size: cover; background-position: center; padding: 120px 20px; text-align: center; color: white;">
+    <h1 style="font-size: 3.5rem; font-weight: 700; margin-bottom: 1rem;">Explore the World</h1>
+    <p style="font-size: 1.25rem; max-width: 600px; margin: 0 auto; opacity: 0.9;">Discover carefully curated tour packages, comfortable hotel stays, and seamless transport options for your next unforgettable journey.</p>
+</section>
+
+<!-- Tour Packages Section -->
+<section class="tours-section" id="packages" style="padding-top: 5rem;">
+    <div class="tours-container">
+        <h2 class="section-title text-center">Featured Tour Packages</h2>
+        <div class="tours-grid">
+            <!-- Reuse tour cards from index.html structure -->
+            <div class="tour-card">
+                <div class="tour-img-box">
+                    <img src="images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg" alt="Lapland Northern Lights Escape" class="tour-img" style="object-fit: cover;">
+                    <div class="badge-top-left"><i class="ph ph-heart"></i></div>
+                    <div class="badge-stack-right">
+                        <span class="tour-badge red-bg">Sale on!</span>
+                        <span class="tour-badge yellow-bg text-dark">Group tour</span>
+                    </div>
+                </div>
+                <div class="tour-body">
+                    <div class="tour-rating">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        <span class="rating-val">(4.9)</span>
+                    </div>
+                    <h4 class="tour-title">Lapland Northern Lights & Igloo Escape</h4>
+                    <div class="tour-meta">
+                        <span class="meta-item"><i class="ph ph-map-pin"></i> Rovaniemi, Finland</span>
+                        <span class="meta-item"><i class="ph ph-clock"></i> 5 Days</span>
+                    </div>
+                    <div class="tour-footer">
+                        <div class="tour-price-box">
+                            <span class="price-label">Starting From</span>
+                            <div class="price-display">
+                                <span class="price-main"></span><span class="price-sub">/per person</span>
+                            </div>
+                        </div>
+                        <a href="tour-details.html" class="btn btn-primary rounded-pill" style="text-decoration: none; display: inline-block;">View Tour</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tour-card">
+                <div class="tour-img-box">
+                    <img src="images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="Helsinki City Tour" class="tour-img" style="object-fit: cover;">
+                    <div class="badge-top-left"><i class="ph ph-heart"></i></div>
+                    <div class="badge-stack-right">
+                        <span class="tour-badge red-bg">Up to 15% off</span>
+                    </div>
+                </div>
+                <div class="tour-body">
+                    <div class="tour-rating">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        <span class="rating-val">(4.9)</span>
+                    </div>
+                    <h4 class="tour-title">Helsinki City & Suomenlinna Tour</h4>
+                    <div class="tour-meta">
+                        <span class="meta-item"><i class="ph ph-map-pin"></i> Helsinki, Finland</span>
+                        <span class="meta-item"><i class="ph ph-clock"></i> 3 Days</span>
+                    </div>
+                    <div class="tour-footer">
+                        <div class="tour-price-box">
+                            <span class="price-label">Starting From</span>
+                            <div class="price-display">
+                                <span class="price-main"></span><span class="price-sub">/per person</span>
+                            </div>
+                        </div>
+                        <a href="tour-details.html" class="btn btn-primary rounded-pill" style="text-decoration: none; display: inline-block;">View Tour</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tour-card">
+                <div class="tour-img-box">
+                    <img src="images/packages/7111_13901216855_cca37b8607_b_800_600_nofilter.jpg" alt="Finnish Lakeland Retreat" class="tour-img" style="object-fit: cover;">
+                    <div class="badge-top-left"><i class="ph ph-heart"></i></div>
+                    <div class="badge-stack-right">
+                        <span class="tour-badge green-bg">Featured</span>
+                    </div>
+                </div>
+                <div class="tour-body">
+                    <div class="tour-rating">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        <span class="rating-val">(4.9)</span>
+                    </div>
+                    <h4 class="tour-title">Finnish Lakeland Summer Retreat</h4>
+                    <div class="tour-meta">
+                        <span class="meta-item"><i class="ph ph-map-pin"></i> Lakeland, Finland</span>
+                        <span class="meta-item"><i class="ph ph-clock"></i> 7 Days</span>
+                    </div>
+                    <div class="tour-footer">
+                        <div class="tour-price-box">
+                            <span class="price-label">Starting From</span>
+                            <div class="price-display">
+                                <span class="price-main"></span><span class="price-sub">/per person</span>
+                            </div>
+                        </div>
+                        <a href="tour-details.html" class="btn btn-primary rounded-pill" style="text-decoration: none; display: inline-block;">View Tour</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Hotels Section -->
+<section class="hotels-section bg-light-blue" id="hotels" style="padding: 5rem 0;">
+    <div class="tours-container">
+        <h2 class="section-title text-center">Top Rated Hotels</h2>
+        <div class="hotels-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem;">
+            
+            <!-- Hotel Card 1 -->
+            <div class="hotel-card bg-white" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                <div style="height: 200px; background-image: url('images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg'); background-size: cover; background-position: center;"></div>
+                <div style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: #F59E0B; font-size: 0.9rem;"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></span>
+                        <span style="font-size: 0.85rem; color: #64748B;">Resort</span>
+                    </div>
+                    <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Arctic TreeHouse Hotel</h4>
+                    <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1rem;"><i class="ph ph-map-pin"></i> Rovaniemi, Finland</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0; padding-top: 1rem;">
+                        <div>
+                            <span style="font-size: 1.25rem; font-weight: 700; color: #2563EB;">$350</span><span style="font-size: 0.85rem; color: #64748B;">/night</span>
+                        </div>
+                        <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Book Room</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hotel Card 2 -->
+            <div class="hotel-card bg-white" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                <div style="height: 200px; background-image: url('images/citys/1-Northern-Lights-Snowmobile-Levi-550x358.jpg'); background-size: cover; background-position: center;"></div>
+                <div style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: #F59E0B; font-size: 0.9rem;"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></span>
+                        <span style="font-size: 0.85rem; color: #64748B;">Luxury</span>
+                    </div>
+                    <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Hotel Kämp</h4>
+                    <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1rem;"><i class="ph ph-map-pin"></i> Helsinki, Finland</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0; padding-top: 1rem;">
+                        <div>
+                            <span style="font-size: 1.25rem; font-weight: 700; color: #2563EB;">$420</span><span style="font-size: 0.85rem; color: #64748B;">/night</span>
+                        </div>
+                        <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Book Room</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hotel Card 3 -->
+            <div class="hotel-card bg-white" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease;">
+                <div style="height: 200px; background-image: url('images/citys/Pyha_Sunrise-550x358.jpg'); background-size: cover; background-position: center;"></div>
+                <div style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="color: #F59E0B; font-size: 0.9rem;"><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i></span>
+                        <span style="font-size: 0.85rem; color: #64748B;">Boutique</span>
+                    </div>
+                    <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Järvisydän Resort</h4>
+                    <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1rem;"><i class="ph ph-map-pin"></i> Rantasalmi, Finland</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0; padding-top: 1rem;">
+                        <div>
+                            <span style="font-size: 1.25rem; font-weight: 700; color: #2563EB;">$280</span><span style="font-size: 0.85rem; color: #64748B;">/night</span>
+                        </div>
+                        <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Book Room</button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+<!-- Transport Section -->
+<section class="transport-section" id="transport" style="padding: 5rem 0;">
+    <div class="tours-container">
+        <h2 class="section-title text-center">Seamless Transport Options</h2>
+        <p class="text-center" style="color: #64748B; max-width: 600px; margin: 0 auto 3rem auto;">Whether you need an airport transfer, a rental car for a road trip, or private chauffeur services, we have you covered.</p>
+        
+        <div class="transport-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+            
+            <!-- Transport Card 1 -->
+            <div class="transport-card" style="border: 1px solid #E2E8F0; border-radius: 12px; padding: 2rem; text-align: center; transition: all 0.3s ease;">
+                <div style="width: 70px; height: 70px; background: #EEF2FF; color: #2563EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; font-size: 2rem;">
+                    <i class="ph-fill ph-car-profile"></i>
+                </div>
+                <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Car Rental</h4>
+                <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1.5rem;">Explore at your own pace with our wide selection of rental vehicles.</p>
+                <div style="font-weight: 700; color: #2563EB; margin-bottom: 1.5rem;">From  / day</div>
+                <button class="btn btn-primary" style="width: 100%;">View Cars</button>
+            </div>
+            
+            <!-- Transport Card 2 -->
+            <div class="transport-card" style="border: 1px solid #E2E8F0; border-radius: 12px; padding: 2rem; text-align: center; transition: all 0.3s ease;">
+                <div style="width: 70px; height: 70px; background: #EEF2FF; color: #2563EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; font-size: 2rem;">
+                    <i class="ph-fill ph-taxi"></i>
+                </div>
+                <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Airport Taxi</h4>
+                <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1.5rem;">Fast and reliable transfers to and from major airports.</p>
+                <div style="font-weight: 700; color: #2563EB; margin-bottom: 1.5rem;">Fixed Prices</div>
+                <button class="btn btn-primary" style="width: 100%;">Book Taxi</button>
+            </div>
+            
+            <!-- Transport Card 3 -->
+            <div class="transport-card" style="border: 1px solid #E2E8F0; border-radius: 12px; padding: 2rem; text-align: center; transition: all 0.3s ease;">
+                <div style="width: 70px; height: 70px; background: #EEF2FF; color: #2563EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; font-size: 2rem;">
+                    <i class="ph-fill ph-train"></i>
+                </div>
+                <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Train Tickets</h4>
+                <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1.5rem;">Scenic and comfortable railway journeys across Northern Europe.</p>
+                <div style="font-weight: 700; color: #2563EB; margin-bottom: 1.5rem;">Book in Advance</div>
+                <button class="btn btn-primary" style="width: 100%;">Search Routes</button>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Footer Section -->     <footer class="footer-section">         <div class="container">             <div class="footer-grid">                 <!-- Column 1: Info -->                 <div class="footer-col footer-info">                     <a href="index.html" class="footer-logo">                         <img src="images/brand/logo%20foote.jpeg" alt="Nord Velocity" style="height: 90px; width: auto; object-fit: contain; border-radius: 8px;">                     </a>                     <h5 class="footer-agency-name">Nord Velocity Travel Agency</h5>                     <p class="footer-address">                         Mannerheimintie 12, 5th Floor<br>                         00100 Helsinki, Finland                     </p>                     <div class="footer-socials">                         <a href="#"><i class="ph-fill ph-facebook-logo"></i></a>                         <a href="#"><i class="ph-fill ph-linkedin-logo"></i></a>                         <a href="#"><i class="ph-fill ph-youtube-logo"></i></a>                         <a href="#"><i class="ph-fill ph-instagram-logo"></i></a>                     </div>                                      </div>                  <!-- Column 2: Explore -->                 <div class="footer-col">                     <h4 class="footer-title">Explore</h4>                     <ul class="footer-links">                         <li><a href="#">About Nord Velocity</a></li>                         <li><a href="#">Health & Safety Measure</a></li>                         <li><a href="#">Customize Tour</a></li>                         <li><a href="#">Deals & Discount</a></li>                         <li><a href="#">Last Minutes Deal</a></li>                         <li><a href="#">Travel Inspirations</a></li>                         <li><a href="#">Traveler Reviews</a></li>                         <li><a href="#">Contact Us</a></li>                     </ul>                 </div>                  <!-- Column 3: Useful -->                 <div class="footer-col">                     <h4 class="footer-title">Useful</h4>                     <ul class="footer-links">                         <li><a href="#">Flight Booking</a></li>                         <li><a href="#">Hotel Booking</a></li>                     </ul>                 </div>                  <!-- Column 4: Helpline -->                 <div class="footer-col">                     <h4 class="footer-title">Helpline</h4>                     <ul class="footer-links">                         <li><a href="#">Help & Support</a></li>                         <li><a href="#">FAQs</a></li>                         <li><a href="#">Terms & Condition</a></li>                         <li><a href="#">Affiliates</a></li>                     </ul>                 </div>             </div>              <!-- Copyright -->             <div class="footer-bottom">                 <p class="copyright-text">&copy; 2026 Nord Velocity. All Rights Reserved.</p>                 <p class="legal-text" style="margin-bottom: 0.5rem; color: #FFFFFF;">Developed by <strong>Stradigtech</strong>.</p>                 <p class="legal-text">All travel services are provided in accordance with applicable international travel regulations, airline policies, visa requirements, and local tourism laws, ensuring transparency, reliability, and compliance throughout your journey.</p>             </div>         </div>                  <!-- Back to Top Button -->         <button class="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">             <i class="ph-bold ph-caret-up"></i>         </button>     </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+
+
+
+
+

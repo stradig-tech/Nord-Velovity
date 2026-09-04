@@ -1,0 +1,411 @@
+{% load static %}
+<!DOCTYPE html> <html lang="en"> <head>     <meta charset="UTF-8">     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% if site_settings.favicon %}{{ site_settings.favicon.url }}{% else %}{% static 'images/brand/logo bg-transparent.png' %}{% endif %}">
+    {% if site_settings.preview_image %}<meta property="og:image" content="{{ site_settings.preview_image.url }}">{% endif %}
+    <meta name="description" content="Nord Velocity - Your AI-powered travel planner">     <title>{% block title %}Nord Velocity | Luxury Travel & Chauffeur{% endblock %}</title>
+    {% block seo %}
+    <meta name="description" content="Nord Velocity - Curated luxury travel experiences and executive chauffeur services across Finland and the Nordics.">
+    {% endblock %}
+    <!-- Vue 3 for reactive booking widgets -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>     <link rel="stylesheet" href="{% static 'style.css' %}">          <!-- Google Fonts: Inter -->     <link rel="preconnect" href="https://fonts.googleapis.com">     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">     <!-- Google Fonts: Caveat (Script Font) -->     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">          <!-- Phosphor Icons -->     <script src="https://unpkg.com/@phosphor-icons/web"></script>     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head> 
+<body>     
+    <header class="navbar">         
+        <div class="navbar-container">             
+            <!-- Logo -->             
+            <a href="{% url 'home' %}" class="logo">                 
+                <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo bg-transparent.png' %}{% endif %}" alt="{{ site_settings.site_name }}" style="height: 90px; width: auto; object-fit: contain; transform: scale(1.2); transform-origin: left center;">             
+            </a>              
+            
+            <!-- Dynamic Navigation Links -->             
+            <nav class="nav-links">
+                {% for item in navbar_items %}
+                    {% if item.menu_type == 'DESTINATION' %}
+                    <!-- Destination Mega Menu -->
+                    <div class="dropdown">
+                        <a href="{{ item.url }}" class="nav-link dropdown-toggle" aria-expanded="false">
+                            {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
+                            {{ item.title }} <i class="ph ph-caret-down"></i>
+                        </a>
+                        <div class="megamenu">
+                            <div class="mega-sidebar bg-light-blue">
+                                <ul class="mega-nav-list">
+                                    {% for country in nav_countries %}
+                                    <li>
+                                        <a href="{% url 'tours:list' %}?country={{ country.slug }}" style="display: flex; align-items: center; gap: 0.5rem;">
+                                            {% if country.flag_icon %}
+                                            <img src="{{ country.flag_icon.url }}" alt="{{ country.name }}" class="country-flag-icon">
+                                            {% else %}
+                                            <i class="ph-bold ph-caret-right text-muted"></i>
+                                            {% endif %}
+                                            {{ country.name }}
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <li><a href="{% url 'tours:list' %}"><i class="ph-bold ph-caret-right text-muted"></i> Finland</a></li>
+                                    <li><a href="{% url 'tours:list' %}"><i class="ph-bold ph-caret-right text-muted"></i> Scandinavia</a></li>
+                                    {% endfor %}
+                                </ul>
+                                <a href="{% url 'contact' %}" class="btn btn-outline btn-customize">Customize Package</a>
+                            </div>
+                            <div class="mega-content">
+                                <h4 class="mega-title text-center">Finland Top Destinations</h4>
+                                <div class="mega-dest-grid">
+                                    {% for dest in nav_destinations %}
+                                    <a href="{% url 'tours:list' %}?destination={{ dest.slug }}" class="mega-dest-item">
+                                        {% if dest.nav_icon %}
+                                        <img src="{{ dest.nav_icon.url }}" alt="{{ dest.name }}">
+                                        {% elif dest.hero_image %}
+                                        <img src="{{ dest.hero_image.url }}" alt="{{ dest.name }}">
+                                        {% else %}
+                                        <div class="nav-icon-fallback"><i class="ph-bold ph-map-pin"></i></div>
+                                        {% endif %}
+                                        <span>{{ dest.name }}</span>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% with promo=nav_promos.DESTINATION %}
+                            {% if promo %}
+                            <div class="mega-promo" style="{% if promo.background_image %}background-image: url('{{ promo.background_image.url }}');{% else %}background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);{% endif %}">
+                                <div class="mega-promo-overlay"></div>
+                                <div class="mega-promo-content">
+                                    <span class="promo-up-to">{{ promo.badge_text }}</span>
+                                    <h2 class="promo-discount-large">{{ promo.title }}</h2>
+                                    <h3 class="promo-sale">{{ promo.subtitle }}</h3>
+                                    <p class="promo-desc">{{ promo.description }}</p>
+                                    <a href="{{ promo.button_url }}" class="btn btn-primary">{{ promo.button_text }}</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% elif item.menu_type == 'COMPANY' %}
+                    <!-- Company Mega Menu -->
+                    <div class="dropdown">
+                        <a href="{{ item.url }}" class="nav-link dropdown-toggle" aria-expanded="false">
+                            {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
+                            {{ item.title }} <i class="ph ph-caret-down"></i>
+                        </a>
+                        <div class="megamenu">
+                            <div class="mega-sidebar bg-light-blue">
+                                <ul class="mega-nav-list">
+                                    <li><a href="{% url 'about' %}"><i class="ph-bold ph-caret-right text-muted"></i> About Us</a></li>
+                                    <li><a href="{% url 'chauffeur:hub' %}"><i class="ph-bold ph-caret-right text-muted"></i> Our Services</a></li>
+                                    <li><a href="{% url 'faq' %}"><i class="ph-bold ph-caret-right text-muted"></i> FAQ</a></li>
+                                    <li><a href="{% url 'contact' %}"><i class="ph-bold ph-caret-right text-muted"></i> Contact Support</a></li>
+                                    <li><a href="{% url 'content:blog_list' %}"><i class="ph-bold ph-caret-right text-muted"></i> Blog</a></li>
+                                </ul>
+                                <a href="{% url 'content:blog_list' %}" class="btn btn-outline btn-customize">View All Articles</a>
+                            </div>
+                            <div class="mega-content">
+                                <h4 class="mega-title text-center">Discover Nord Velocity</h4>
+                                <div class="mega-dest-grid">
+                                    {% for c_item in nav_company_items %}
+                                    <a href="{{ c_item.url }}" class="mega-dest-item">
+                                        {% if c_item.image %}
+                                        <img src="{{ c_item.image.url }}" alt="{{ c_item.name }}">
+                                        {% else %}
+                                        <div class="nav-icon-fallback"><i class="ph-bold ph-briefcase"></i></div>
+                                        {% endif %}
+                                        <span>{{ c_item.name }}</span>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% with promo=nav_promos.COMPANY %}
+                            {% if promo %}
+                            <div class="mega-promo" style="{% if promo.background_image %}background-image: url('{{ promo.background_image.url }}');{% else %}background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);{% endif %}">
+                                <div class="mega-promo-overlay"></div>
+                                <div class="mega-promo-content">
+                                    <span class="promo-up-to">{{ promo.badge_text }}</span>
+                                    <h3 class="promo-sale" style="margin-bottom: 0.5rem; font-weight: 600;">{{ promo.title }}</h3>
+                                    <p class="promo-desc" style="margin-bottom: 1.5rem;">{{ promo.description }}</p>
+                                    <a href="{{ promo.button_url }}" class="btn btn-primary">{{ promo.button_text }}</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% elif item.menu_type == 'TOUR' %}
+                    <!-- Tour Mega Menu -->
+                    <div class="dropdown">
+                        <a href="{{ item.url }}" class="nav-link dropdown-toggle" aria-expanded="false">
+                            {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
+                            {{ item.title }} <i class="ph ph-caret-down"></i>
+                        </a>
+                        <div class="megamenu">
+                            <div class="mega-sidebar bg-light-blue">
+                                <ul class="mega-nav-list">
+                                    <li><a href="{% url 'tours:list' %}"><i class="ph-bold ph-caret-right text-muted"></i> Tour Package</a></li>
+                                    <li><a href="{% url 'chauffeur:hub' %}"><i class="ph-bold ph-caret-right text-muted"></i> VIP Chauffeur</a></li>
+                                    <li><a href="{% url 'tours:destination_list' %}"><i class="ph-bold ph-caret-right text-muted"></i> Destinations</a></li>
+                                </ul>
+                                <a href="{% url 'contact' %}" class="btn btn-outline btn-customize">Plan with AI</a>
+                            </div>
+                            <div class="mega-content">
+                                <h4 class="mega-title text-center">Featured Tour Categories</h4>
+                                <div class="mega-dest-grid">
+                                    {% for exp in nav_experiences %}
+                                    <a href="{% url 'tours:list' %}?experience={{ exp.slug }}" class="mega-dest-item">
+                                        {% if exp.nav_icon %}
+                                        <img src="{{ exp.nav_icon.url }}" alt="{{ exp.name }}">
+                                        {% elif exp.image %}
+                                        <img src="{{ exp.image.url }}" alt="{{ exp.name }}">
+                                        {% else %}
+                                        <div class="nav-icon-fallback"><i class="ph-bold ph-compass"></i></div>
+                                        {% endif %}
+                                        <span>{{ exp.name }}</span>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% with promo=nav_promos.TOUR %}
+                            {% if promo %}
+                            <div class="mega-promo" style="{% if promo.background_image %}background-image: url('{{ promo.background_image.url }}');{% else %}background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);{% endif %}">
+                                <div class="mega-promo-overlay"></div>
+                                <div class="mega-promo-content">
+                                    <span class="promo-up-to">{{ promo.badge_text }}</span>
+                                    <h3 class="promo-sale" style="font-weight: 600; margin-bottom: 0;">{{ promo.title }}</h3>
+                                    <p class="promo-desc" style="font-size: 1.1rem; margin-bottom: 1.5rem;">{{ promo.subtitle }}</p>
+                                    <a href="{{ promo.button_url }}" class="btn btn-primary">{{ promo.button_text }}</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Direct Link -->
+                    <a href="{{ item.url }}" class="nav-link {% if request.path == item.url %}active{% endif %}">
+                        {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
+                        {{ item.title }}
+                    </a>
+                    {% endif %}
+                {% empty %}
+                    <a href="{% url 'home' %}" class="nav-link active">Home</a>
+                    <a href="{% url 'tours:destination_list' %}" class="nav-link">Destination</a>
+                    <a href="{% url 'about' %}" class="nav-link">Company</a>
+                    <a href="{% url 'tours:list' %}" class="nav-link">Tour</a>
+                    <a href="{% url 'chauffeur:hub' %}" class="nav-link">Transport</a>
+                    <a href="{% url 'contact' %}" class="nav-link">Contact</a>
+                {% endfor %}
+            </nav>              
+            
+            <!-- Action Buttons -->             
+            <div class="nav-actions">
+                {% if request.user.is_authenticated %}
+                <div class="user-profile-menu-wrapper" id="userProfileWrapper">
+                    <button type="button" class="user-profile-btn" id="userProfileTrigger" aria-expanded="false" aria-label="User profile menu" title="{{ request.user.get_full_name|default:request.user.username }}">
+                        {% if request.user.avatar_url %}
+                            <img src="{{ request.user.avatar_url }}" alt="Profile" class="user-avatar-img">
+                        {% else %}
+                            <span>{{ request.user.initials }}</span>
+                        {% endif %}
+                    </button>
+
+                    <!-- Dropdown Menu (Matches Screenshot 1) -->
+                    <div class="user-profile-dropdown" id="userProfileDropdown">
+                        <div class="dropdown-header">
+                            <div class="dropdown-avatar">
+                                {% if request.user.avatar_url %}
+                                    <img src="{{ request.user.avatar_url }}" alt="Profile" class="user-avatar-img">
+                                {% else %}
+                                    <span>{{ request.user.initials }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="dropdown-user-info">
+                                <h4 class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</h4>
+                                <p class="dropdown-user-email">{{ request.user.email }}</p>
+                            </div>
+                        </div>
+
+                        <ul class="dropdown-menu-list">
+                            <li>
+                                <a href="{% url 'accounts:my_bookings' %}" class="dropdown-item">
+                                    <i class="ph ph-bookmark-simple"></i>
+                                    <span>My Bookings</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'accounts:my_wishlist' %}" class="dropdown-item">
+                                    <i class="ph ph-heart"></i>
+                                    <span>My Wishlist</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'accounts:settings' %}" class="dropdown-item">
+                                    <i class="ph ph-gear"></i>
+                                    <span>Settings</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'faq' %}" class="dropdown-item">
+                                    <i class="ph-fill ph-info"></i>
+                                    <span>Help Center</span>
+                                </a>
+                            </li>
+                            {% if request.user.is_staff %}
+                            <li>
+                                <a href="/admin/" class="dropdown-item" style="color: #6366F1;">
+                                    <i class="ph ph-shield-check" style="color: #6366F1;"></i>
+                                    <span>Admin Portal</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="dropdown-divider"></li>
+                            <li>
+                                <a href="{% url 'accounts:logout' %}" class="dropdown-item" style="color: #EF4444;">
+                                    <i class="ph ph-power" style="color: #EF4444;"></i>
+                                    <span>Sign Out</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary">Log In / Sign Up</a>
+                {% endif %}
+            </div>
+            <button class="mobile-menu-toggle"><i class="ph-bold ph-list"></i></button>
+        </div>
+    </header>
+
+    {% block content %}
+    {% endblock %}
+
+    <!-- Newsletter CTA Section -->
+    <section class="newsletter-cta">
+        <div class="container">
+            <div class="newsletter-banner bg-primary">
+                <div class="newsletter-content">
+                    <h2 class="text-white font-bold" style="font-size: 2.2rem; line-height: 1.3;">Subscribe our newsletter to discount 10% off package.</h2>
+                </div>
+                <div class="newsletter-form-container">
+                    <form class="newsletter-form relative">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="submit-btn"><i class="ph-bold ph-paper-plane-tilt"></i></button>
+                    </form>
+                    <p class="text-white mt-3 mb-0" style="font-size: 0.85rem; opacity: 0.9;">
+                        <i class="ph-bold ph-check-circle text-green-500" style="background: white; border-radius: 50%; padding: 2px;"></i> Our guaranteed protection. Your information is safe.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pre-Footer Info Section -->
+    <section class="pre-footer-info">
+        <div class="container">
+            <div class="info-cards-grid">
+                <!-- Top Destinations Card -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3>Top Destinations</h3>
+                    </div>
+                    <div class="tags-grid">
+                        {% for dest in nav_destinations %}
+                        <a href="{% url 'tours:list' %}?destination={{ dest.slug }}" class="tag-pill" style="text-decoration: none; color: inherit;">
+                            <i class="ph-fill ph-flag"></i> {{ dest.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Popular Search Card -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <h3>Popular Search</h3>
+                    </div>
+                    <div class="tags-flex">
+                        {% for exp in nav_experiences %}
+                        <a href="{% url 'tours:list' %}?experience={{ exp.slug }}" class="tag-pill outline" style="text-decoration: none; color: inherit;">
+                            {{ exp.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% with promo=nav_promos.TOUR|default:nav_promos.DESTINATION %}
+                    {% if promo %}
+                    <div class="promo-banner bg-primary text-white" style="cursor: pointer;" onclick="window.location.href='{{ promo.button_url }}';">
+                        <div class="promo-discount">{{ promo.title }}</div>
+                        <div class="promo-text">{{ promo.subtitle|default:promo.description }}</div>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="experience-stats">
+                <h3 class="stats-heading">We've Real Experience!</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <h2 class="stat-num text-primary">{{ site_settings.stat_tours_completed }}</h2>
+                        <p class="stat-desc">Successfully Tour<br>Completed.</p>
+                    </div>
+                    <div class="stat-item">
+                        <h2 class="stat-num text-primary">{{ site_settings.stat_years_experience }}</h2>
+                        <p class="stat-desc">We've travel experience<br>{{ site_settings.stat_years_experience }} years.</p>
+                    </div>
+                    <div class="stat-item">
+                        <h2 class="stat-num text-primary">{{ site_settings.stat_happy_travelers }}</h2>
+                        <p class="stat-desc">{{ site_settings.stat_happy_travelers }} Happy travelers<br>worldwide.</p>
+                    </div>
+                    <div class="stat-item">
+                        <h2 class="stat-num text-primary">{{ site_settings.stat_satisfaction_rate }}</h2>
+                        <p class="stat-desc">We achieve traveler<br>satisfaction rate.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="footer-section">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- Column 1: Info -->
+                <div class="footer-col footer-info">
+                    <a href="{% url 'home' %}" class="footer-logo">
+                        <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo foote.jpeg' %}{% endif %}" alt="{{ site_settings.site_name }}" style="height: 90px; width: auto; object-fit: contain; border-radius: 8px;">
+                    </a>
+                    <h5 class="footer-agency-name">{{ site_settings.site_name }}</h5>
+                    <p class="footer-address">
+                        {{ site_settings.office_address }}<br>
+                        Tel: <a href="tel:{{ site_settings.contact_phone }}" style="color: inherit; text-decoration: none;">{{ site_settings.contact_phone }}</a><br>
+                        Email: <a href="mailto:{{ site_settings.contact_email }}" style="color: inherit; text-decoration: none;">{{ site_settings.contact_email }}</a>
+                    </p>
+                    <div class="footer-socials">
+                        {% if site_settings.facebook_url %}<a href="{{ site_settings.facebook_url }}" target="_blank"><i class="ph-fill ph-facebook-logo"></i></a>{% endif %}
+                        {% if site_settings.linkedin_url %}<a href="{{ site_settings.linkedin_url }}" target="_blank"><i class="ph-fill ph-linkedin-logo"></i></a>{% endif %}
+                        {% if site_settings.instagram_url %}<a href="{{ site_settings.instagram_url }}" target="_blank"><i class="ph-fill ph-instagram-logo"></i></a>{% endif %}
+                    </div>                                      </div>                  <!-- Column 2: Explore -->                 <div class="footer-col">                     <h4 class="footer-title">Explore</h4>                     <ul class="footer-links">                         <li><a href="{% url 'about' %}">About {{ site_settings.site_name }}</a></li>                         <li><a href="{% url 'tours:list' %}">Tours & Packages</a></li>                         <li><a href="{% url 'tours:destination_list' %}">Destinations</a></li>                         <li><a href="{% url 'chauffeur:hub' %}">VIP Chauffeur</a></li>                         <li><a href="{% url 'content:blog_list' %}">Travel Inspirations</a></li>                         <li><a href="{% url 'contact' %}">Contact Concierge</a></li>                     </ul>                 </div>                  <!-- Column 3: Services -->                 <div class="footer-col">                     <h4 class="footer-title">Services</h4>                     <ul class="footer-links">                         <li><a href="{% url 'chauffeur:hub' %}">Chauffeur Booking</a></li>                         <li><a href="{% url 'tours:list' %}">Arctic Safaris</a></li>                         <li><a href="{% url 'accounts:dashboard' %}">Guest Portal</a></li>                         <li><a href="{% url 'accounts:my_bookings' %}">My Bookings</a></li>                     </ul>                 </div>                  <!-- Column 4: Helpline -->                 <div class="footer-col">                     <h4 class="footer-title">Helpline</h4>                     <ul class="footer-links">                         <li><a href="{% url 'contact' %}">Help & Support</a></li>                         <li><a href="{% url 'faq' %}">FAQs & Policies</a></li>                         <li><a href="tel:{{ site_settings.contact_phone }}">24/7 VIP Emergency</a></li>                         <li><a href="/admin/">Executive Portal</a></li>                     </ul>                 </div>             </div>              <!-- Copyright -->             <div class="footer-bottom">                 <p class="copyright-text">{{ site_settings.copyright_text }}</p>                 <p class="legal-text" style="margin-bottom: 0.5rem; color: #FFFFFF;">Developed by <strong>Stradigtech</strong>.</p>                 <p class="legal-text">All travel services are provided in accordance with applicable international travel regulations, airline policies, visa requirements, and local tourism laws, ensuring transparency, reliability, and compliance throughout your journey.</p>             </div>         </div>                  <!-- Back to Top Button -->         <button class="back-to-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">             <i class="ph-bold ph-caret-up"></i>         </button>     </footer> 
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if(document.getElementById('heroDatePicker')){
+                flatpickr("#heroDatePicker", {
+                    dateFormat: "d F Y",
+                    minDate: "today",
+                    defaultDate: "2026-08-22"
+                });
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body> </html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment | Nord Velocity{% endblock %}
+
+{% block content %}
+<section class="booking-banner" style="background-color: #F8FAFC; padding: 3rem 0; margin-bottom: 2rem; border-radius: 0 0 40px 40px;">
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div class="breadcrumb" style="font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">
+                    <i class="ph-bold ph-house"></i> Home &bull; Tour Packages &bull; Tour Details &bull; Booking
+                </div>
+                <h1 style="font-size: 2.5rem; font-weight: 800; color: #0F172A; margin: 0;">Review your Booking</h1>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Stepper -->
+    <div class="container" style="margin-bottom: 3rem;">
+        <div class="booking-stepper" style="display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto; position: relative;">
+            <div style="position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: #E2E8F0; z-index: 1;"></div>
+            
+            <div class="step" style="text-align: center; z-index: 2; position: relative;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #EEF2FF; border: 2px solid #C7D2FE; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem auto; font-size: 0.9rem;">1</div>
+                <div style="font-weight: 700; color: #0F172A; font-size: 0.9rem;">Tour Review</div>
+            </div>
+            
+            <div class="step" style="text-align: center; z-index: 2; position: relative;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #EEF2FF; border: 2px solid #C7D2FE; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem auto; font-size: 0.9rem;">2</div>
+                <div style="font-weight: 700; color: #0F172A; font-size: 0.9rem;">Traveler Info</div>
+            </div>
+            
+            <div class="step active" style="text-align: center; z-index: 2; position: relative;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #4F46E5; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 0.5rem auto; font-size: 0.9rem;">3</div>
+                <div style="font-weight: 700; color: #4F46E5; font-size: 0.9rem;">Make Payment</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="booking-content" style="padding-bottom: 5rem;">
+        <div class="container">
+            <div>
+                
+                <!-- Left Column: Details -->
+                <div class="booking-left">
+    <h2 style="font-size: 1.5rem; font-weight: 800; color: #0F172A; margin-bottom: 1.5rem;">Payment options</h2>
+    
+    <!-- Credit or Debit Card -->
+    <div class="booking-card" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden; background: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #E2E8F0;">
+            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800;">Credit or Debit Card</h4>
+            <div style="display: flex; gap: 0.25rem;">
+                <!-- Logos placeholder -->
+                <div style="width: 36px; height: 24px; background: #E2E8F0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: #1E3A8A; border: 1px solid #CBD5E1;">VISA</div>
+                <div style="width: 36px; height: 24px; background: #E2E8F0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: #DC2626; border: 1px solid #CBD5E1;">MC</div>
+                <div style="width: 36px; height: 24px; background: #E2E8F0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: #0EA5E9; border: 1px solid #CBD5E1;">AMEX</div>
+            </div>
+        </div>
+        <div style="padding: 1.5rem;">
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">Card Number</label>
+                <div style="position: relative;">
+                    <input type="text" placeholder="XXXX XXXX XXXX XXXX" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F8FAFC; border-radius: 8px; font-size: 0.95rem; outline: none; border: 1px solid transparent;">
+                    <i class="ph-bold ph-credit-card" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #1E3A8A; font-size: 1.2rem;"></i>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">Expiration Month</label>
+                    <input type="text" placeholder="" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F8FAFC; border-radius: 8px; font-size: 0.95rem; outline: none;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">Expiration Year</label>
+                    <input type="text" placeholder="" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F8FAFC; border-radius: 8px; font-size: 0.95rem; outline: none;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">CVV / CVC</label>
+                    <input type="text" placeholder="XXX" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F8FAFC; border-radius: 8px; font-size: 0.95rem; outline: none;">
+                </div>
+            </div>
+            
+            <div>
+                <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">Name of the cardholder</label>
+                <input type="text" placeholder="" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F8FAFC; border-radius: 8px; font-size: 0.95rem; outline: none;">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pay with Paypal -->
+    <div class="booking-card" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 2rem; overflow: hidden; background: white;">
+        <div style="padding: 1.25rem 1.5rem;">
+            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem;">Pay with Paypal</h4>
+            <div style="text-align: center; padding: 1rem 0;">
+                <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i class="ph-fill ph-paypal-logo" style="font-size: 2.5rem; color: #003087;"></i>
+                    <span style="font-size: 2rem; font-weight: 900; color: #003087; font-style: italic;">PayPal</span>
+                </div>
+                <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.5rem;">Tips: Simply click on the payment button below to proceed to the PayPal payment page.</p>
+                <button class="btn" style="padding: 0.5rem 1.5rem; border-radius: 6px; border: 1px solid #4F46E5; color: #4F46E5; background: transparent; font-weight: 600;">Pay with Paypal</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer Buttons -->
+    <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+        <a href="{% url 'tours:list' %}" class="btn" style="background: #94A3B8; color: white; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; text-decoration: none;">Previous</a>
+        <button class="btn" style="padding: 0.8rem 2.5rem; border-radius: 8px; font-weight: 600; background-color: #FFFFFF; color: #0D6EFD; border: 1.5px solid #0D6EFD; cursor: pointer;">Pay now</button>
+    </div>
+</div>
+                <!-- Right Column: Summary -->
+                <div class="booking-right">
+                    
+                    <!-- Price Summary Card -->
+                    <div class="summary-card" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden;">
+                        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #E2E8F0; background: #F8FAFC;">
+                            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Price Summary</h4>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem;">
+                                <span style="color: #64748B;">Base Price</span>
+                                <span style="font-weight: 600;">&euro;1,660</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem;">
+                                <span style="color: #64748B; display: flex; align-items: center; gap: 0.5rem;">Total Discount <span style="background: #EF4444; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;">10% off</span></span>
+                                <span style="font-weight: 600; color: #10B981;">-&euro;160</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; font-size: 0.9rem; padding-bottom: 1.5rem; border-bottom: 1px solid #E2E8F0;">
+                                <span style="color: #64748B;">Taxes & Fees</span>
+                                <span style="font-weight: 600;">Included</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 800; font-size: 1.1rem;">Payable Now</span>
+                                <span style="font-weight: 900; font-size: 1.5rem; color: #0F172A;">&euro;1,500</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sign In Card -->
+                    <div class="summary-card" style="border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden;">
+                        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #E2E8F0; background: #F8FAFC;">
+                            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Sign In Now To Book An Online</h4>
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">Email id</label>
+                                <input type="email" placeholder="Enter your email" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F1F5F9; border-radius: 8px; font-size: 0.9rem; outline: none;">
+                            </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; font-size: 0.85rem; color: #64748B; margin-bottom: 0.5rem;">Mobile number</label>
+                                <input type="tel" placeholder="Enter your mobile number" style="width: 100%; padding: 0.75rem 1rem; border: none; background: #F1F5F9; border-radius: 8px; font-size: 0.9rem; outline: none;">
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                                <input type="checkbox" id="hasAccount" style="accent-color: #4F46E5;">
+                                <label for="hasAccount" style="font-size: 0.85rem; color: #64748B; cursor: pointer;">I Already Have Booking Account</label>
+                            </div>
+                            
+                            <button class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700; margin-bottom: 1.5rem;">Book as Guest</button>
+                            
+                            <div style="position: relative; text-align: center; margin-bottom: 1.5rem;">
+                                <hr style="border: none; border-top: 1px solid #E2E8F0; position: absolute; width: 100%; top: 50%; transform: translateY(-50%); z-index: 1;">
+                                <span style="background: white; padding: 0 10px; position: relative; z-index: 2; font-size: 0.75rem; color: #94A3B8;">Or via social media</span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem;">
+                                <button style="flex: 1; padding: 0.5rem; border-radius: 6px; border: none; background: #1877F2; color: white; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                                    <i class="ph-bold ph-facebook-logo"></i> Facebook
+                                </button>
+                                <button style="flex: 1; padding: 0.5rem; border-radius: 6px; border: none; background: #DB4437; color: white; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                                    <i class="ph-bold ph-google-logo"></i> Google
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+    </section>
+<!-- Footer Section -->     
+{% endblock %}

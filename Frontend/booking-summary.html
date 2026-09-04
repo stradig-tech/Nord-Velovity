@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout & Payment | {{ booking.booking_ref }} | Nord Velocity{% endblock %}
+
+{% block content %}
+<section style="background: #F8FAFC; padding-top: 3.5rem; padding-bottom: 5rem; min-height: 80vh;">
+    <div class="container" style="max-width: 1100px; margin: 0 auto; padding: 0 1rem;">
+        
+        <!-- Breadcrumb & Title -->
+        <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <span style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #4F46E5; letter-spacing: 0.5px;">Step 2 of 2: Review & Secure Checkout</span>
+                <h1 style="font-size: 2.2rem; font-weight: 800; color: #0F172A; margin: 0.25rem 0 0 0;">Booking Confirmation & Payment</h1>
+            </div>
+            <div style="background: #FFFFFF; border: 1px solid #E2E8F0; padding: 0.5rem 1rem; border-radius: 999px; font-weight: 700; color: #0F172A; font-size: 0.9rem;">
+                Reference: <span style="color: #4F46E5;">{{ booking.booking_ref }}</span>
+            </div>
+        </div>
+
+        {% if messages %}
+        <div style="margin-bottom: 1.5rem;">
+            {% for msg in messages %}
+            <div style="padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 0.75rem; font-weight: 600; font-size: 0.92rem; {% if msg.tags == 'success' %}background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0;{% else %}background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA;{% endif %}">
+                {{ msg }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div style="display: grid; grid-template-columns: 1fr 420px; gap: 2rem; align-items: start;">
+            
+            <!-- LEFT COLUMN: Payment Method Selector -->
+            <div>
+                <div style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 2rem; margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Choose Payment Method</h2>
+                    <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1.75rem;">Select your preferred method to complete or secure your reservation.</p>
+
+                    <!-- Payment Options Navigation (3 Tabs) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem;">
+                        <button type="button" id="tabStripeBtn" onclick="switchTab('stripe')" style="border: 2px solid #4F46E5; background: #EEF2FF; color: #4F46E5; padding: 0.85rem 0.5rem; border-radius: 14px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; transition: all 0.2s;">
+                            <i class="ph-bold ph-credit-card" style="font-size: 1.5rem;"></i>
+                            <span>Credit Card</span>
+                            <span style="font-size: 0.72rem; opacity: 0.85; font-weight: 500;">Stripe Online</span>
+                        </button>
+
+                        <button type="button" id="tabPaypalBtn" onclick="switchTab('paypal')" style="border: 1px solid #E2E8F0; background: #FFFFFF; color: #475569; padding: 0.85rem 0.5rem; border-radius: 14px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; transition: all 0.2s;">
+                            <i class="ph-bold ph-paypal-logo" style="font-size: 1.5rem; color: #003087;"></i>
+                            <span>PayPal</span>
+                            <span style="font-size: 0.72rem; opacity: 0.85; font-weight: 500;">Fast & Secure</span>
+                        </button>
+
+                        <button type="button" id="tabOfflineBtn" onclick="switchTab('offline')" style="border: 1px solid #E2E8F0; background: #FFFFFF; color: #475569; padding: 0.85rem 0.5rem; border-radius: 14px; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; transition: all 0.2s;">
+                            <i class="ph-bold ph-hand-coins" style="font-size: 1.5rem;"></i>
+                            <span>Pay Later</span>
+                            <span style="font-size: 0.72rem; opacity: 0.85; font-weight: 500;">Cash / Bank Wire</span>
+                        </button>
+                    </div>
+
+                    <!-- TAB 1: STRIPE ONLINE PAYMENT -->
+                    <div id="stripePaymentPanel" style="display: block;">
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <span style="font-weight: 700; font-size: 0.9rem; color: #0F172A;">Accepted Cards:</span>
+                                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                    <span style="background: #1A1F71; color: #FFF; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 0.75rem; font-style: italic;">VISA</span>
+                                    <span style="background: #EB001B; color: #FFF; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 0.75rem;">MC</span>
+                                    <span style="background: #0070CE; color: #FFF; padding: 3px 8px; border-radius: 4px; font-weight: 800; font-size: 0.75rem;">AMEX</span>
+                                    <span style="background: #000000; color: #FFF; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem;">Apple Pay</span>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.88rem; color: #64748B; line-height: 1.5; margin: 0;">
+                                You will be securely redirected to Stripe's encrypted payment gateway. Your credit card information is never stored on our servers.
+                            </p>
+                        </div>
+
+                        <button type="button" id="stripePayBtn" onclick="initiateStripeCheckout()" style="width: 100%; background: #4F46E5; color: #FFFFFF; border: none; padding: 1rem 1.5rem; border-radius: 12px; font-weight: 700; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background 0.2s;" onmouseover="this.style.background='#4338CA';" onmouseout="this.style.background='#4F46E5';">
+                            <i class="ph-bold ph-lock-key"></i>
+                            <span>Pay with Credit Card (&euro;{{ booking.total_amount }})</span>
+                        </button>
+                    </div>
+
+                    <!-- TAB 2: PAYPAL ONLINE PAYMENT -->
+                    <div id="paypalPaymentPanel" style="display: none;">
+                        <div style="background: #F0F4F8; border: 1px solid #D9E2EC; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
+                                <i class="ph-bold ph-paypal-logo" style="font-size: 2rem; color: #003087;"></i>
+                                <span style="font-weight: 800; font-size: 1.1rem; color: #003087;">PayPal Checkout</span>
+                            </div>
+                            <p style="font-size: 0.88rem; color: #486581; line-height: 1.5; margin: 0;">
+                                Safe and easy payment with your PayPal balance, linked bank account, or PayPal Credit. You will be redirected to PayPal to authorize the transaction.
+                            </p>
+                        </div>
+
+                        <button type="button" id="paypalPayBtn" onclick="initiatePayPalCheckout()" style="width: 100%; background: #FFC439; color: #111827; border: none; padding: 1rem 1.5rem; border-radius: 12px; font-weight: 800; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: opacity 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.06);" onmouseover="this.style.opacity='0.9';" onmouseout="this.style.opacity='1';">
+                            <i class="ph-bold ph-paypal-logo" style="font-size: 1.4rem; color: #003087;"></i>
+                            <span>Pay with PayPal (&euro;{{ booking.total_amount }})</span>
+                        </button>
+                    </div>
+
+                    <!-- TAB 2: OFFLINE PAYMENT (PAY ON ARRIVAL / BANK WIRE) -->
+                    <div id="offlinePaymentPanel" style="display: none;">
+                        <form method="post" action="{% url 'payments:offline' booking.id %}">
+                            {% csrf_token %}
+
+                            <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 14px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                                <h4 style="color: #166534; font-size: 1rem; font-weight: 800; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                                    <i class="ph-bold ph-shield-check"></i> Reservation Held Instantly
+                                </h4>
+                                <p style="color: #15803D; font-size: 0.86rem; line-height: 1.45; margin: 0;">
+                                    Your seats and itinerary will be reserved immediately in our system. You can complete the payment using one of the offline options below.
+                                </p>
+                            </div>
+
+                            <!-- Offline Option 1: Cash on Arrival -->
+                            <div style="border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; cursor: pointer;" onclick="document.getElementById('optCash').checked = true;">
+                                <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                                    <input type="radio" name="offline_method" value="OFFLINE" id="optCash" checked style="margin-top: 0.25rem;">
+                                    <div>
+                                        <strong style="color: #0F172A; font-size: 0.95rem; display: block;">💵 Pay on Arrival / Cash to Chauffeur</strong>
+                                        <span style="font-size: 0.85rem; color: #64748B; display: block; margin-top: 0.2rem;">
+                                            Pay in cash (EUR) or with credit card directly upon meeting your private driver or Arctic tour guide.
+                                        </span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Offline Option 2: Bank Transfer -->
+                            <div style="border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; cursor: pointer;" onclick="document.getElementById('optBank').checked = true;">
+                                <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                                    <input type="radio" name="offline_method" value="BANK_TRANSFER" id="optBank" style="margin-top: 0.25rem;">
+                                    <div style="flex: 1;">
+                                        <strong style="color: #0F172A; font-size: 0.95rem; display: block;">🏦 Bank Wire Transfer (SEPA / IBAN)</strong>
+                                        <span style="font-size: 0.85rem; color: #64748B; display: block; margin-top: 0.2rem;">
+                                            Transfer funds within 48 hours referencing your booking ID.
+                                        </span>
+                                        
+                                        <!-- Bank details accordion preview -->
+                                        <div style="background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 8px; padding: 0.75rem; margin-top: 0.75rem; font-size: 0.82rem; color: #334155;">
+                                            <div><strong>Bank:</strong> {{ site_settings.bank_name|default:"Nordea Bank Finland" }}</div>
+                                            <div><strong>Account:</strong> {{ site_settings.bank_account_name|default:"Nord Velocity Oy" }}</div>
+                                            <div><strong>IBAN:</strong> <span style="font-family: monospace; font-weight: 700;">{{ site_settings.bank_iban|default:"FI12 3456 7890 1234 56" }}</span></div>
+                                            <div><strong>SWIFT / BIC:</strong> <span style="font-family: monospace; font-weight: 700;">{{ site_settings.bank_swift_bic|default:"NDEAFIFH" }}</span></div>
+                                            <div><strong>Reference:</strong> <span style="font-family: monospace; font-weight: 700; color: #4F46E5;">{{ booking.booking_ref }}</span></div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Customer Notes for Chauffeur/Concierge -->
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="font-size: 0.85rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 0.35rem;">
+                                    Special Payment Notes (Optional)
+                                </label>
+                                <textarea name="customer_payment_notes" rows="2" placeholder="e.g., Will pay exact cash in EUR at Helsinki airport meetup..." style="width: 100%; border: 1px solid #CBD5E1; border-radius: 8px; padding: 0.6rem 0.8rem; font-size: 0.88rem; outline: none; font-family: inherit;"></textarea>
+                            </div>
+
+                            <button type="submit" style="width: 100%; background: #0F172A; color: #FFFFFF; border: none; padding: 1rem 1.5rem; border-radius: 12px; font-weight: 700; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background 0.2s;" onmouseover="this.style.background='#1E293B';" onmouseout="this.style.background='#0F172A';">
+                                <i class="ph-bold ph-check-circle"></i>
+                                <span>Confirm Booking (Pay Offline)</span>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Order Summary & Coupon -->
+            <div>
+                <!-- Trip Summary Card -->
+                <div style="background: #FFFFFF; border-radius: 20px; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 1.75rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 1.25rem; border-bottom: 1px solid #F1F5F9; padding-bottom: 0.75rem;">
+                        Trip Summary
+                    </h3>
+
+                    {% if tour_booking %}
+                    <!-- Tour Booking Details -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <h4 style="font-size: 1.1rem; font-weight: 800; color: #0F172A; margin-bottom: 0.35rem; line-height: 1.35;">
+                            {{ tour_booking.tour.title }}
+                        </h4>
+                        <div style="font-size: 0.85rem; color: #64748B; display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.5rem;">
+                            <i class="ph-fill ph-map-pin" style="color: #4F46E5;"></i>
+                            <span>{{ tour_booking.tour.destination.name }}, {{ tour_booking.tour.destination.country.name }}</span>
+                        </div>
+                    </div>
+
+                    <div style="background: #F8FAFC; border-radius: 12px; padding: 1rem; font-size: 0.88rem; color: #475569; display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Departure Date:</span>
+                            <strong style="color: #0F172A;">{{ tour_booking.tour_date.start_date|date:"D, d M Y" }}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Guests:</span>
+                            <strong style="color: #0F172A;">{{ tour_booking.adults }} Adult{{ tour_booking.adults|pluralize }}{% if tour_booking.children %}, {{ tour_booking.children }} Child{{ tour_booking.children|pluralize }}{% endif %}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Duration:</span>
+                            <strong style="color: #0F172A;">{{ tour_booking.tour.duration_text }}</strong>
+                        </div>
+                    </div>
+                    {% elif chauffeur_booking %}
+                    <!-- Chauffeur Booking Details -->
+                    <div style="margin-bottom: 1.25rem;">
+                        <span style="display: inline-block; background: #EEF2FF; color: #4F46E5; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+                            Private Chauffeur Service
+                        </span>
+                        <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 0.35rem; line-height: 1.35;">
+                            {{ chauffeur_booking.vehicle.vehicle_class.name }} &bull; {{ chauffeur_booking.vehicle.name }}
+                        </h4>
+                        <div style="font-size: 0.85rem; color: #64748B; display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.5rem;">
+                            <i class="ph-bold ph-shield-check" style="color: #10B981;"></i>
+                            <span>Luggage: {{ chauffeur_booking.luggage_count }} bags &bull; Up to {{ chauffeur_booking.passenger_count }} Guests</span>
+                        </div>
+                    </div>
+
+                    <div style="background: #F8FAFC; border-radius: 12px; padding: 1rem; font-size: 0.88rem; color: #475569; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; border: 1px solid #E2E8F0;">
+                        <div>
+                            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #64748B; margin-bottom: 0.15rem;">Pick-up Location</div>
+                            <strong style="color: #0F172A; display: flex; align-items: center; gap: 0.35rem;">
+                                <i class="ph-bold ph-map-pin" style="color: #4F46E5;"></i> {{ chauffeur_booking.pickup_address }}
+                            </strong>
+                        </div>
+                        <div style="border-top: 1px dashed #CBD5E1; padding-top: 0.4rem;">
+                            <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #64748B; margin-bottom: 0.15rem;">Drop-off Destination</div>
+                            <strong style="color: #0F172A; display: flex; align-items: center; gap: 0.35rem;">
+                                <i class="ph-bold ph-flag" style="color: #EF4444;"></i> {{ chauffeur_booking.dropoff_address|default:chauffeur_booking.destination_address }}
+                            </strong>
+                        </div>
+                        <div style="border-top: 1px dashed #CBD5E1; padding-top: 0.4rem; display: flex; justify-content: space-between;">
+                            <span>Pickup Schedule:</span>
+                            <strong style="color: #0F172A;">{{ chauffeur_booking.pickup_datetime|date:"D, d M Y - H:i" }}</strong>
+                        </div>
+                        {% if chauffeur_booking.return_datetime %}
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Return Schedule:</span>
+                            <strong style="color: #0F172A;">{{ chauffeur_booking.return_datetime|date:"D, d M Y - H:i" }}</strong>
+                        </div>
+                        {% endif %}
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Journey Type:</span>
+                            <strong style="color: #4F46E5;">{% if chauffeur_booking.is_return %}Round Trip{% else %}One Way{% endif %}</strong>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Guest Details -->
+                    <div style="margin-bottom: 1.5rem; border-top: 1px solid #F1F5F9; padding-top: 1rem; font-size: 0.88rem;">
+                        <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #94A3B8; display: block; margin-bottom: 0.5rem;">Lead Traveler</span>
+                        <div style="color: #0F172A; font-weight: 700;">{{ booking.customer.get_full_name|default:booking.customer.email }}</div>
+                        <div style="color: #64748B; font-size: 0.82rem;">{{ booking.customer.email }}</div>
+                        {% if booking.customer.phone %}<div style="color: #64748B; font-size: 0.82rem;">{{ booking.customer.phone }}</div>{% endif %}
+                    </div>
+
+                    <!-- Price Calculations -->
+                    <div style="border-top: 1px solid #F1F5F9; padding-top: 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.92rem; color: #64748B; margin-bottom: 0.5rem;">
+                            <span>Subtotal:</span>
+                            <span style="font-weight: 600; color: #0F172A;">&euro;{{ booking.subtotal }}</span>
+                        </div>
+
+                        {% if booking.discount_amount > 0 %}
+                        <div style="display: flex; justify-content: space-between; font-size: 0.92rem; color: #10B981; margin-bottom: 0.5rem;">
+                            <span>Coupon Discount ({{ booking.coupon.code }}):</span>
+                            <span style="font-weight: 700;">-&euro;{{ booking.discount_amount }}</span>
+                        </div>
+                        {% endif %}
+
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 2px dashed #E2E8F0; padding-top: 1rem; margin-top: 0.75rem;">
+                            <span style="font-size: 1.1rem; font-weight: 800; color: #0F172A;">Total Amount:</span>
+                            <span style="font-size: 1.8rem; font-weight: 800; color: #10B981;">&euro;{{ booking.total_amount }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promo Coupon Form -->
+                <div style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E2E8F0; padding: 1.25rem;">
+                    <span style="font-size: 0.82rem; font-weight: 700; color: #0F172A; display: block; margin-bottom: 0.5rem;">
+                        Have a Promo Code?
+                    </span>
+                    <form method="post" action="{% url 'bookings:summary' booking.booking_ref %}" style="display: flex; gap: 0.5rem;">
+                        {% csrf_token %}
+                        <input type="text" name="coupon_code" placeholder="e.g. WINTER2026" required style="flex: 1; border: 1px solid #CBD5E1; border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.88rem; outline: none; text-transform: uppercase; font-weight: 600;">
+                        <button type="submit" name="apply_coupon" value="1" style="background: #0F172A; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                            Apply
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(tab) {
+    const stripeBtn = document.getElementById('tabStripeBtn');
+    const paypalBtn = document.getElementById('tabPaypalBtn');
+    const offlineBtn = document.getElementById('tabOfflineBtn');
+
+    const stripePanel = document.getElementById('stripePaymentPanel');
+    const paypalPanel = document.getElementById('paypalPaymentPanel');
+    const offlinePanel = document.getElementById('offlinePaymentPanel');
+
+    // Reset all tabs
+    [stripeBtn, paypalBtn, offlineBtn].forEach(b => {
+        b.style.border = '1px solid #E2E8F0';
+        b.style.background = '#FFFFFF';
+        b.style.color = '#475569';
+    });
+    [stripePanel, paypalPanel, offlinePanel].forEach(p => p.style.display = 'none');
+
+    if (tab === 'stripe') {
+        stripeBtn.style.border = '2px solid #4F46E5';
+        stripeBtn.style.background = '#EEF2FF';
+        stripeBtn.style.color = '#4F46E5';
+        stripePanel.style.display = 'block';
+    } else if (tab === 'paypal') {
+        paypalBtn.style.border = '2px solid #003087';
+        paypalBtn.style.background = '#F0F4F8';
+        paypalBtn.style.color = '#003087';
+        paypalPanel.style.display = 'block';
+    } else {
+        offlineBtn.style.border = '2px solid #0F172A';
+        offlineBtn.style.background = '#F8FAFC';
+        offlineBtn.style.color = '#0F172A';
+        offlinePanel.style.display = 'block';
+    }
+}
+
+async function initiatePayPalCheckout() {
+    const btn = document.getElementById('paypalPayBtn');
+    btn.innerHTML = '<i class="ph-bold ph-spinner" style="animation: spin 1s linear infinite;"></i> Connecting to PayPal...';
+    btn.disabled = true;
+    try {
+        const res = await fetch('/payments/paypal/create/{{ booking.id }}/');
+        const data = await res.json();
+        if (data.approve_url) {
+            window.location.href = data.approve_url;
+        } else {
+            alert(data.error || 'Failed to initiate PayPal checkout.');
+            btn.innerHTML = '<i class="ph-bold ph-paypal-logo" style="font-size: 1.4rem; color: #003087;"></i> Pay with PayPal (&euro;{{ booking.total_amount }})';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        alert('Network error connecting to PayPal.');
+        btn.innerHTML = '<i class="ph-bold ph-paypal-logo" style="font-size: 1.4rem; color: #003087;"></i> Pay with PayPal (&euro;{{ booking.total_amount }})';
+        btn.disabled = false;
+    }
+}
+
+async function initiateStripeCheckout() {
+    const btn = document.getElementById('stripePayBtn');
+    btn.innerHTML = '<i class="ph-bold ph-spinner" style="animation: spin 1s linear infinite;"></i> Redirecting to Stripe...';
+    btn.disabled = true;
+    try {
+        const res = await fetch('/payments/checkout/{{ booking.id }}/');
+        const data = await res.json();
+        if (data.checkout_url) {
+            window.location.href = data.checkout_url;
+        } else {
+            alert(data.error || 'Failed to initiate payment.');
+            btn.innerHTML = '<i class="ph-bold ph-lock-key"></i> Pay with Stripe (&euro;{{ booking.total_amount }})';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        alert('Network error connecting to Stripe gateway.');
+        btn.innerHTML = '<i class="ph-bold ph-lock-key"></i> Pay with Stripe (&euro;{{ booking.total_amount }})';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

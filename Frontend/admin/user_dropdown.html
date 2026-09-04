@@ -1,0 +1,104 @@
+{% load static %}
+<div class="admin-profile-dropdown-wrapper" style="position: relative; display: inline-block;">
+    <!-- Profile Button (Toggle) -->
+    <button type="button" id="adminUserDropdownToggle" aria-expanded="false" aria-haspopup="true" style="background: transparent; border: 1px solid transparent; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.75rem 0.35rem 0.5rem; border-radius: 999px; transition: all 0.2s ease; outline: none; font-family: inherit;" onmouseover="if(!this.classList.contains('active')){ this.style.background='#F1F5F9'; this.style.borderColor='#E2E8F0'; }" onmouseout="if(!this.classList.contains('active')){ this.style.background='transparent'; this.style.borderColor='transparent'; }">
+        {% if request.user.avatar_url %}
+        <img src="{{ request.user.avatar_url }}" alt="{{ request.user.get_full_name|default:request.user.email }}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #CBD5E1; flex-shrink: 0;">
+        {% else %}
+        <div style="width: 38px; height: 38px; border-radius: 50%; background: #4F46E5; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; flex-shrink: 0;">
+            {{ request.user.first_name|first|default:request.user.email|first|upper|default:"A" }}
+        </div>
+        {% endif %}
+        <div style="text-align: left;">
+            <span style="display: block; font-weight: 700; font-size: 0.9rem; color: #0F172A; line-height: 1.2;">{{ request.user.get_full_name|default:request.user.email }}</span>
+            <span style="display: block; font-size: 0.75rem; color: #10B981; font-weight: 600; line-height: 1.2;">Superuser / Admin</span>
+        </div>
+        <i class="ph-bold ph-caret-down" id="adminUserDropdownCaret" style="color: #64748B; font-size: 0.85rem; transition: transform 0.2s ease; margin-left: 0.25rem;"></i>
+    </button>
+
+    <!-- Dropdown Menu Box -->
+    <div id="adminUserDropdownMenu" style="display: none; position: absolute; top: calc(100% + 8px); right: 0; width: 230px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08); z-index: 1000; overflow: hidden;">
+        <!-- Header Info -->
+        <div style="padding: 0.9rem 1.15rem; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+            <p style="margin: 0; font-size: 0.72rem; color: #64748B; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Signed in as</p>
+            <p style="margin: 0.2rem 0 0 0; font-weight: 700; font-size: 0.85rem; color: #0F172A; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ request.user.email }}</p>
+        </div>
+
+        <div style="padding: 0.4rem;">
+            <!-- View Profile -->
+            <a href="{% url 'admin:accounts_customuser_change' request.user.pk %}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; color: #1E293B; text-decoration: none; transition: background 0.15s ease;" onmouseover="this.style.background='#F1F5F9';" onmouseout="this.style.background='transparent';">
+                <i class="ph-bold ph-user-circle" style="font-size: 1.2rem; color: #4F46E5;"></i>
+                <span>View Profile</span>
+            </a>
+
+            <!-- Live Site -->
+            <a href="{% url 'home' %}" target="_blank" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; color: #1E293B; text-decoration: none; transition: background 0.15s ease;" onmouseover="this.style.background='#F1F5F9';" onmouseout="this.style.background='transparent';">
+                <i class="ph-bold ph-arrow-square-out" style="font-size: 1.2rem; color: #0EA5E9;"></i>
+                <span>Live Site</span>
+            </a>
+        </div>
+
+        <!-- Divider -->
+        <div style="border-top: 1px solid #E2E8F0; margin: 0.2rem 0;"></div>
+
+        <!-- Log Out -->
+        <div style="padding: 0.4rem;">
+            <form method="post" action="{% url 'admin:logout' %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" style="width: 100%; display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; color: #EF4444; background: transparent; border: none; cursor: pointer; text-align: left; font-family: inherit; transition: background 0.15s ease;" onmouseover="this.style.background='#FEF2F2';" onmouseout="this.style.background='transparent';">
+                    <i class="ph-bold ph-sign-out" style="font-size: 1.2rem; color: #EF4444;"></i>
+                    <span>Log Out</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const toggleBtn = document.getElementById('adminUserDropdownToggle');
+    const menu = document.getElementById('adminUserDropdownMenu');
+    const caret = document.getElementById('adminUserDropdownCaret');
+    if (!toggleBtn || !menu) return;
+
+    function openMenu() {
+        menu.style.display = 'block';
+        toggleBtn.classList.add('active');
+        toggleBtn.style.background = '#F1F5F9';
+        toggleBtn.style.borderColor = '#E2E8F0';
+        toggleBtn.setAttribute('aria-expanded', 'true');
+        if (caret) caret.style.transform = 'rotate(180deg)';
+    }
+
+    function closeMenu() {
+        menu.style.display = 'none';
+        toggleBtn.classList.remove('active');
+        toggleBtn.style.background = 'transparent';
+        toggleBtn.style.borderColor = 'transparent';
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        if (caret) caret.style.transform = 'rotate(0deg)';
+    }
+
+    toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (menu.style.display === 'block') {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!menu.contains(e.target) && !toggleBtn.contains(e.target)) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeMenu();
+        }
+    });
+})();
+</script>

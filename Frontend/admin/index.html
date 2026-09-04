@@ -1,0 +1,368 @@
+{% extends 'admin-base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Overview | Nord Velocity Administration{% endblock %}
+
+{% block admin_content %}
+<div class="admin-content-inner">
+    
+    <!-- Header with Quick Action Buttons -->
+    <div class="admin-page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.85rem; font-weight: 800; color: #0F172A; margin: 0 0 0.25rem 0;">Executive Management Dashboard</h2>
+            <p style="font-size: 0.95rem; color: #64748B; margin: 0;">Welcome back, <strong>{{ request.user.get_full_name|default:request.user.email }}</strong>. Real-time platform metrics and operations.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <a href="/admin/tours/tour/add/" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-weight: 600; font-size: 0.9rem; border-radius: 8px; text-decoration: none;">
+                <i class="ph-bold ph-plus-circle"></i> Add Tour
+            </a>
+            <a href="/admin/bookings/booking/add/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-weight: 600; font-size: 0.9rem; border-radius: 8px; text-decoration: none; background: #6366F1; color: white;">
+                <i class="ph-bold ph-calendar-plus"></i> New Booking
+            </a>
+            <a href="/admin/chauffeur/vehicle/add/" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; font-weight: 600; font-size: 0.9rem; border-radius: 8px; text-decoration: none; background: #0F172A; color: white;">
+                <i class="ph-bold ph-car-profile"></i> Add Vehicle
+            </a>
+        </div>
+    </div>
+    
+    <!-- 4 Stat Cards Row -->
+    <div class="admin-stats-row">
+        <!-- Card 1 (Yellow) -->
+        <div class="admin-stat-card card-yellow">
+            <div class="stat-info">
+                <h3>{{ total_tours|default:"4" }}</h3>
+                <p>Total Tours Available</p>
+            </div>
+            <div class="stat-icon">
+                <i class="ph-fill ph-suitcase"></i>
+            </div>
+        </div>
+        
+        <!-- Card 2 (Green) -->
+        <div class="admin-stat-card card-green">
+            <div class="stat-info">
+                <h3>{{ site_settings.currency_symbol }}{{ total_income|default:"0"|floatformat:0 }}</h3>
+                <p>Total Confirmed Revenue</p>
+            </div>
+            <div class="stat-icon">
+                <i class="ph-fill ph-money"></i>
+            </div>
+        </div>
+        
+        <!-- Card 3 (Purple) -->
+        <div class="admin-stat-card card-purple">
+            <div class="stat-info">
+                <h3>{{ total_vehicles|default:"3" }}</h3>
+                <p>VIP Chauffeur Fleet</p>
+            </div>
+            <div class="stat-icon">
+                <i class="ph-fill ph-car"></i>
+            </div>
+        </div>
+        
+        <!-- Card 4 (Teal) -->
+        <div class="admin-stat-card card-teal">
+            <div class="stat-info">
+                <h3>{{ total_bookings|default:"0" }}</h3>
+                <p>Bookings ({{ pending_bookings|default:"0" }} Pending)</p>
+            </div>
+            <div class="stat-icon">
+                <i class="ph-fill ph-check-circle"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popular Packages Section -->
+    <div class="admin-section" style="margin-top: 2rem;">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin: 0;">Featured Arctic Packages</h3>
+            <a href="/admin/tours/tour/" class="view-all" style="color: #4F46E5; font-weight: 600; text-decoration: none; font-size: 0.9rem;">Manage All Tours &rarr;</a>
+        </div>
+        
+        <div class="popular-packages-grid">
+            {% if popular_tours %}
+                {% for tour in popular_tours %}
+                <div class="admin-package-card">
+                    {% if tour.media.first %}
+                        <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" style="width: 100%; height: 160px; object-fit: cover;">
+                    {% else %}
+                        <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" style="width: 100%; height: 160px; object-fit: cover;">
+                    {% endif %}
+                    <div class="package-details">
+                        <div class="title-row">
+                            <h4>{{ tour.title }}</h4>
+                            <a href="{% url 'tours:detail' tour.slug %}" target="_blank" title="View Public Page" style="color: #64748B;"><i class="ph-bold ph-arrow-square-out"></i></a>
+                        </div>
+                        <p class="location"><i class="ph-fill ph-map-pin"></i> {{ tour.destination.name }}, Finland &middot; {{ tour.duration_text }}</p>
+                        <div class="price-actions">
+                            <p class="price"><strong>{{ site_settings.currency_symbol }}{{ tour.pricing.first.price|default:"950"|floatformat:0 }}</strong> /person</p>
+                            <div class="action-btns">
+                                <a href="/admin/tours/tour/{{ tour.id }}/change/" class="btn-edit" title="Edit in Django Admin"><i class="ph-bold ph-pencil-simple"></i></a>
+                                <a href="/admin/tours/tourdate/?tour__id__exact={{ tour.id }}" class="btn-edit" title="Manage Departure Dates"><i class="ph-bold ph-calendar"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #64748B;">No tours created yet. <a href="/admin/tours/tour/add/">Click here to add your first tour.</a></p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="admin-charts-row" style="margin-top: 2rem;">
+        <!-- Left Line Chart -->
+        <div class="admin-card chart-container">
+            <h3 class="card-title">Booking Velocity & Inquiries</h3>
+            <div class="chart-legend">
+                <span class="legend-item"><span class="color-box purple"></span> Confirmed Bookings</span>
+                <span class="legend-item"><span class="color-box teal"></span> Inquiries & Leads</span>
+            </div>
+            <div style="height: 280px; width: 100%; position: relative;">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Right Donut Chart -->
+        <div class="admin-card chart-container">
+            <h3 class="card-title">Booking Status Distribution</h3>
+            <div style="height: 220px; display: flex; justify-content: center; align-items: center;">
+                <canvas id="availabilityChart"></canvas>
+            </div>
+            <div class="donut-legend">
+                <div class="legend-row">
+                    <span><span class="color-box green"></span> Confirmed Bookings</span>
+                    <strong>{{ confirmed_bookings|default:"0" }}</strong>
+                </div>
+                <div class="legend-row">
+                    <span><span class="color-box red"></span> Pending / In Review</span>
+                    <strong>{{ pending_bookings|default:"0" }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom 2 Columns: Recent Bookings & App Operations Directory -->
+    <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.5rem; margin-top: 2rem;">
+        
+        <!-- Recent Bookings Table -->
+        <div class="admin-card" style="background: white; border-radius: 16px; padding: 1.75rem; border: 1px solid #E2E8F0;">
+            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 class="card-title" style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #0F172A;">Recent Bookings</h3>
+                <a href="/admin/bookings/booking/" class="view-all" style="color: #4F46E5; font-weight: 600; text-decoration: none; font-size: 0.85rem;">View All Bookings &rarr;</a>
+            </div>
+            
+            <div class="table-responsive">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #E2E8F0; text-align: left; color: #64748B;">
+                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Reference</th>
+                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Customer</th>
+                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Amount</th>
+                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Status</th>
+                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recent_bookings %}
+                            {% for b in recent_bookings %}
+                            <tr style="border-bottom: 1px solid #F1F5F9;">
+                                <td style="padding: 0.75rem 0.5rem; font-weight: 700; color: #0F172A;">{{ b.booking_ref }}</td>
+                                <td style="padding: 0.75rem 0.5rem; color: #475569;">{{ b.customer.get_full_name|default:b.customer.email|truncatechars:20 }}</td>
+                                <td style="padding: 0.75rem 0.5rem; font-weight: 600; color: #0F172A;">{{ site_settings.currency_symbol }}{{ b.total_amount|floatformat:2 }}</td>
+                                <td style="padding: 0.75rem 0.5rem;">
+                                    {% if b.status == 'CONFIRMED' %}
+                                    <span style="padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: #ECFDF5; color: #065F46;">Confirmed</span>
+                                    {% elif b.status == 'PENDING' %}
+                                    <span style="padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: #FEF3C7; color: #92400E;">Pending</span>
+                                    {% else %}
+                                    <span style="padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: #FEF2F2; color: #991B1B;">{{ b.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 0.75rem 0.5rem;">
+                                    <a href="/admin/bookings/booking/{{ b.id }}/change/" style="color: #4F46E5; font-weight: 600; text-decoration: none; font-size: 0.85rem;">Edit</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" style="padding: 1.5rem; text-align: center; color: #64748B;">No reservations recorded yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- App Operations Directory (Django Models Navigation) -->
+        <div class="admin-card" style="background: white; border-radius: 16px; padding: 1.75rem; border: 1px solid #E2E8F0;">
+            <h3 class="card-title" style="margin: 0 0 1.25rem 0; font-size: 1.2rem; font-weight: 700; color: #0F172A;">Database Model Directory</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 480px; overflow-y: auto; padding-right: 0.5rem;">
+                <!-- Tours App -->
+                <div style="padding: 0.85rem 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #0F172A; font-size: 0.95rem;"><i class="ph-bold ph-compass" style="color: #F59E0B; margin-right: 0.4rem;"></i> Tours & Catalog</span>
+                        <a href="/admin/tours/tour/add/" style="font-size: 0.8rem; font-weight: 600; color: #4F46E5; text-decoration: none;">+ Add Tour</a>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="/admin/tours/tour/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Tours</a>
+                        <a href="/admin/tours/tourdate/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Dates & Seats</a>
+                        <a href="/admin/tours/destination/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Destinations</a>
+                        <a href="/admin/tours/tourreview/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Reviews</a>
+                    </div>
+                </div>
+
+                <!-- Chauffeur App -->
+                <div style="padding: 0.85rem 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #0F172A; font-size: 0.95rem;"><i class="ph-bold ph-car" style="color: #EC4899; margin-right: 0.4rem;"></i> Chauffeur & VIP</span>
+                        <a href="/admin/chauffeur/vehicle/add/" style="font-size: 0.8rem; font-weight: 600; color: #4F46E5; text-decoration: none;">+ Add Vehicle</a>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="/admin/chauffeur/vehicle/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Vehicles</a>
+                        <a href="/admin/chauffeur/vehicleclass/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Classes</a>
+                        <a href="/admin/chauffeur/fixedroute/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Fixed Routes</a>
+                        <a href="/admin/chauffeur/pricingrule/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Pricing Rates</a>
+                    </div>
+                </div>
+
+                <!-- Bookings App -->
+                <div style="padding: 0.85rem 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #0F172A; font-size: 0.95rem;"><i class="ph-bold ph-calendar-check" style="color: #10B981; margin-right: 0.4rem;"></i> Reservations</span>
+                        <a href="/admin/bookings/booking/add/" style="font-size: 0.8rem; font-weight: 600; color: #4F46E5; text-decoration: none;">+ Add Booking</a>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="/admin/bookings/booking/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">All Bookings</a>
+                        <a href="/admin/bookings/tourbooking/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Tour Bookings</a>
+                        <a href="/admin/bookings/guestinfo/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Guests</a>
+                    </div>
+                </div>
+
+                <!-- Platform Core Settings -->
+                <div style="padding: 0.85rem 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #0F172A; font-size: 0.95rem;"><i class="ph-bold ph-gear" style="color: #64748B; margin-right: 0.4rem;"></i> Settings & Support</span>
+                        <a href="/admin/core/sitesetting/1/change/" style="font-size: 0.8rem; font-weight: 600; color: #4F46E5; text-decoration: none;">Edit Settings</a>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="/admin/core/sitesetting/1/change/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Site Config</a>
+                        <a href="/admin/core/faqitem/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">FAQs</a>
+                        <a href="/admin/core/testimonial/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Testimonials</a>
+                        <a href="/admin/core/contactsubmission/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Inquiries</a>
+                    </div>
+                </div>
+
+                <!-- Payments & Content -->
+                <div style="padding: 0.85rem 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #0F172A; font-size: 0.95rem;"><i class="ph-bold ph-credit-card" style="color: #3B82F6; margin-right: 0.4rem;"></i> Finance & Marketing</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="/admin/payments/coupon/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Coupons</a>
+                        <a href="/admin/content/blogpost/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">Blog Posts</a>
+                        <a href="/admin/accounts/customuser/" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 6px; background: white; border: 1px solid #CBD5E1; color: #334155; text-decoration: none;">User Accounts</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Chart 1: Guest Activity Line Chart
+    const activityCtx = document.getElementById('activityChart').getContext('2d');
+    
+    let gradientPurple = activityCtx.createLinearGradient(0, 0, 0, 280);
+    gradientPurple.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+    gradientPurple.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+    
+    let gradientTeal = activityCtx.createLinearGradient(0, 0, 0, 280);
+    gradientTeal.addColorStop(0, 'rgba(20, 184, 166, 0.4)');
+    gradientTeal.addColorStop(1, 'rgba(20, 184, 166, 0.0)');
+
+    new Chart(activityCtx, {
+        type: 'line',
+        data: {
+            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            datasets: [
+                {
+                    label: 'Confirmed Bookings',
+                    data: [12, 19, 15, 25, 22, 38, 35],
+                    borderColor: '#6366F1',
+                    backgroundColor: gradientPurple,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#6366F1'
+                },
+                {
+                    label: 'Inquiries',
+                    data: [8, 12, 20, 14, 18, 28, 24],
+                    borderColor: '#14B8A6',
+                    backgroundColor: gradientTeal,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#14B8A6'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#94a3b8', font: {size: 11} },
+                    border: { display: false },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: {
+                    ticks: { color: '#94a3b8', font: {size: 11} },
+                    border: { display: false },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // Chart 2: Booking Status Donut Chart
+    const availCtx = document.getElementById('availabilityChart').getContext('2d');
+    const confirmedCount = {{ confirmed_bookings|default:"1" }};
+    const pendingCount = {{ pending_bookings|default:"1" }};
+
+    new Chart(availCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Confirmed', 'Pending'],
+            datasets: [{
+                data: [confirmedCount, pendingCount],
+                backgroundColor: ['#10B981', '#F59E0B'],
+                borderWidth: 0,
+                cutout: '75%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+            }
+        }
+    });
+</script>
+{% endblock %}

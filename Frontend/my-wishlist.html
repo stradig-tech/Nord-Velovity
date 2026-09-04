@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Saved Tours | Nord Velocity{% endblock %}
+
+{% block content %}
+<section class="dashboard" style="padding: 3rem 0; background-color: #f8fafc; min-height: 80vh;">
+        <div class="container" style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 280px 1fr; gap: 2rem;">
+            <!-- Left Sidebar -->
+            {% include 'customer_sidebar.html' with active_tab='wishlist' %}
+            
+            <!-- Main Content -->
+            <div class="dashboard-main-content">
+                
+                <div class="form-card" style="padding: 0;">
+                    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0;">My Wishlist ({{ wishlists.count }})</h2>
+                    </div>
+                    
+                    <div style="padding: 1.5rem 2rem;">
+                        <div class="wishlist-items-container">
+                            {% for item in wishlists %}
+                            {% with tour=item.tour %}
+                            <div class="wishlist-card">
+                                {% if tour.media.first %}
+                                <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="wishlist-img">
+                                {% else %}
+                                <div class="wishlist-img" style="background: #EEF2FF; display: flex; align-items: center; justify-content: center; color: #4F46E5; font-size: 2rem;">
+                                    <i class="ph-bold ph-compass"></i>
+                                </div>
+                                {% endif %}
+                                <div class="wishlist-details">
+                                    <div class="wishlist-top-row">
+                                        <div class="wishlist-rating">
+                                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                                        </div>
+                                        <div class="wishlist-action-icons">
+                                            <button class="wishlist-icon-btn active" title="Saved"><i class="ph-fill ph-heart"></i></button>
+                                        </div>
+                                    </div>
+                                    <h3 class="wishlist-title">{{ tour.title }}</h3>
+                                    <p class="wishlist-location"><i class="ph-bold ph-map-pin"></i> {{ tour.destination.name }}, Finland</p>
+                                    <div class="wishlist-bottom-row">
+                                        <div class="wishlist-price">
+                                            {% with pricing=tour.pricing.first %}
+                                            {% if pricing %}
+                                            <strong>€{{ pricing.sale_price|default:pricing.base_price }}</strong> <span>/per person</span>
+                                            {% else %}
+                                            <strong>Inquire</strong>
+                                            {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <a href="{% url 'tours:detail' tour.slug %}" class="btn btn-dark-solid">View Tour</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endwith %}
+                            {% empty %}
+                            <div style="text-align: center; padding: 4rem 2rem; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1;">
+                                <i class="ph-bold ph-heart-break" style="font-size: 3rem; color: #94A3B8; margin-bottom: 1rem;"></i>
+                                <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Your wishlist is empty</h4>
+                                <p style="color: #64748B; font-size: 0.95rem; margin-bottom: 1.5rem;">Explore our extraordinary Arctic tours and click the heart icon to save your favorites.</p>
+                                <a href="{% url 'tours:list' %}" class="btn btn-primary-solid" style="text-decoration: none; padding: 0.6rem 1.5rem;">Explore Tours</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

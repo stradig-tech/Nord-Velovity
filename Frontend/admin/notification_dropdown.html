@@ -1,0 +1,145 @@
+{% load static %}
+<div class="admin-notification-dropdown-wrapper" style="position: relative; display: inline-block;">
+    <!-- Bell Trigger Button -->
+    <button type="button" id="adminNotificationToggle" aria-expanded="false" aria-haspopup="true" title="Notifications" style="position: relative; background: transparent; border: 1px solid transparent; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748B; font-size: 1.35rem; transition: all 0.2s ease; outline: none; padding: 0;" onmouseover="if(!this.classList.contains('active')){ this.style.background='#F1F5F9'; this.style.color='#0F172A'; }" onmouseout="if(!this.classList.contains('active')){ this.style.background='transparent'; this.style.color='#64748B'; }">
+        <i class="ph-bold ph-bell"></i>
+        {% if admin_unread_count %}
+        <span id="adminNotificationBadge" style="position: absolute; top: 3px; right: 3px; background: #EF4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);">{{ admin_unread_count }}</span>
+        {% endif %}
+    </button>
+
+    <!-- Notification Dropdown Card -->
+    <div id="adminNotificationMenu" style="display: none; position: absolute; top: calc(100% + 10px); right: -60px; width: 340px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.15), 0 10px 15px -5px rgba(15, 23, 42, 0.08); z-index: 1000; overflow: hidden; font-family: inherit;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 1.25rem 0.9rem 1.25rem; border-bottom: 1px solid #F1F5F9;">
+            <h4 style="margin: 0; font-size: 1rem; font-weight: 700; color: #0F172A;">Notifications</h4>
+            <button type="button" id="adminMarkAllReadBtn" style="background: none; border: none; padding: 0; color: #6366F1; font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: color 0.15s ease; outline: none;" onmouseover="this.style.color='#4F46E5';" onmouseout="this.style.color='#6366F1';">Mark all as read</button>
+        </div>
+
+        <!-- Notification Items List -->
+        <div id="adminNotificationItemsList" style="max-height: 380px; overflow-y: auto; scrollbar-width: thin;">
+            {% if admin_notifications %}
+                {% for notif in admin_notifications %}
+                <a href="{{ notif.url }}" class="admin-notif-item" style="display: flex; align-items: flex-start; gap: 0.85rem; padding: 0.95rem 1.25rem; border-bottom: 1px solid #F1F5F9; text-decoration: none; color: inherit; transition: background 0.15s ease;" onmouseover="this.style.background='#F8FAFC';" onmouseout="this.style.background='transparent';">
+                    <!-- Icon Badge -->
+                    {% if notif.icon_type == 'confirmed' %}
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="ph-bold ph-check" style="font-size: 1.25rem;"></i>
+                    </div>
+                    {% elif notif.icon_type == 'flash' %}
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #FFEDD5; color: #EA580C; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="ph-fill ph-flame" style="font-size: 1.25rem;"></i>
+                    </div>
+                    {% elif notif.icon_type == 'pending' %}
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #FFEDD5; color: #EA580C; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="ph-bold ph-clock" style="font-size: 1.25rem;"></i>
+                    </div>
+                    {% else %}
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #E0F2FE; color: #0284C7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="ph-bold ph-chat-circle-dots" style="font-size: 1.25rem;"></i>
+                    </div>
+                    {% endif %}
+
+                    <!-- Content -->
+                    <div style="flex: 1; min-width: 0;">
+                        <h5 style="margin: 0 0 0.2rem 0; font-size: 0.92rem; font-weight: 700; color: #0F172A; line-height: 1.3;">{{ notif.title }}</h5>
+                        <p style="margin: 0 0 0.35rem 0; font-size: 0.82rem; color: #64748B; line-height: 1.42; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ notif.message }}</p>
+                        <span style="font-size: 0.75rem; color: #94A3B8; font-weight: 500;">{{ notif.time_ago }}</span>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div style="padding: 2.5rem 1.5rem; text-align: center; color: #94A3B8;">
+                    <i class="ph-bold ph-bell-slash" style="font-size: 2.2rem; margin-bottom: 0.5rem; display: block; color: #CBD5E1;"></i>
+                    <p style="margin: 0; font-size: 0.9rem; font-weight: 600; color: #64748B;">No new notifications</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.78rem; color: #94A3B8;">All recent events and bookings are up to date.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <div style="padding: 0.85rem 1.25rem; text-align: center; background: #FFFFFF; border-top: 1px solid #F1F5F9;">
+            <a href="/admin/bookings/booking/" style="display: block; width: 100%; font-weight: 700; font-size: 0.88rem; color: #475569; text-decoration: none; transition: color 0.15s ease;" onmouseover="this.style.color='#0F172A';" onmouseout="this.style.color='#475569';">View All</a>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const toggleBtn = document.getElementById('adminNotificationToggle');
+    const menu = document.getElementById('adminNotificationMenu');
+    const badge = document.getElementById('adminNotificationBadge');
+    const markAllBtn = document.getElementById('adminMarkAllReadBtn');
+    if (!toggleBtn || !menu) return;
+
+    // Check if user previously marked all as read
+    const isRead = localStorage.getItem('nord_admin_notifications_marked_read');
+    if (isRead && badge) {
+        badge.style.display = 'none';
+    }
+
+    function openMenu() {
+        // Close user profile dropdown if open
+        const userMenu = document.getElementById('adminUserDropdownMenu');
+        const userToggle = document.getElementById('adminUserDropdownToggle');
+        if (userMenu && userMenu.style.display === 'block') {
+            userMenu.style.display = 'none';
+            if (userToggle) {
+                userToggle.classList.remove('active');
+                userToggle.style.background = 'transparent';
+                userToggle.style.borderColor = 'transparent';
+            }
+        }
+
+        menu.style.display = 'block';
+        toggleBtn.classList.add('active');
+        toggleBtn.style.background = '#F1F5F9';
+        toggleBtn.style.color = '#0F172A';
+        toggleBtn.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeMenu() {
+        menu.style.display = 'none';
+        toggleBtn.classList.remove('active');
+        toggleBtn.style.background = 'transparent';
+        toggleBtn.style.color = '#64748B';
+        toggleBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (menu.style.display === 'block') {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (badge) {
+                badge.style.display = 'none';
+            }
+            localStorage.setItem('nord_admin_notifications_marked_read', 'true');
+            markAllBtn.textContent = 'All read';
+            markAllBtn.style.color = '#10B981';
+            markAllBtn.style.cursor = 'default';
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!menu.contains(e.target) && !toggleBtn.contains(e.target)) {
+            closeMenu();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeMenu();
+        }
+    });
+})();
+</script>
