@@ -89,11 +89,15 @@
             {% endblock messages %}
 
             <div id="content" class="{% block coltype %}colM{% endblock %}">
-                {% block pretitle %}{% endblock %}
-                {% block content_title %}{% if title %}<h1 style="font-size: 1.65rem; font-weight: 800; color: #0F172A; margin: 0 0 1.25rem 0; letter-spacing: -0.5px;">{{ title }}</h1>{% endif %}{% endblock %}
-                {% block content_subtitle %}{% if subtitle %}<h2 style="font-size: 1.1rem; font-weight: 600; color: #475569; margin: 0 0 1rem 0;">{{ subtitle }}</h2>{% endif %}{% endblock %}
-                {% block content %}
+                <div class="titles-and-tools" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div class="titles">
+                        {% block pretitle %}{% endblock %}
+                        {% block content_title %}{% if title %}<h1 style="font-size: 1.65rem; font-weight: 800; color: #0F172A; margin: 0; letter-spacing: -0.5px;">{{ title }}</h1>{% endif %}{% endblock %}
+                        {% block content_subtitle %}{% if subtitle %}<h2 style="font-size: 1.05rem; font-weight: 600; color: #64748B; margin: 0.25rem 0 0 0;">{{ subtitle }}</h2>{% endif %}{% endblock %}
+                    </div>
                     {% block object-tools %}{% endblock %}
+                </div>
+                {% block content %}
                     {{ content }}
                 {% endblock %}
                 {% block sidebar %}{% endblock %}

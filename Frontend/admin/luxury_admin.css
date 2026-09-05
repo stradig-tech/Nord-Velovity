@@ -427,19 +427,23 @@ main#content-start,
     letter-spacing: -0.5px !important;
 }
 
-/* Object Tools (+ Add Tour Button) */
+/* Object Tools (+ Add Model Button) */
 .object-tools {
     display: flex !important;
+    align-items: center !important;
     gap: 0.75rem !important;
-    margin-bottom: 1.5rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .object-tools li {
     list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .object-tools a.addlink, .object-tools a {
-    background: var(--nord-primary) !important;
+    background: #4F46E5 !important;
     color: #FFFFFF !important;
     font-weight: 700 !important;
     font-size: 0.85rem !important;
@@ -450,14 +454,22 @@ main#content-start,
     align-items: center !important;
     gap: 0.4rem !important;
     box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25) !important;
-    transition: all 0.2s !important;
+    transition: all 0.2s ease !important;
     border: none !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+    letter-spacing: 0.3px !important;
+}
+
+.object-tools a.addlink::before {
+    content: "+" !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    margin-right: 0.25rem !important;
 }
 
 .object-tools a:hover {
-    background: var(--nord-primary-hover) !important;
+    background: #4338CA !important;
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4) !important;
     transform: translateY(-1px) !important;
 }
 

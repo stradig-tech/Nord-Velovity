@@ -84,9 +84,9 @@
                 {% for tour in popular_tours %}
                 <div class="admin-package-card">
                     {% if tour.media.first %}
-                        <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" style="width: 100%; height: 160px; object-fit: cover;">
+                        <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" style="width: 130px; min-width: 130px; height: 100px; border-radius: 10px; object-fit: cover; flex-shrink: 0;">
                     {% else %}
-                        <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" style="width: 100%; height: 160px; object-fit: cover;">
+                        <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" style="width: 130px; min-width: 130px; height: 100px; border-radius: 10px; object-fit: cover; flex-shrink: 0;">
                     {% endif %}
                     <div class="package-details">
                         <div class="title-row">
@@ -116,8 +116,8 @@
         <div class="admin-card chart-container">
             <h3 class="card-title">Booking Velocity & Inquiries</h3>
             <div class="chart-legend">
-                <span class="legend-item"><span class="color-box purple"></span> Confirmed Bookings</span>
-                <span class="legend-item"><span class="color-box teal"></span> Inquiries & Leads</span>
+                <span class="legend-item"><span class="color-box purple"></span> Confirmed Bookings: <strong>{{ total_7d_bookings|default:"0" }}</strong></span>
+                <span class="legend-item"><span class="color-box teal"></span> Inquiries & Leads: <strong>{{ total_7d_inquiries|default:"0" }}</strong></span>
             </div>
             <div style="height: 280px; width: 100%; position: relative;">
                 <canvas id="activityChart"></canvas>
@@ -277,6 +277,7 @@
 {% block extra_js %}
 <script>
     // Chart 1: Guest Activity Line Chart
+    // Chart 1: Activity Line Chart (Booking Velocity & Inquiries - Dynamic)
     const activityCtx = document.getElementById('activityChart').getContext('2d');
     
     let gradientPurple = activityCtx.createLinearGradient(0, 0, 0, 280);
@@ -287,31 +288,37 @@
     gradientTeal.addColorStop(0, 'rgba(20, 184, 166, 0.4)');
     gradientTeal.addColorStop(1, 'rgba(20, 184, 166, 0.0)');
 
+    const chartLabels = {{ chart_labels|safe|default:"['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" }};
+    const chartBookings = {{ chart_bookings|safe|default:"[0, 0, 0, 0, 0, 0, 0]" }};
+    const chartInquiries = {{ chart_inquiries|safe|default:"[0, 0, 0, 0, 0, 0, 0]" }};
+
     new Chart(activityCtx, {
         type: 'line',
         data: {
-            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            labels: chartLabels,
             datasets: [
                 {
                     label: 'Confirmed Bookings',
-                    data: [12, 19, 15, 25, 22, 38, 35],
+                    data: chartBookings,
                     borderColor: '#6366F1',
                     backgroundColor: gradientPurple,
                     borderWidth: 3,
-                    tension: 0.4,
+                    tension: 0.35,
                     fill: true,
-                    pointRadius: 4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
                     pointBackgroundColor: '#6366F1'
                 },
                 {
-                    label: 'Inquiries',
-                    data: [8, 12, 20, 14, 18, 28, 24],
+                    label: 'Inquiries & Leads',
+                    data: chartInquiries,
                     borderColor: '#14B8A6',
                     backgroundColor: gradientTeal,
                     borderWidth: 3,
-                    tension: 0.4,
+                    tension: 0.35,
                     fill: true,
-                    pointRadius: 4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
                     pointBackgroundColor: '#14B8A6'
                 }
             ]
@@ -321,12 +328,28 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
-                tooltip: { mode: 'index', intersect: false }
+                tooltip: { 
+                    mode: 'index', 
+                    intersect: false,
+                    backgroundColor: '#0F172A',
+                    titleColor: '#F8FAFC',
+                    bodyColor: '#E2E8F0',
+                    borderColor: '#334155',
+                    borderWidth: 1,
+                    padding: 10,
+                    cornerRadius: 8
+                }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: { color: '#94a3b8', font: {size: 11} },
+                    suggestedMax: 5,
+                    ticks: { 
+                        color: '#94a3b8', 
+                        font: {size: 11},
+                        stepSize: 1,
+                        precision: 0
+                    },
                     border: { display: false },
                     grid: { color: '#F1F5F9' }
                 },

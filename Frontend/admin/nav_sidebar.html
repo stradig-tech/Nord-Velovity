@@ -9,7 +9,7 @@
     </div>
 
     <!-- Navigation Menu -->
-    <div class="admin-nav" style="padding: 1rem 0.75rem; flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #334155 #0F172A;">
+    <div class="admin-nav" style="padding: 1rem 0.75rem 2.5rem 0.75rem; flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #334155 #0F172A;">
         
         <!-- Section: Core Operations -->
         <p class="admin-nav-title" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 800; padding: 0 0.75rem; margin: 0.35rem 0 0.5rem 0;">Core Operations</p>
@@ -164,19 +164,6 @@
             </li>
         </ul>
 
-    </div>
-
-    <!-- Sidebar Footer -->
-    <div class="admin-sidebar-footer" style="padding: 1rem 1.25rem; border-top: 1px solid #1E293B; display: flex; align-items: center; justify-content: space-between; background: #0B1120; flex-shrink: 0; margin-top: auto;">
-        <form id="sidebar-logout-form" method="post" action="{% url 'admin:logout' %}" style="margin: 0; display: inline;">
-            {% csrf_token %}
-            <button type="submit" style="background: none; border: none; color: #EF4444; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; padding: 0; font-family: inherit;">
-                <i class="ph-bold ph-sign-out" style="font-size: 1.1rem;"></i> Log Out
-            </button>
-        </form>
-        <a href="{% url 'home' %}" target="_blank" style="color: #60A5FA; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
-            <i class="ph-bold ph-arrow-square-out" style="font-size: 1.1rem;"></i> Live Site
-        </a>
     </div>
 
 </nav>
