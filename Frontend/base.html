@@ -206,7 +206,7 @@
                         {% endif %}
                     </button>
 
-                    <!-- Dropdown Menu (Matches Screenshot 1) -->
+                    <!-- Dropdown Menu -->
                     <div class="user-profile-dropdown" id="userProfileDropdown">
                         <div class="dropdown-header">
                             <div class="dropdown-avatar">
@@ -216,13 +216,19 @@
                                     <span>{{ request.user.initials }}</span>
                                 {% endif %}
                             </div>
-                            <div class="dropdown-user-info">
-                                <h4 class="dropdown-user-name">{{ request.user.get_full_name|default:request.user.username }}</h4>
-                                <p class="dropdown-user-email">{{ request.user.email }}</p>
+                            <div class="dropdown-user-info" style="display: flex; flex-direction: column; align-items: flex-start; min-width: 0; flex: 1; gap: 0.15rem; padding: 0; border: none; margin: 0;">
+                                <h4 class="dropdown-user-name" style="margin: 0; font-size: 0.98rem; font-weight: 700; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: left; line-height: 1.25;">{{ request.user.first_name|default:request.user.get_full_name|default:request.user.username }}</h4>
+                                <p class="dropdown-user-email" style="margin: 0; font-size: 0.8rem; color: #64748B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: left; line-height: 1.2;">{{ request.user.email }}</p>
                             </div>
                         </div>
 
                         <ul class="dropdown-menu-list">
+                            <li>
+                                <a href="{% url 'accounts:dashboard' %}" class="dropdown-item">
+                                    <i class="ph ph-user"></i>
+                                    <span>My Profile</span>
+                                </a>
+                            </li>
                             <li>
                                 <a href="{% url 'accounts:my_bookings' %}" class="dropdown-item">
                                     <i class="ph ph-bookmark-simple"></i>
@@ -239,12 +245,6 @@
                                 <a href="{% url 'accounts:settings' %}" class="dropdown-item">
                                     <i class="ph ph-gear"></i>
                                     <span>Settings</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'faq' %}" class="dropdown-item">
-                                    <i class="ph-fill ph-info"></i>
-                                    <span>Help Center</span>
                                 </a>
                             </li>
                             {% if request.user.is_staff %}

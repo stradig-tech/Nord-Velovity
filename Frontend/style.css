@@ -5714,8 +5714,9 @@ body {
 
 .dropdown-user-info {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
     padding: 0 1.5rem 1rem 1.5rem;
     border-bottom: 1px solid #f1f5f9;
     margin-bottom: 0.5rem;
@@ -7878,7 +7879,9 @@ details[open] summary:hover .faq-arrow {
     position: absolute;
     top: calc(100% + 12px);
     right: 0;
-    width: 260px;
+    min-width: 265px;
+    width: max-content;
+    max-width: 320px;
     background: #FFFFFF;
     border-radius: 20px;
     box-shadow: 0 16px 45px -10px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.05);
@@ -7930,26 +7933,38 @@ details[open] summary:hover .faq-arrow {
 .user-profile-dropdown .dropdown-user-info {
     min-width: 0;
     flex: 1;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.15rem !important;
+    padding: 0 !important;
+    border: none !important;
+    margin: 0 !important;
 }
 
 .user-profile-dropdown .dropdown-user-name {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #0F172A;
-    margin: 0;
-    line-height: 1.25;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.98rem !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    margin: 0 !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    text-align: left !important;
 }
 
 .user-profile-dropdown .dropdown-user-email {
-    font-size: 0.82rem;
-    color: #64748B;
-    margin: 0.2rem 0 0 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.8rem !important;
+    color: #64748B !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    text-align: left !important;
 }
 
 .user-profile-dropdown .dropdown-menu-list {
