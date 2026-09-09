@@ -121,6 +121,26 @@ def site_settings(request):
                 'is_unread': False,
             })
 
+        # Guide Section 13: OTA Sync Failure Monitoring Alert
+        try:
+            from channels.models import ChannelSyncLog
+            failed_syncs = ChannelSyncLog.objects.filter(requires_attention=True, status='FAILED')
+            failed_count = failed_syncs.count()
+            if failed_count > 0:
+                first_failed = failed_syncs.first()
+                admin_unread_count += failed_count
+                admin_notifications.insert(0, {
+                    'id': f'sync-fail-{first_failed.id}',
+                    'title': f'⚠️ {failed_count} OTA Channel Sync Failure(s)',
+                    'message': f'{first_failed.channel.name} sync error: {first_failed.error_message[:80]}...',
+                    'time_ago': timesince(first_failed.created_at).replace('\xa0', ' ').split(',')[0] + ' ago',
+                    'url': '/admin/channels/channelsynclog/?requires_attention__exact=1',
+                    'icon_type': 'alert',
+                    'is_unread': True,
+                })
+        except Exception:
+            pass
+
     return {
         'site_settings': settings_obj,
         'navbar_items': navbar_items,

@@ -1,0 +1,62 @@
+{% load static %}
+<div class="form-card htmx-fade-in" style="padding: 0;">
+    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0;">My Wishlist ({{ wishlists.count }})</h2>
+        <a href="{% url 'tours:list' %}" style="font-size: 0.88rem; color: #4F46E5; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.35rem;">
+            <span>Explore More Tours</span> <i class="ph-bold ph-arrow-right"></i>
+        </a>
+    </div>
+    
+    <div style="padding: 1.5rem 2rem;">
+        <div class="wishlist-items-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            {% for item in wishlists %}
+            {% with tour=item.tour %}
+            <div class="wishlist-card" style="display: flex; gap: 1.5rem; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; padding: 1.25rem; align-items: center; flex-wrap: wrap;">
+                {% if tour.media.first %}
+                <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="wishlist-img" style="width: 140px; height: 100px; border-radius: 8px; object-fit: cover;">
+                {% else %}
+                <div class="wishlist-img" style="width: 140px; height: 100px; border-radius: 8px; background: #EEF2FF; display: flex; align-items: center; justify-content: center; color: #4F46E5; font-size: 2rem;">
+                    <i class="ph-bold ph-compass"></i>
+                </div>
+                {% endif %}
+                
+                <div class="wishlist-details" style="flex: 1; min-width: 240px;">
+                    <div class="wishlist-top-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                        <div class="wishlist-rating" style="display: flex; align-items: center; gap: 0.25rem; color: #F59E0B; font-size: 0.85rem;">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                            <span style="color: #64748B; font-size: 0.8rem; margin-left: 0.25rem;">(5.0)</span>
+                        </div>
+                    </div>
+                    <h3 class="wishlist-title" style="font-size: 1.15rem; font-weight: 700; color: #0F172A; margin: 0 0 0.35rem 0;">{{ tour.title }}</h3>
+                    <p class="wishlist-location" style="font-size: 0.85rem; color: #64748B; margin: 0 0 0.75rem 0;"><i class="ph-bold ph-map-pin" style="color: #4F46E5;"></i> {{ tour.destination.name }}{% if tour.destination.country %}, {{ tour.destination.country.name }}{% endif %}</p>
+                    <div class="wishlist-bottom-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div class="wishlist-price">
+                            {% with pricing=tour.pricing.first %}
+                            {% if pricing %}
+                            <strong style="font-size: 1.25rem; font-weight: 800; color: #0F172A;">€{{ pricing.sale_price|default:pricing.base_price }}</strong> <span style="font-size: 0.8rem; color: #64748B;">/per person</span>
+                            {% else %}
+                            <strong style="font-size: 1.1rem; color: #0F172A;">Inquire</strong>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        <a href="{% url 'tours:detail' tour.slug %}" class="btn" style="background: #0F172A; color: white; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#4F46E5';" onmouseout="this.style.background='#0F172A';">View Tour</a>
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            <div style="text-align: center; padding: 4rem 2rem; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1;">
+                <i class="ph-bold ph-heart-break" style="font-size: 3rem; color: #94A3B8; margin-bottom: 1rem;"></i>
+                <h4 style="font-size: 1.15rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Your Wishlist is Empty</h4>
+                <p style="color: #64748B; font-size: 0.9rem; max-width: 400px; margin: 0 auto 1.5rem auto;">Explore our curated Arctic tours and save your dream experiences for later.</p>
+                <a href="{% url 'tours:list' %}" class="btn" style="background: #4F46E5; color: white; padding: 0.6rem 1.4rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">Discover Tours</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- OOB Sidebar Swap for Active Tab Sync -->
+<div id="customerSidebarNav" hx-swap-oob="outerHTML">
+    {% include 'accounts/partials/sidebar_nav_partial.html' with active_tab='wishlist' %}
+</div>

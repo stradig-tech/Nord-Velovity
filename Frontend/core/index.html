@@ -1,0 +1,752 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Nord Velocity | Discover the Extraordinary{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" style="{% if site_settings.hero_background_image %}background-image: url('{{ site_settings.hero_background_image.url }}');{% else %}background-image: url('{% static 'images/hero/Winter-landscape-19-2-scaled.jpg' %}');{% endif %} background-size: cover; background-position: center;">
+    <div class="hero-bg">
+        {% if site_settings.hero_video_file %}
+            <video autoplay muted loop playsinline style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; pointer-events: none;">
+                <source src="{{ site_settings.hero_video_file.url }}" type="video/mp4">
+            </video>
+        {% elif site_settings.hero_video_url and site_settings.is_youtube_video %}
+            <iframe src="{{ site_settings.hero_video_embed_url }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen tabindex="-1" style="position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; transform: translate(-50%, -50%); pointer-events: none;"></iframe>
+        {% elif site_settings.hero_video_url %}
+            <video autoplay muted loop playsinline style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; pointer-events: none;">
+                <source src="{{ site_settings.hero_video_url }}" type="video/mp4">
+            </video>
+        {% endif %}
+    </div>
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-container">
+        <div class="hero-content">
+            {% if site_settings.hero_title %}<h1 class="hero-title">{{ site_settings.hero_title }}</h1>{% endif %}
+            {% if site_settings.hero_subtitle %}<p class="hero-subtitle">{{ site_settings.hero_subtitle }}</p>{% endif %}
+        </div>
+    </div>
+
+    <!-- Booking Card -->
+    <div class="booking-card-wrapper">
+        <div class="booking-card">
+            <!-- Tabs -->
+            <div class="booking-tabs">
+                <button class="booking-tab active"><i class="ph ph-globe"></i> Tours</button>
+                <button class="booking-tab" onclick="window.location.href='{% url 'chauffeur:hub' %}'"><i class="ph ph-car"></i> Transport</button>
+            </div>
+            
+            <!-- Inputs -->
+            <div class="booking-form">
+                <div class="booking-input-group">
+                    <i class="ph ph-crosshair text-blue"></i>
+                    <div class="input-details" style="position: relative; cursor: pointer; width: 100%;" onclick="toggleBookingDropdown('locDropdown', event);">
+                        <span class="input-label" id="locLabel" style="font-size: 1.1rem; font-weight: 700; color: #0F172A; display: inline-flex; align-items: center; gap: 0.25rem;">{% if nav_destinations %}{{ nav_destinations.first.name }}{% else %}Rovaniemi{% endif %} <i class="ph-bold ph-caret-down" style="font-size: 0.8rem; color: #64748B;"></i></span>
+                        <span class="input-sub" id="locSub">{% if nav_destinations %}{{ nav_destinations.first.country.name|default:'Finland' }}{% else %}Finland{% endif %}</span>
+                        <div id="locDropdown" class="booking-dropdown-menu" style="display: none;">
+                            {% for d in nav_destinations %}
+                            <div onclick="selectBookingLocation('{{ d.name|escapejs }}', '{% if d.country %}{{ d.country.name|escapejs }}{% else %}Finland{% endif %}', event);" style="padding: 0.75rem 1.25rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#F1F5F9'" onmouseout="this.style.backgroundColor='transparent'">
+                                <div style="font-weight: 600; color: #0F172A; font-size: 1rem;">{{ d.name }}</div>
+                                <div style="font-size: 0.8rem; color: #64748B;">{{ d.country.name|default:'Finland' }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-input-group">
+                    <i class="ph ph-calendar-blank text-blue"></i>
+                    <div class="input-details" style="position: relative; cursor: pointer; width: 100%;" onclick="toggleBookingDropdown('dateDropdown', event);">
+                        <span class="input-label" id="heroDateDisplay" style="font-size: 1.1rem; font-weight: 700; color: #0F172A; display: block; line-height: 1.3;">2026-08-22</span>
+                        <span class="input-sub" id="heroDateSub" style="display: block;">Saturday 2026</span>
+                        <input type="hidden" name="date" id="heroDateInput" value="2026-08-22">
+
+                        <!-- Interactive Calendar Dropdown -->
+                        <div id="dateDropdown" class="booking-dropdown-menu" style="display: none; padding: 1.25rem; width: 310px; min-width: 300px; max-height: none !important; overflow: visible !important; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16); border-radius: 14px; user-select: none;" onclick="event.stopPropagation();">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                                <button type="button" onclick="changeCalendarMonth(-1, event);" style="border: none; background: #F1F5F9; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #0F172A; font-weight: 700; transition: background 0.2s;" onmouseover="this.style.background='#E2E8F0'" onmouseout="this.style.background='#F1F5F9'">
+                                    <i class="ph-bold ph-caret-left"></i>
+                                </button>
+                                <span id="calMonthYearTitle" style="font-weight: 700; font-size: 0.95rem; color: #0F172A;">August 2026</span>
+                                <button type="button" onclick="changeCalendarMonth(1, event);" style="border: none; background: #F1F5F9; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #0F172A; font-weight: 700; transition: background 0.2s;" onmouseover="this.style.background='#E2E8F0'" onmouseout="this.style.background='#F1F5F9'">
+                                    <i class="ph-bold ph-caret-right"></i>
+                                </button>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.78rem; font-weight: 700; color: #64748B; margin-bottom: 0.5rem;">
+                                <div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div><div>Su</div>
+                            </div>
+                            <div id="calDaysGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-input-group">
+                    <i class="ph ph-list-dashes text-blue"></i>
+                    <div class="input-details" style="position: relative; cursor: pointer; width: 100%;" onclick="toggleBookingDropdown('catDropdown', event);">
+                        <span class="input-label" id="catLabel" style="font-size: 1.1rem; font-weight: 700; color: #0F172A; display: inline-flex; align-items: center; gap: 0.25rem;">{% if nav_experiences %}{{ nav_experiences.first.name }}{% else %}Luxury Tour{% endif %} <i class="ph-bold ph-caret-down" style="font-size: 0.8rem; color: #64748B;"></i></span>
+                        <span class="input-sub" id="catSub">Category</span>
+                        <div id="catDropdown" class="booking-dropdown-menu" style="display: none;">
+                            {% for exp in nav_experiences %}
+                            <div onclick="selectBookingCategory('{{ exp.name|escapejs }}', event);" style="padding: 0.75rem 1.25rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#F1F5F9'" onmouseout="this.style.backgroundColor='transparent'">
+                                <div style="font-weight: 600; color: #0F172A; font-size: 1rem;">{{ exp.name }}</div>
+                                <div style="font-size: 0.8rem; color: #64748B;">Curated Arctic Experience</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary search-btn" onclick="window.location.href='{% url 'tours:list' %}';">Search</button>
+            </div>
+            <div class="booking-footer">
+                <span class="text-blue font-semibold">Save Up to 30%</span> on premium hotel stays - Limited time deal!
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Discounts & Offers Section -->
+<section class="offers-section">
+    <div class="offers-container">
+        <h2 class="section-title">Discounts & Offers</h2>
+        <div class="offers-grid">
+            {% for offer in home_offers %}
+                <div class="offer-card" style="background-image: url('{% if offer.image %}{{ offer.image.url }}{% else %}{% static 'images/offers/Day-Trip-to-Santa-Village7-550x358.jpg' %}{% endif %}'); background-size: cover; background-position: center; cursor: pointer;" onclick="window.location.href='{{ offer.url }}';">
+                    <div class="offer-overlay"></div>
+                    <div class="offer-content align-start">
+                        <h3 class="offer-title-mixed">{{ offer.title }}</h3>
+                        {% if offer.subtitle %}<p style="color: #F8FAFC; font-size: 0.95rem; margin-top: 0.25rem; font-weight: 500;">{{ offer.subtitle }}</p>{% endif %}
+                        {% if offer.badge_text %}<div class="pink-badge">{{ offer.badge_text }}</div>{% endif %}
+                        {% if offer.price_badge %}
+                        <div class="price-badge red-badge" style="margin-top: auto;">
+                            <span class="price-val">{{ offer.price_main|default:offer.price_badge }}</span>
+                            {% if offer.price_sub %}
+                            <span class="price-sub">{{ offer.price_sub }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p style="grid-column: 1/-1; text-align: center; color: #64748B;">No promotional offers currently active.</p>
+                {% endfor %}
+            </div>         </div>     </section>      <!-- Partners Section -->     <section class="partners-section">         <h3 class="partners-title">{{ site_settings.partners_title|default:'Our 100+ valuable partner in the world-wide' }}</h3>                  <div class="partners-marquee">             <div class="marquee-content">
+                {% for partner in partner_logos %}
+                <div class="partner-logo">
+                    {% if partner.logo_image %}
+                    <img src="{{ partner.logo_image.url }}" alt="{{ partner.name }}" style="height: 28px; max-width: 120px; object-fit: contain;">
+                    {% else %}
+                    <span class="logo-serif-bold">{{ partner.name }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% for partner in partner_logos %}
+                <div class="partner-logo">
+                    {% if partner.logo_image %}
+                    <img src="{{ partner.logo_image.url }}" alt="{{ partner.name }}" style="height: 28px; max-width: 120px; object-fit: contain;">
+                    {% else %}
+                    <span class="logo-serif-bold">{{ partner.name }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Selling Tours Section -->
+    <section class="tours-section">
+        <div class="tours-container">
+            <h2 class="section-title text-center">Best Selling Tours</h2>
+            <div class="tours-filters">
+                <button type="button" class="filter-btn active" data-filter="group" onclick="filterTours('group', this)">Group tours</button>
+                <button type="button" class="filter-btn" data-filter="private" onclick="filterTours('private', this)">Private tours</button>
+                <button type="button" class="filter-btn" data-filter="family" onclick="filterTours('family', this)">Family tours</button>
+            </div>
+            <div class="tours-grid" id="bestSellingToursGrid">
+                {% if featured_tours %}
+                    {% for tour in featured_tours %}
+                    <div class="tour-card" data-category="{{ tour.category_tags }}">
+                        <div class="tour-img-box">
+                            {% if tour.media.first %}
+                                <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
+                            {% endif %}
+                            <div class="badge-top-left"><i class="ph ph-heart"></i></div>
+                            <div class="badge-stack-right">
+                                {% if tour.is_featured %}<span class="tour-badge green-bg">Featured</span>{% endif %}
+                                <span class="tour-badge yellow-bg text-dark">{{ tour.travel_style.name|default:"Luxury Tour" }}</span>
+                            </div>
+                        </div>
+                        <div class="tour-body">
+                            <div class="tour-rating">
+                                <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                                <span class="rating-val">(5.0)</span>
+                            </div>
+                            <h4 class="tour-title">{{ tour.title }}</h4>
+                            <div class="tour-meta">
+                                <span class="meta-item"><i class="ph ph-map-pin"></i> {{ tour.destination.name }}, Finland</span>
+                                <span class="meta-item"><i class="ph ph-clock"></i> {{ tour.duration_text }}</span>
+                            </div>
+                            <div class="tour-footer">
+                                <div class="tour-price-box">
+                                    <span class="price-label">Starting From</span>
+                                    <div class="price-display">
+                                        <span class="price-main">{{ site_settings.currency_symbol }}{{ tour.pricing.first.price|default:"750"|floatformat:0 }}</span><span class="price-sub">/per person</span>
+                                    </div>
+                                </div>
+                                <a href="{% url 'tours:detail' tour.slug %}" class="btn btn-primary rounded-pill" style="text-decoration: none; display: inline-block;">View Tour</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="grid-column: 1/-1; text-align: center; color: #64748B;">No tours currently published.</p>
+                {% endif %}
+            </div>
+            <div class="view-all-container">
+                <a href="{% url 'tours:list' %}" class="btn-outline-dark" style="display: inline-block; text-decoration: none;">View All Package</a>
+            </div>
+        </div>
+    </section>      
+     <!-- Most Popular Destination Section -->
+     <section class="popular-dest-section" style="background-color: #f8fafc; padding: 4rem 0;">
+         <div class="popular-dest-container" style="max-width: 1200px; margin: 0 auto; padding: 0 1rem;">
+             <div style="text-align: center; margin-bottom: 2.5rem;">
+                 <h2 class="section-title text-center" style="font-weight: 800; font-size: 2.5rem; color: #0f172a; margin-bottom: 0.5rem;">Most Popular Destination</h2>
+                 <p style="color: #64748b; font-size: 1rem; max-width: 600px; margin: 0 auto;">Explore the world's most sought-after getaways curated by our premium travel specialists.</p>
+             </div>
+             
+             <div class="bento-filters" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 3rem;">
+                 <button class="bento-filter-btn active" onclick="window.location.href='{% url 'tours:destination_list' %}'" style="background-color: #007bff; color: white; border: none; border-radius: 999px; padding: 0.6rem 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: all 0.3s;"><i class="ph-bold ph-compass"></i> Popular</button>
+                 <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'" style="background-color: white; color: #475569; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.6rem 1.25rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: all 0.3s;"><i class="ph-bold ph-globe-hemisphere-west"></i> North Islands</button>
+                 <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'" style="background-color: white; color: #475569; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.6rem 1.25rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: all 0.3s;"><i class="ph-bold ph-globe-hemisphere-west"></i> Northern Europe</button>
+                 <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'" style="background-color: white; color: #475569; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.6rem 1.25rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: all 0.3s;"><i class="ph-bold ph-globe-hemisphere-west"></i> Western Europe</button>
+                 <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'" style="background-color: white; color: #475569; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.6rem 1.25rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: all 0.3s;"><i class="ph-bold ph-globe-hemisphere-east"></i> Eastern Europe</button>
+                 <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'" style="background-color: white; color: #475569; border: 1px solid #e2e8f0; border-radius: 999px; padding: 0.6rem 1.25rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: all 0.3s;"><i class="ph-bold ph-globe-hemisphere-east"></i> Southern Europe</button>
+             </div>
+
+             <div class="bento-dest-grid">
+                  
+                  <!-- Finland: Tall Featured Card -->
+                  {% if finland %}
+                  <div class="bento-card bento-tall" onclick="window.location.href='{% url 'tours:country_detail' finland.slug %}'" style="cursor: pointer; grid-row: span 2; position: relative; border-radius: 24px; overflow: hidden; background-image: url('{% if finland.hero_image %}{{ finland.hero_image.url }}{% else %}/static/images/citys/15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg{% endif %}'); background-size: cover; background-position: center; transition: transform 0.25s, box-shadow 0.25s;">
+                      <div class="bento-gradient" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(15,23,42,0.92), transparent);"></div>
+                      <div class="bento-badge" style="position: absolute; top: 1.5rem; left: 1.5rem; background: white; padding: 0.4rem 1rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"><span style="width:8px; height:8px; border-radius:50%; background-color: #3b82f6;"></span> {{ finland.name }}</div>
+                      <div class="bento-content" style="position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; color: white;">
+                          <h3 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">{{ finland.name }}</h3>
+                          <p style="font-size: 0.95rem; color: #cbd5e1; line-height: 1.5;">{{ finland.subtitle|default:finland.description|truncatewords:20 }}</p>
+                      </div>
+                  </div>
+                  {% endif %}
+
+                  <!-- Other Nordic Countries -->
+                  {% for c in other_countries %}
+                  <div class="bento-card" onclick="window.location.href='{% url 'tours:country_detail' c.slug %}'" style="cursor: pointer; position: relative; border-radius: 24px; overflow: hidden; background-image: url('{% if c.hero_image %}{{ c.hero_image.url }}{% else %}/static/images/citys/Northern-Lights-by-minivan6-2-550x358.jpg{% endif %}'); background-size: cover; background-position: center; transition: transform 0.25s, box-shadow 0.25s;">
+                      <div class="bento-gradient" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 70%; background: linear-gradient(to top, rgba(15,23,42,0.92), transparent);"></div>
+                      <div class="bento-badge" style="position: absolute; top: 1.25rem; left: 1.25rem; background: white; padding: 0.4rem 1rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                          <span style="width:8px; height:8px; border-radius:50%; background-color: {% cycle '#ef4444' '#f59e0b' '#10b981' '#8b5cf6' %};"></span> {{ c.name }}
+                      </div>
+                      <div class="bento-content" style="position: absolute; bottom: 1.25rem; left: 1.25rem; right: 1.25rem; color: white;">
+                          <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem;">{{ c.name }}</h3>
+                          <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                              {{ c.subtitle|default:c.description }}
+                          </p>
+                      </div>
+                  </div>
+                  {% endfor %}
+
+              </div>
+
+             <div class="bento-nav" style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
+                 <button style="width: 40px; height: 40px; border-radius: 50%; background: white; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; cursor: pointer; transition: all 0.3s;"><i class="ph-bold ph-arrow-left"></i></button>
+                 <div class="bento-dots" style="display: flex; gap: 0.5rem;">
+                     <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #007bff;"></span>
+                     <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #cbd5e1;"></span>
+                     <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #cbd5e1;"></span>
+                 </div>
+                 <button style="width: 40px; height: 40px; border-radius: 50%; background: #007bff; border: none; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: all 0.3s;"><i class="ph-bold ph-arrow-right"></i></button>
+             </div>
+         </div>
+     </section>
+     <!-- Explore Section -->
+     <section class="explore-section">
+         <div class="explore-container">
+             <!-- Top Grid: Text Left, Cards Right -->
+             <div class="explore-top">
+                 <div class="explore-text">
+                     <span class="explore-subtitle">We're #01 travel agency in globally</span>
+                     <h2 class="explore-title">Explore the World With<br>Confidence.</h2>
+                     <p class="explore-desc">{{ site_settings.mission_description }}</p>
+                     <p class="explore-desc">{{ site_settings.mission_statement }}</p>
+                     <a href="{% url 'about' %}" class="btn btn-primary rounded-pill" style="text-decoration: none; display: inline-block;">Discover More</a>
+                 </div>
+                 
+                 <div class="explore-visuals">
+                     <div class="fanned-cards">
+                         <div class="fan-card fan-left" style="background-image: url('/static/images/explore/explore_1.jpg');"></div>
+                         <div class="fan-card fan-right" style="background-image: url('/static/images/explore/explore_3.jpg');"></div>
+                         <div class="fan-card fan-center" style="background-image: url('/static/images/explore/explore_2.jpg');"></div>
+                     </div>
+                     
+                     <div class="explore-awards">
+                         <!-- Award 1 -->
+                         <div class="award-item">
+                             <div class="laurel-svg">
+                                 <svg width="30" height="70" viewBox="0 0 30 70">
+                                     <path d="M25 10 Q5 35 25 60" fill="none" stroke="#60A5FA" stroke-width="2"/>
+                                     <path d="M22 20 L13 16 L17 24 Z M19 32 L10 28 L14 36 Z M17 44 L8 40 L12 48 Z M19 55 L10 51 L14 59 Z" fill="#60A5FA"/>
+                                 </svg>
+                             </div>
+                             <div class="award-text">
+                                 <span class="award-num">{{ site_settings.stat_happy_travelers }}</span>
+                                 <span class="award-sub">Trusted Travelers</span>
+                                 <span class="award-brand"><i class="ph-fill ph-tripadvisor text-green" style="font-size: 1.1rem;"></i> Tripadvisor</span>
+                             </div>
+                             <div class="laurel-svg right-laurel">
+                                 <svg width="30" height="70" viewBox="0 0 30 70">
+                                     <path d="M25 10 Q5 35 25 60" fill="none" stroke="#60A5FA" stroke-width="2"/>
+                                     <path d="M22 20 L13 16 L17 24 Z M19 32 L10 28 L14 36 Z M17 44 L8 40 L12 48 Z M19 55 L10 51 L14 59 Z" fill="#60A5FA"/>
+                                 </svg>
+                             </div>
+                         </div>
+                         
+                         <!-- Award 2 -->
+                         <div class="award-item">
+                             <div class="laurel-svg">
+                                 <svg width="30" height="70" viewBox="0 0 30 70">
+                                     <path d="M25 10 Q5 35 25 60" fill="none" stroke="#9CA3AF" stroke-width="2"/>
+                                     <path d="M22 20 L13 16 L17 24 Z M19 32 L10 28 L14 36 Z M17 44 L8 40 L12 48 Z M19 55 L10 51 L14 59 Z" fill="#9CA3AF"/>
+                                 </svg>
+                             </div>
+                             <div class="award-text">
+                                 <span class="award-brand text-red font-serif" style="font-size:1.25rem;">Traveler</span>
+                                 <span class="award-sub-red">BEST ARCTIC<br>TOUR AWARD</span>
+                                 <span class="award-year text-red font-serif">2026</span>
+                             </div>
+                             <div class="laurel-svg right-laurel">
+                                 <svg width="30" height="70" viewBox="0 0 30 70">
+                                     <path d="M25 10 Q5 35 25 60" fill="none" stroke="#9CA3AF" stroke-width="2"/>
+                                     <path d="M22 20 L13 16 L17 24 Z M19 32 L10 28 L14 36 Z M17 44 L8 40 L12 48 Z M19 55 L10 51 L14 59 Z" fill="#9CA3AF"/>
+                                 </svg>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             
+             <!-- Bottom Grid: Dynamic Features -->
+             <div class="explore-features">
+                 {% for vp in value_props %}
+                 <div class="feature-card {{ vp.bg_color_class }}">
+                     <div class="feature-icon"><i class="{{ vp.icon_class }}"></i></div>
+                     <h4 class="feature-title">{{ vp.title }}</h4>
+                     <p class="feature-desc">{{ vp.description }}</p>
+                 </div>
+                 {% endfor %}
+             </div>
+         </div>
+     </section>
+     
+     <!-- Top Destinations Section -->
+     <section class="destinations-section">
+         <div class="destinations-container">
+             <div class="destinations-header">
+                 <h2 class="section-title" style="margin-bottom: 0;">Explore Destinations</h2>
+                 <a href="{% url 'tours:destination_list' %}" class="explore-link text-dark">Explore All Destinations <i class="ph-bold ph-caret-right"></i></a>
+             </div>
+             
+             <div class="destinations-grid">
+                 {% for dest in nav_destinations %}
+                 <a href="{% url 'tours:list' %}?destination={{ dest.slug }}" class="dest-card" style="{% if dest.hero_image %}background-image: url('{{ dest.hero_image.url }}');{% elif dest.nav_icon %}background-image: url('{{ dest.nav_icon.url }}');{% else %}background: #1E293B;{% endif %}">
+                     <div class="dest-overlay"></div>
+                     <h3 class="dest-title">{{ dest.name }}</h3>
+                 </a>
+                 {% endfor %}
+             </div>
+         </div>
+     </section>
+     
+     <!-- Testimonials Section -->
+     <section class="testimonials-section">
+         <div class="testimonials-container">
+             <div class="testimonials-top">
+                 <div class="testi-header-left">
+                     <span class="section-subtitle text-blue">Customer experience at {{ site_settings.site_name }}</span>
+                     <h2 class="section-title">What the People Say</h2>
+                     <div class="community-stats">
+                         <div class="avatar-group">
+                             <img src="/static/images/team/travelers-img1.png" alt="Traveler 1" class="avatar-img">
+                             <img src="/static/images/team/travelers-img2.png" alt="Traveler 2" class="avatar-img">
+                             <div class="avatar-plus">+</div>
+                         </div>
+                         <p class="community-text">{{ site_settings.stat_happy_travelers }} trusted travelers joined<br>{{ site_settings.site_name }} community.</p>
+                     </div>
+                 </div>
+                 <div class="testi-header-right">
+                     <div class="award-circle bg-green">
+                         <i class="ph-fill ph-tripadvisor text-dark" style="font-size: 1.25rem;"></i>
+                         <span class="award-circle-title">Tripadvisor<br>Travelers'<br>Choice Award</span>
+                         <span class="award-circle-year">2026</span>
+                     </div>
+                     <div class="award-circle bg-red">
+                         <span class="award-circle-brand font-serif text-white">Traveler</span>
+                         <span class="award-circle-sub text-white">BEST CITY<br>TOUR AWARD</span>
+                         <span class="award-circle-year text-white">2026</span>
+                     </div>
+                 </div>
+             </div>
+             
+             <!-- Carousel -->
+             <div class="testimonials-carousel-wrapper" style="margin-bottom: 2.5rem; overflow: hidden; width: 100%;">
+                 <div class="testimonials-track" id="testimonialsTrack">
+                     {% if testimonials %}
+                         {% for t in testimonials %}
+                         <div class="testi-card" style="background: white; border-radius: 20px; padding: 2rem; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                             <div>
+                                 <div class="testi-card-header" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                     <div class="testi-rating-dots" style="color: #F59E0B; font-size: 1.15rem; display: flex; gap: 0.2rem;">
+                                         {% for i in "12345" %}<i class="ph-fill ph-star"></i>{% endfor %}
+                                     </div>
+                                 </div>
+                                 <h4 class="testi-title" style="font-size: 1.15rem; font-weight: 700; color: #0F172A; margin-bottom: 0.75rem;">{{ t.tour_name|default:"Extraordinary Journey" }}</h4>
+                                 <p class="testi-desc" style="color: #475569; font-size: 0.95rem; line-height: 1.65; margin-bottom: 1.75rem;">"{{ t.quote }}"</p>
+                             </div>
+                             <div class="testi-user" style="display: flex; align-items: center; gap: 0.85rem; padding-top: 1rem; border-top: 1px solid #F1F5F9;">
+                                 {% if t.author_image %}
+                                     <img src="{{ t.author_image.url }}" alt="{{ t.author_name }}" style="width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid #E0E7FF;">
+                                 {% else %}
+                                     <div style="width: 46px; height: 46px; border-radius: 50%; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; border: 2px solid #E0E7FF;">
+                                         {{ t.author_name|first }}
+                                     </div>
+                                 {% endif %}
+                                 <div class="testi-user-info">
+                                     <h6 class="testi-name" style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin: 0 0 0.15rem 0;">{{ t.author_name }}</h6>
+                                     <span class="testi-role" style="font-size: 0.8rem; color: #64748B;">{{ t.author_location }}</span>
+                                 </div>
+                             </div>
+                         </div>
+                         {% endfor %}
+                     {% endif %}
+                 </div>
+             </div>
+             
+             <!-- Footer -->
+             <div class="testimonials-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                 <div class="testi-nav" style="display: flex; gap: 0.75rem;">
+                     <button class="nav-btn" type="button" aria-label="Previous testimonial" onclick="document.getElementById('testimonialsTrack').scrollBy({left: -380, behavior: 'smooth'})" style="width: 44px; height: 44px; border-radius: 50%; background: white; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.04);"><i class="ph-bold ph-caret-left" style="font-size: 1.2rem; color: #1E293B;"></i></button>
+                     <button class="nav-btn" type="button" aria-label="Next testimonial" onclick="document.getElementById('testimonialsTrack').scrollBy({left: 380, behavior: 'smooth'})" style="width: 44px; height: 44px; border-radius: 50%; background: white; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.04);"><i class="ph-bold ph-caret-right" style="font-size: 1.2rem; color: #1E293B;"></i></button>
+                 </div>
+                 <div class="testi-overall-rating" style="display: flex; align-items: center; gap: 0.75rem;">
+                     <i class="ph-fill ph-tripadvisor text-dark" style="font-size: 1.4rem;"></i>
+                     <span class="text-dark font-bold" style="font-size: 1rem;">Tripadvisor</span>
+                     <div class="testi-rating-dots" style="display: flex; gap: 0.25rem;">
+                         <span class="dot" style="width: 10px; height: 10px; background: #10B981; border-radius: 50%; display: inline-block;"></span>
+                         <span class="dot" style="width: 10px; height: 10px; background: #10B981; border-radius: 50%; display: inline-block;"></span>
+                         <span class="dot" style="width: 10px; height: 10px; background: #10B981; border-radius: 50%; display: inline-block;"></span>
+                         <span class="dot" style="width: 10px; height: 10px; background: #10B981; border-radius: 50%; display: inline-block;"></span>
+                         <span class="dot" style="width: 10px; height: 10px; background: #10B981; border-radius: 50%; display: inline-block;"></span>
+                     </div>
+                     <span class="testi-rating-text" style="color: #475569; font-size: 0.9rem; font-weight: 500;">{{ site_settings.stat_rating_display|default:"4.9" }} rated by {{ site_settings.stat_happy_travelers|default:"15,000+" }} real travelers at {{ site_settings.site_name }}.</span>
+                 </div>
+             </div>
+         </div>
+     </section>      <!-- Download App Section -->     <section class="download-section">         <div class="container">             <div class="download-card">                 <!-- Dotted Map Background -->                 <div class="map-bg"></div>                                  <div class="download-content">                     <h2 class="download-title">Download Mobile App</h2>                     <p class="download-desc">Our community users and app download almost <strong>{{ site_settings.app_active_users }}</strong> in world-wide.</p>                                          <div class="store-buttons">                         <a href="{{ site_settings.app_store_url }}" class="store-btn" target="_blank">                             <i class="ph-fill ph-apple-logo"></i>                             <div class="store-text">                                 <span class="store-sub">Download on</span>                                 <span class="store-main">App Store</span>                             </div>                         </a>                         <a href="{{ site_settings.play_store_url }}" class="store-btn" target="_blank">                             <i class="ph-fill ph-google-play-logo" style="color: #34D399;"></i>                             <div class="store-text">                                 <span class="store-sub">GET IN</span>                                 <span class="store-main">Google Play</span>                             </div>                         </a>                     </div>                                          <div class="download-stats">                         <span class="badge-blue"><i class="ph-fill ph-star"></i> {{ site_settings.app_rating }}</span>                         <span class="stats-text"><strong>{{ site_settings.app_reviews_count }}</strong> verified review {{ site_settings.site_name }} app</span>                     </div>                 </div>                                  <div class="download-visual">                     <!-- CSS Phone Mockup -->                     <div class="css-phone">                         <div class="phone-screen">                             <div class="app-mockup">                                 <div class="app-header">                                     <i class="ph-bold ph-list"></i>                                     <div class="app-logo" style="font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: -0.5px;"><i class="ph-fill ph-airplane-tilt" style="margin-right: 4px;"></i> {{ site_settings.site_name }}</div>                                     <i class="ph-bold ph-magnifying-glass"></i>                                 </div>                                 <div class="app-hero">                                     <i class="ph-fill ph-compass text-yellow" style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #FBBF24;"></i>                                     <div class="app-title">YOUR AI TRAVEL PLANNER</div>                                     <div class="app-stars">★★★★★</div>                                     <div class="app-headline">Discover the<br>Extraordinary</div>                                 </div>                                 <div class="app-tabs">                                     <div class="app-tab active"><i class="ph-fill ph-house"></i> Home</div>                                     <div class="app-tab"><i class="ph-fill ph-map-pin"></i> Tour</div>                                 </div>                                 <div class="app-card" style="display: flex; align-items: center; padding: 0 15px; gap: 10px; color: #64748B;">                                     <i class="ph-bold ph-magnifying-glass" style="color: #0D6EFD;"></i>                                     <span style="font-size: 0.75rem; font-weight: 500;">Where to next?</span>                                 </div>                                                                  <div class="app-feed" style="position: absolute; bottom: -220px; left: 50%; transform: translateX(-50%); width: 90%; display: flex; flex-direction: column; gap: 8px; text-align: left;">                                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 5px;">                                         <span style="color: #1E293B; font-weight: 700; font-size: 0.8rem;">Popular Tours</span>                                         <span style="color: #0D6EFD; font-size: 0.65rem; font-weight: 600;">See All</span>                                     </div>                                     <div style="display: flex; gap: 8px;">                                         {% for t in featured_tours|slice:":2" %}                                         <div style="background: white; border-radius: 10px; overflow: hidden; width: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">                                             {% if t.media.first %}                                             <img src="{{ t.media.first.file.url }}" style="width: 100%; height: 50px; object-fit: cover;">                                             {% else %}                                             <div style="width: 100%; height: 50px; background: #E2E8F0;"></div>                                             {% endif %}                                             <div style="padding: 6px;">                                                 <div style="font-size: 0.65rem; font-weight: 700; color: #1E293B; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ t.title }}</div>                                                 <div style="font-size: 0.6rem; color: #F59E0B;"><i class="ph-fill ph-star"></i> 4.9</div>                                             </div>                                         </div>                                         {% endfor %}                                     </div>                                 </div>                             </div>                         </div>                                                  <!-- Floating Badges -->                         <div class="float-badge badge-top">                             <span class="badge-blue"><i class="ph-fill ph-star"></i> {{ site_settings.app_rating }}</span>                             <span class="float-text">Average rating</span>                         </div>                         <div class="float-badge badge-bottom">                             <span class="badge-blue-circle"><i class="ph-bold ph-users"></i></span>                             <span class="float-text"><strong>{{ site_settings.app_active_users }}</strong> active users.</span>                         </div>                     </div>                 </div>             </div>         </div>     </section>      <!-- Travel Tips & Inspirations Section -->     <section class="tips-section">         <div class="container">             <div class="tips-header">                 <div class="tips-header-text">                     <span class="section-subtitle text-blue">Get to know more with {{ site_settings.site_name }}</span>                     <h2 class="section-title">Travel Tips & Inspirations.</h2>                 </div>                 <a href="{% url 'content:blog_list' %}" class="btn btn-outline-gray rounded-pill" style="text-decoration: none;">View All Inspiration</a>             </div>                                      <div class="tips-grid">
+                {% if recent_posts %}
+                    {% for post in recent_posts %}
+                    <div class="tip-card">
+                        <div class="tip-img-box">
+                            {% if post.featured_image %}
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="tip-img" style="object-fit: cover;">
+                            {% else %}
+                                <div class="tip-img" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;"><i class="ph-bold ph-newspaper"></i></div>
+                            {% endif %}
+                            <div class="tip-badge"><i class="ph-bold ph-calendar"></i> {{ post.publish_date|default:post.created_at|date:"d M Y" }}</div>
+                        </div>
+                        <div class="tip-body">
+                            <h4 class="tip-title">{{ post.title }}</h4>
+                            <p class="tip-desc">{{ post.excerpt|truncatewords:16 }}</p>
+                            <a href="{% url 'content:blog_detail' post.slug %}" class="tip-link">Read Story <i class="ph-bold ph-caret-right"></i></a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div></div>         </div>     </section>      <!-- Floating Badges -->     <!-- Floating Badges -->     <button class="floating-action-btn">         <i class="ph-fill ph-phone"></i>     </button>      
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterTours(category, btn) {
+    // 1. Update active button style
+    var filterBtns = document.querySelectorAll('.tours-filters .filter-btn');
+    filterBtns.forEach(function(b) {
+        b.classList.remove('active');
+    });
+    if (btn) {
+        btn.classList.add('active');
+    } else {
+        var matchingBtn = document.querySelector('.tours-filters .filter-btn[data-filter="' + category + '"]');
+        if (matchingBtn) matchingBtn.classList.add('active');
+    }
+
+    // 2. Filter tour cards
+    var grid = document.getElementById('bestSellingToursGrid');
+    if (!grid) return;
+    var cards = grid.querySelectorAll('.tour-card');
+    var visibleCount = 0;
+
+    cards.forEach(function(card) {
+        var rawCats = card.getAttribute('data-category') || '';
+        var cats = rawCats.toLowerCase().split(/\s+/).filter(Boolean);
+        if (category === 'all' || cats.includes(category)) {
+            card.style.display = 'flex';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            card.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+            setTimeout(function() {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 20);
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // 3. Handle empty state
+    var emptyMsg = document.getElementById('noCategoryToursMsg');
+    if (visibleCount === 0) {
+        if (!emptyMsg) {
+            emptyMsg = document.createElement('p');
+            emptyMsg.id = 'noCategoryToursMsg';
+            emptyMsg.style.gridColumn = '1 / -1';
+            emptyMsg.style.textAlign = 'center';
+            emptyMsg.style.color = '#64748B';
+            emptyMsg.style.padding = '3rem 1rem';
+            emptyMsg.style.fontSize = '1.1rem';
+            emptyMsg.innerText = 'No tour packages currently available in this category.';
+            grid.appendChild(emptyMsg);
+        }
+        emptyMsg.style.display = 'block';
+    } else if (emptyMsg) {
+        emptyMsg.style.display = 'none';
+    }
+}
+
+// Automatically filter to initial active category on load
+document.addEventListener('DOMContentLoaded', function() {
+    var activeBtn = document.querySelector('.tours-filters .filter-btn.active');
+    if (activeBtn) {
+        var cat = activeBtn.getAttribute('data-filter') || 'group';
+        filterTours(cat, activeBtn);
+    }
+});
+
+// Booking Dropdowns Logic
+function toggleBookingDropdown(dropdownId, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    var target = document.getElementById(dropdownId);
+    if (!target) return;
+    var isOpen = target.style.display === 'block' || target.classList.contains('show');
+    
+    // Close all other dropdowns
+    document.querySelectorAll('.booking-dropdown-menu').forEach(function(d) {
+        d.style.display = 'none';
+        d.classList.remove('show');
+    });
+
+    if (!isOpen) {
+        target.style.display = 'block';
+        target.classList.add('show');
+    }
+}
+
+function selectBookingLocation(name, country, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    var label = document.getElementById('locLabel');
+    var sub = document.getElementById('locSub');
+    var dropdown = document.getElementById('locDropdown');
+    if (label) {
+        label.innerHTML = name + ' <i class="ph-bold ph-caret-down" style="font-size: 0.8rem; color: #64748B;"></i>';
+    }
+    if (sub) {
+        sub.innerText = country;
+    }
+    if (dropdown) {
+        dropdown.style.display = 'none';
+        dropdown.classList.remove('show');
+    }
+}
+
+function selectBookingCategory(name, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    var label = document.getElementById('catLabel');
+    var dropdown = document.getElementById('catDropdown');
+    if (label) {
+        label.innerHTML = name + ' <i class="ph-bold ph-caret-down" style="font-size: 0.8rem; color: #64748B;"></i>';
+    }
+    if (dropdown) {
+        dropdown.style.display = 'none';
+        dropdown.classList.remove('show');
+    }
+}
+
+// Global click-outside listener to close booking dropdowns
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.input-details') && !e.target.closest('.booking-dropdown-menu')) {
+        document.querySelectorAll('.booking-dropdown-menu').forEach(function(d) {
+            d.style.display = 'none';
+            d.classList.remove('show');
+        });
+    }
+});
+
+// ESC key listener to close booking dropdowns
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.booking-dropdown-menu').forEach(function(d) {
+            d.style.display = 'none';
+            d.classList.remove('show');
+        });
+    }
+});
+
+// Interactive Hero Calendar State
+var calSelectedDate = new Date(2026, 7, 22); // Default: August 22, 2026
+var calCurrentYear = 2026;
+var calCurrentMonth = 7; // August (0-indexed)
+
+var calMonthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
+var calDayNames = [
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+];
+
+function renderHeroCalendar() {
+    var titleEl = document.getElementById('calMonthYearTitle');
+    var gridEl = document.getElementById('calDaysGrid');
+    if (!titleEl || !gridEl) return;
+
+    titleEl.innerText = calMonthNames[calCurrentMonth] + " " + calCurrentYear;
+    gridEl.innerHTML = "";
+
+    // First day of current month (Sunday is 0, convert to Monday-first)
+    var firstDayRaw = new Date(calCurrentYear, calCurrentMonth, 1).getDay();
+    var startDay = (firstDayRaw + 6) % 7;
+
+    // Total days in current month
+    var daysInMonth = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
+
+    // Fill previous days
+    for (var i = 0; i < startDay; i++) {
+        var blank = document.createElement('div');
+        blank.style.height = "34px";
+        gridEl.appendChild(blank);
+    }
+
+    // Render calendar day buttons
+    for (var d = 1; d <= daysInMonth; d++) {
+        (function(dayNum) {
+            var dayBtn = document.createElement('button');
+            dayBtn.type = 'button';
+            dayBtn.innerText = dayNum;
+            dayBtn.style.height = "34px";
+            dayBtn.style.width = "34px";
+            dayBtn.style.margin = "0 auto";
+            dayBtn.style.display = "flex";
+            dayBtn.style.alignItems = "center";
+            dayBtn.style.justifyContent = "center";
+            dayBtn.style.border = "none";
+            dayBtn.style.borderRadius = "50%";
+            dayBtn.style.cursor = "pointer";
+            dayBtn.style.fontSize = "0.85rem";
+            dayBtn.style.fontWeight = "600";
+            dayBtn.style.transition = "all 0.15s ease";
+
+            var isSelected = (
+                calSelectedDate &&
+                calSelectedDate.getFullYear() === calCurrentYear &&
+                calSelectedDate.getMonth() === calCurrentMonth &&
+                calSelectedDate.getDate() === dayNum
+            );
+
+            if (isSelected) {
+                dayBtn.style.background = "#2563EB";
+                dayBtn.style.color = "#FFFFFF";
+                dayBtn.style.boxShadow = "0 3px 8px rgba(37, 99, 235, 0.4)";
+            } else {
+                dayBtn.style.background = "transparent";
+                dayBtn.style.color = "#0F172A";
+                dayBtn.onmouseover = function() {
+                    if (!isSelected) this.style.background = "#F1F5F9";
+                };
+                dayBtn.onmouseout = function() {
+                    if (!isSelected) this.style.background = "transparent";
+                };
+            }
+
+            dayBtn.onclick = function(e) {
+                if (e) e.stopPropagation();
+                selectHeroCalendarDate(calCurrentYear, calCurrentMonth, dayNum);
+            };
+
+            gridEl.appendChild(dayBtn);
+        })(d);
+    }
+}
+
+function changeCalendarMonth(delta, e) {
+    if (e) e.stopPropagation();
+    calCurrentMonth += delta;
+    if (calCurrentMonth > 11) {
+        calCurrentMonth = 0;
+        calCurrentYear += 1;
+    } else if (calCurrentMonth < 0) {
+        calCurrentMonth = 11;
+        calCurrentYear -= 1;
+    }
+    renderHeroCalendar();
+}
+
+function selectHeroCalendarDate(year, month, day) {
+    calSelectedDate = new Date(year, month, day);
+    var yyyy = year;
+    var mm = String(month + 1).padStart(2, '0');
+    var dd = String(day).padStart(2, '0');
+    var dateString = yyyy + "-" + mm + "-" + dd;
+    var weekdayName = calDayNames[calSelectedDate.getDay()];
+
+    var displayEl = document.getElementById('heroDateDisplay');
+    var subEl = document.getElementById('heroDateSub');
+    var inputEl = document.getElementById('heroDateInput');
+    var dropdown = document.getElementById('dateDropdown');
+
+    if (displayEl) displayEl.innerText = dateString;
+    if (subEl) subEl.innerText = weekdayName + " " + year;
+    if (inputEl) inputEl.value = dateString;
+
+    renderHeroCalendar();
+
+    // Close dropdown smoothly
+    if (dropdown) {
+        dropdown.style.display = 'none';
+        dropdown.classList.remove('show');
+    }
+}
+
+// Initialize calendar on page load
+document.addEventListener('DOMContentLoaded', function() {
+    renderHeroCalendar();
+});
+</script>
+{% endblock %}

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'seo',
     'analytics',
     'notifications',
+    'channels',
 ]
 
 MIDDLEWARE = [

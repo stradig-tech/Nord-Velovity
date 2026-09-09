@@ -1,5 +1,5 @@
 {% load static i18n %}
-<nav class="sticky" id="nav-sidebar" aria-label="{% translate 'Sidebar' %}" style="width: 260px; min-width: 260px; max-width: 260px; height: 100vh; max-height: 100vh; background: #0F172A; color: #94A3B8; display: flex; flex-direction: column; border-right: 1px solid #1E293B; padding: 0; box-shadow: 2px 0 12px rgba(0,0,0,0.15); position: sticky; top: 0; left: 0; flex-shrink: 0; z-index: 100; overflow: hidden;">
+<nav class="sticky admin-sidebar-nav" id="nav-sidebar" aria-label="{% translate 'Sidebar' %}">
     
     <!-- Brand Header -->
     <div class="admin-brand" style="padding: 1.25rem 1rem; border-bottom: 1px solid #1E293B; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
@@ -24,6 +24,30 @@
                 <a href="/admin/bookings/booking/" class="nav-item {% if '/bookings/booking/' in request.path %}active{% endif %}">
                     <i class="ph-bold ph-calendar-check" style="font-size: 1.2rem; color: #10B981;"></i> 
                     <span>Bookings</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/operations/calendar/" class="nav-item {% if '/operations/calendar/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-calendar" style="font-size: 1.2rem; color: #38BDF8;"></i> 
+                    <span>Departure Calendar</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/tours/departure/" class="nav-item {% if '/tours/departure/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-airplane-takeoff" style="font-size: 1.2rem; color: #F43F5E;"></i> 
+                    <span>Tour Departures</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/tours/vehicletype/" class="nav-item {% if '/tours/vehicletype/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-van" style="font-size: 1.2rem; color: #8B5CF6;"></i> 
+                    <span>Vehicle Types</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/bookings/guaranteedreattempt/" class="nav-item {% if '/guaranteedreattempt/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-arrow-counter-clockwise" style="font-size: 1.2rem; color: #10B981;"></i> 
+                    <span>Re-attempts (Aurora)</span>
                 </a>
             </li>
             <li>

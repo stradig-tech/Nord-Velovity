@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Bookings | Nord Velocity{% endblock %}
+
+{% block content %}
+<section class="dashboard" style="padding: 3rem 0; background-color: #f8fafc; min-height: 80vh;">
+        <div class="container user-portal-grid" style="max-width: 1200px; margin: 0 auto;">
+            <!-- Left Sidebar -->
+            <!-- Left Sidebar -->
+            {% include 'accounts/customer_sidebar.html' with active_tab='bookings' %}
+            
+            <!-- Main Content -->
+            <div class="dashboard-main-content" id="dashboardMainContent">
+                {% include 'accounts/partials/my_bookings_partial.html' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

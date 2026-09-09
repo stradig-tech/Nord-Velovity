@@ -27,7 +27,7 @@ def login_view(request):
         else:
             messages.error(request, "Invalid email or password. Please try again.")
 
-    return render(request, 'login.html')
+    return render(request, 'accounts/login.html')
 
 
 def signup_view(request):
@@ -72,7 +72,7 @@ def signup_view(request):
             messages.success(request, "Your account has been created successfully!")
             return redirect('accounts:dashboard')
 
-    return render(request, 'signup.html')
+    return render(request, 'accounts/signup.html')
 
 
 def logout_view(request):
@@ -172,7 +172,9 @@ def dashboard_view(request):
         'wishlist_count': wishlist_count,
         'preferred_language': customer_profile.preferred_language if customer_profile else 'en',
     }
-    return render(request, 'user-dashboard.html', context)
+    if request.headers.get('HX-Request'):
+        return render(request, 'accounts/partials/dashboard_profile_partial.html', context)
+    return render(request, 'accounts/user-dashboard.html', context)
 
 
 @login_required
@@ -190,7 +192,9 @@ def my_bookings_view(request):
         'bookings': bookings,
         'selected_status': status_filter,
     }
-    return render(request, 'my-bookings.html', context)
+    if request.headers.get('HX-Request'):
+        return render(request, 'accounts/partials/my_bookings_partial.html', context)
+    return render(request, 'accounts/my-bookings.html', context)
 
 
 @login_required
@@ -203,7 +207,18 @@ def my_wishlist_view(request):
     context = {
         'wishlists': wishlists,
     }
-    return render(request, 'my-wishlist.html', context)
+    if request.headers.get('HX-Request'):
+        return render(request, 'accounts/partials/my_wishlist_partial.html', context)
+    return render(request, 'accounts/my-wishlist.html', context)
+
+
+@login_required
+def payment_details_view(request):
+    """Customer payment methods & VIP card management."""
+    context = {'active_tab': 'payment'}
+    if request.headers.get('HX-Request'):
+        return render(request, 'accounts/partials/payment_details_partial.html', context)
+    return render(request, 'accounts/payment-details.html', context)
 
 
 @login_required
@@ -242,4 +257,8 @@ def settings_view(request):
         messages.success(request, "Your profile has been updated successfully!")
         return redirect('accounts:settings')
 
-    return render(request, 'settings.html', {'user': user})
+    context = {'user': user}
+    if request.headers.get('HX-Request'):
+        return render(request, 'accounts/partials/settings_partial.html', context)
+    return render(request, 'accounts/settings.html', context)
+

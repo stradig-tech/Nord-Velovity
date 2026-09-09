@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}VIP Chauffeur & Executive Transfers | Nord Velocity{% endblock %}
+
+{% block seo %}
+<meta name="description" content="Executive chauffeur service and luxury airport transfers in Helsinki, Rovaniemi, and across the Nordics.">
+{% endblock %}
+
+{% block content %}
+<section class="transport-hero">
+    <div class="transport-hero-container">
+        <!-- Booking Card -->
+        <div class="cab-booking-card">
+            <h2 class="cab-booking-title">Book Your Online Cab</h2>
+            
+            <form action="{% url 'chauffeur:list' %}" method="get" id="cabSearchForm">
+                <div class="cab-trip-type">
+                    <label class="radio-label" style="cursor: pointer;">
+                        <input type="radio" name="trip_type" value="oneway" checked id="tripOneWay">
+                        <span class="radio-custom"></span>
+                        One Way
+                    </label>
+                    <label class="radio-label" style="cursor: pointer;">
+                        <input type="radio" name="trip_type" value="roundtrip" id="tripRoundTrip">
+                        <span class="radio-custom"></span>
+                        Round Trip
+                    </label>
+                </div>
+                
+                <div class="cab-input-row">
+                    <div class="cab-input-group">
+                        <label for="pickupInput" class="cab-input-label">Pickup</label>
+                        <input type="text" name="pickup" id="pickupInput" class="cab-input" placeholder="e.g. Helsinki-Vantaa Airport (HEL)" required list="nordicLocations" autocomplete="off">
+                    </div>
+                    <button type="button" class="cab-swap-btn" id="swapLocationsBtn" title="Swap pickup and drop-off locations"><i class="ph-bold ph-arrows-left-right"></i></button>
+                    <div class="cab-input-group" style="text-align: right;">
+                        <label for="dropInput" class="cab-input-label" style="display:block; width:100%;">Drop</label>
+                        <input type="text" name="drop" id="dropInput" class="cab-input" placeholder="e.g. Hotel Kämp, Helsinki" required list="nordicLocations" style="text-align: right;" autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Datalist of curated Nordic transfer hubs -->
+                <datalist id="nordicLocations">
+                    <option value="Helsinki-Vantaa Airport (HEL)">
+                    <option value="Helsinki Central Railway Station">
+                    <option value="Hotel Kämp, Helsinki">
+                    <option value="Rovaniemi Airport (RVN)">
+                    <option value="Santa Claus Village, Rovaniemi">
+                    <option value="Arctic TreeHouse Hotel, Rovaniemi">
+                    <option value="Kittilä Airport (KTT)">
+                    <option value="Levi Ski Resort">
+                    <option value="Ivalo Airport (IVL)">
+                    <option value="Kakslauttanen Arctic Resort">
+                    <option value="Tampere-Pirkkala Airport (TMP)">
+                    <option value="Turku Port / Harbor">
+                </datalist>
+                
+                <div class="cab-input-row" style="margin-top: 1.5rem;">
+                    <div class="cab-input-group">
+                        <label for="pickupDate" class="cab-input-label">Pickup Date</label>
+                        <input type="text" name="date" id="pickupDate" class="cab-input" placeholder="Select date" required style="cursor: pointer;">
+                    </div>
+                    <div class="cab-input-group" style="text-align: right;">
+                        <label for="pickupTime" class="cab-input-label" style="display:block; width:100%;">Pickup time</label>
+                        <input type="text" name="time" id="pickupTime" class="cab-input" placeholder="Select time" required style="text-align: right; cursor: pointer;">
+                    </div>
+                </div>
+
+                <!-- Return Date/Time (Revealed when Round Trip is selected) -->
+                <div class="cab-input-row" id="returnDateTimeRow" style="margin-top: 1.5rem; display: none;">
+                    <div class="cab-input-group">
+                        <label for="returnDate" class="cab-input-label">Return Date</label>
+                        <input type="text" name="return_date" id="returnDate" class="cab-input" placeholder="Select return date" style="cursor: pointer;">
+                    </div>
+                    <div class="cab-input-group" style="text-align: right;">
+                        <label for="returnTime" class="cab-input-label" style="display:block; width:100%;">Return time</label>
+                        <input type="text" name="return_time" id="returnTime" class="cab-input" placeholder="Select return time" style="text-align: right; cursor: pointer;">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100" style="margin-top: 2rem; border-radius: 8px; padding: 0.8rem; font-weight: 600; display: block; text-align: center; border: none; cursor: pointer; width: 100%;">Search Cabs</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Vehicles Section -->
+<section class="vehicles-section">
+    <div class="container">
+        <h2 class="section-title text-center">Our Executive Luxury Fleet</h2>
+        <div class="vehicles-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            {% for vc in vehicle_classes %}
+            <div class="vehicle-card" onclick="window.location.href='{% url 'chauffeur:list' %}?class={{ vc.id }}';" style="cursor: pointer;">
+                <div class="vehicle-icon-wrapper">
+                    {% if vc.image %}
+                    <img src="{{ vc.image.url }}" alt="{{ vc.name }}" style="max-height: 48px; width: auto; object-fit: contain;">
+                    {% else %}
+                    <i class="ph-fill ph-car-profile" style="color: #4F46E5; font-size: 2.2rem;"></i>
+                    {% endif %}
+                </div>
+                <h4 class="vehicle-name">{{ vc.name }}</h4>
+                <p class="vehicle-count">{{ vc.vehicles.count }} Active {% if vc.vehicles.count == 1 %}Vehicle{% else %}Vehicles{% endif %} &bull; Up to {{ vc.max_passengers }} Guests</p>
+            </div>
+            {% empty %}
+            <p class="text-center text-muted" style="grid-column: 1/-1;">Fleet vehicles are being prepared.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="why-choose-section">
+    <div class="container">
+        <h2 class="section-title text-center" style="margin-bottom: 3rem;">Why Choose {{ site_settings.site_name }} Chauffeur</h2>
+        <div class="feature-grid">
+            {% for vp in value_props %}
+            <div class="why-card">
+                <div class="why-icon" style="background: #EEF2FF; color: #4F46E5;">
+                    <i class="{{ vp.icon_class }}"></i>
+                </div>
+                <h4 class="why-title">{{ vp.title }}</h4>
+                <p class="why-desc">{{ vp.description }}</p>
+            </div>
+            {% empty %}
+            <div class="why-card">
+                <div class="why-icon" style="background: #F3E8FF; color: #9333EA;">
+                    <i class="ph-fill ph-shield-check"></i>
+                </div>
+                <h4 class="why-title">Certified Nordic Chauffeurs</h4>
+                <p class="why-desc">Professional English-speaking chauffeurs trained in Arctic winter driving conditions.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Footer Section -->     
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Initialize Flatpickr for Pickup Date
+    const pickupDateEl = document.getElementById('pickupDate');
+    if (pickupDateEl && typeof flatpickr !== 'undefined') {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const fpPickup = flatpickr(pickupDateEl, {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "D, d M Y",
+            minDate: "today",
+            defaultDate: tomorrow
+        });
+
+        // 2. Initialize Flatpickr for Pickup Time
+        flatpickr("#pickupTime", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            defaultDate: "10:00"
+        });
+
+        // 3. Initialize Flatpickr for Return Date
+        const returnDateEl = document.getElementById('returnDate');
+        if (returnDateEl) {
+            const dayAfter = new Date(tomorrow);
+            dayAfter.setDate(dayAfter.getDate() + 2);
+
+            flatpickr(returnDateEl, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "D, d M Y",
+                minDate: "today",
+                defaultDate: dayAfter
+            });
+
+            flatpickr("#returnTime", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                defaultDate: "16:00"
+            });
+        }
+    }
+
+    // 4. Swap Pickup and Drop Locations Button
+    const swapBtn = document.getElementById('swapLocationsBtn');
+    const pickupInput = document.getElementById('pickupInput');
+    const dropInput = document.getElementById('dropInput');
+
+    if (swapBtn && pickupInput && dropInput) {
+        swapBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const temp = pickupInput.value;
+            pickupInput.value = dropInput.value;
+            dropInput.value = temp;
+
+            // Visual feedback animation
+            swapBtn.style.transform = 'rotate(180deg) scale(1.1)';
+            setTimeout(() => {
+                swapBtn.style.transform = 'none';
+            }, 300);
+        });
+    }
+
+    // 5. Round Trip vs One Way Toggle
+    const tripOneWay = document.getElementById('tripOneWay');
+    const tripRoundTrip = document.getElementById('tripRoundTrip');
+    const returnRow = document.getElementById('returnDateTimeRow');
+    const returnDateInput = document.getElementById('returnDate');
+
+    function updateTripType() {
+        if (tripRoundTrip && tripRoundTrip.checked) {
+            returnRow.style.display = 'flex';
+            if (returnDateInput) returnDateInput.required = true;
+        } else {
+            returnRow.style.display = 'none';
+            if (returnDateInput) returnDateInput.required = false;
+        }
+    }
+
+    if (tripOneWay && tripRoundTrip) {
+        tripOneWay.addEventListener('change', updateTripType);
+        tripRoundTrip.addEventListener('change', updateTripType);
+    }
+});
+</script>
+{% endblock %}

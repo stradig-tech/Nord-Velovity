@@ -10,6 +10,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('my-bookings/', views.my_bookings_view, name='my_bookings'),
     path('my-wishlist/', views.my_wishlist_view, name='my_wishlist'),
+    path('payment-details/', views.payment_details_view, name='payment_details'),
     path('settings/', views.settings_view, name='settings'),
     path('api/wishlist/toggle/<int:tour_id>/', views.api_toggle_wishlist, name='api_toggle_wishlist'),
 ]

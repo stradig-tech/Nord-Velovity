@@ -18,10 +18,40 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from core.views import home_view, about_view, faq_view, contact_view
-
 from django.views.generic import RedirectView
 
+from bookings.views_admin import (
+    departure_calendar_view,
+    departure_calendar_api,
+    departure_status_toggle_api,
+    departure_capacity_update_api,
+    admin_manual_booking_view,
+    admin_rebook_departure_api
+)
+
+# Extend standard Django Admin site URLs
+_orig_admin_get_urls = admin.site.get_urls
+
+def _custom_admin_get_urls():
+    custom_urls = [
+        path('operations/calendar/', departure_calendar_view, name='departure_calendar'),
+        path('bookings/manual-create/', admin_manual_booking_view, name='manual_booking_create'),
+        path('api/departures/calendar/', departure_calendar_api, name='departure_calendar_api'),
+        path('api/departures/<int:departure_id>/status/', departure_status_toggle_api, name='departure_status_api'),
+        path('api/departures/<int:departure_id>/capacity/', departure_capacity_update_api, name='departure_capacity_api'),
+        path('api/bookings/<int:booking_id>/rebook/', admin_rebook_departure_api, name='booking_rebook_api'),
+    ]
+    return custom_urls + _orig_admin_get_urls()
+
+admin.site.get_urls = _custom_admin_get_urls
+
 urlpatterns = [
+    path('admin/operations/calendar/', departure_calendar_view, name='departure_calendar'),
+    path('admin/bookings/manual-create/', admin_manual_booking_view, name='manual_booking_create'),
+    path('admin/api/departures/calendar/', departure_calendar_api, name='departure_calendar_api'),
+    path('admin/api/departures/<int:departure_id>/status/', departure_status_toggle_api, name='departure_status_api'),
+    path('admin/api/departures/<int:departure_id>/capacity/', departure_capacity_update_api, name='departure_capacity_api'),
+    path('admin/api/bookings/<int:booking_id>/rebook/', admin_rebook_departure_api, name='booking_rebook_api'),
     path('admin/', admin.site.urls),
     path('payments/', include('payments.urls')),
     path('tours/', include('tours.urls')),

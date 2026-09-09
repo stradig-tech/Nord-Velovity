@@ -1,0 +1,419 @@
+{% extends "admin/base.html" %}
+{% load static i18n %}
+
+{% block title %}Central Departure & Capacity Calendar | {{ site_settings.site_name|default:"Nord Velocity" }} Admin{% endblock %}
+
+{% block extrahead %}
+<!-- FullCalendar 6.1.10 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<style>
+  .calendar-wrapper {
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    padding: 1.5rem;
+  }
+  .fc .fc-toolbar-title {
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+  }
+  .fc .fc-button-primary {
+    background: #0F172A !important;
+    border-color: #0F172A !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 0.4rem 0.9rem !important;
+    text-transform: capitalize !important;
+    font-size: 0.85rem !important;
+  }
+  .fc .fc-button-primary:hover {
+    background: #1E293B !important;
+    border-color: #1E293B !important;
+  }
+  .fc .fc-button-primary:disabled {
+    background: #94A3B8 !important;
+    border-color: #94A3B8 !important;
+  }
+  .fc .fc-button-active {
+    background: #6366F1 !important;
+    border-color: #6366F1 !important;
+  }
+  .fc-event {
+    cursor: pointer;
+    border-radius: 6px !important;
+    padding: 3px 6px !important;
+    margin-bottom: 3px !important;
+    border: none !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .fc-event:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  }
+  .fc-daygrid-event-dot {
+    display: none;
+  }
+  .cal-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    background: #FFFFFF;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+  }
+  .vehicle-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.25);
+    margin-right: 3px;
+    margin-top: 2px;
+  }
+  /* Modal styling */
+  .nv-modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .nv-modal {
+    background: #FFFFFF;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 680px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    border: 1px solid #E2E8F0;
+  }
+  .nv-modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nv-modal-body {
+    padding: 1.5rem;
+  }
+  .nv-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background: #F8FAFC;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto;">
+
+  <!-- Page Header -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 1.75rem; font-weight: 800; color: #0F172A; margin: 0; letter-spacing: -0.5px;">
+        Central Departure & Capacity Calendar
+      </h1>
+      <p style="color: #64748B; font-size: 0.95rem; margin: 0.35rem 0 0 0;">
+        OTA Central Inventory: Real-time capacity across <strong>Private Car (4)</strong>, <strong>Micro (12)</strong>, and <strong>Group Bus (54)</strong>.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <a href="{% url 'admin:manual_booking_create' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #6366F1; color: white; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.88rem; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);">
+        <i class="ph-bold ph-plus-circle"></i> Manual Booking
+      </a>
+      <a href="/admin/tours/departure/" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #F1F5F9; color: #0F172A; padding: 0.6rem 1.25rem; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.88rem; border: 1px solid #CBD5E1;">
+        <i class="ph-bold ph-table"></i> Table List View
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter & Legend Bar -->
+  <div class="cal-filter-bar">
+    <!-- Tour Filter -->
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <label for="tourFilter" style="font-size: 0.85rem; font-weight: 700; color: #475569;">Filter Tour:</label>
+      <select id="tourFilter" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.85rem; background: white; min-width: 260px;">
+        <option value="">All Tours (All Packages)</option>
+        {% for t in tours %}
+        <option value="{{ t.id }}" {% if selected_tour and selected_tour.id == t.id %}selected{% endif %}>{{ t.title }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="statusFilter" style="font-size: 0.85rem; font-weight: 700; color: #475569; margin-left: 0.5rem;">Status:</label>
+      <select id="statusFilter" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.85rem; background: white;">
+        <option value="">All Statuses</option>
+        <option value="OPEN">Open (Bookable)</option>
+        <option value="SOLD_OUT">Sold Out</option>
+        <option value="BLOCKED">Blocked</option>
+        <option value="CLOSED">Closed</option>
+      </select>
+    </div>
+
+    <!-- Status Legend -->
+    <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; color: #64748B;">
+      <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #10B981;"></span> Open</span>
+      <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #F97316;"></span> Sold Out</span>
+      <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #EF4444;"></span> Blocked / Closed</span>
+      <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #8B5CF6;"></span> Reserved</span>
+    </div>
+  </div>
+
+  <!-- Calendar Card -->
+  <div class="calendar-wrapper">
+    <div id="calendar"></div>
+  </div>
+
+</div>
+
+<!-- Modal: Departure Details & Operations -->
+<div id="departureModal" class="nv-modal-backdrop">
+  <div class="nv-modal">
+    <div class="nv-modal-header">
+      <div>
+        <h3 id="modalTourTitle" style="margin: 0; font-size: 1.2rem; font-weight: 800; color: #0F172A;">Departure Details</h3>
+        <p id="modalDateTime" style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748B;"></p>
+      </div>
+      <button onclick="closeModal()" style="border: none; background: transparent; font-size: 1.25rem; color: #94A3B8; cursor: pointer;">
+        <i class="ph-bold ph-x"></i>
+      </button>
+    </div>
+
+    <div class="nv-modal-body">
+      <!-- Status Controls -->
+      <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <span style="font-size: 0.8rem; color: #64748B; font-weight: 600;">CURRENT STATUS:</span>
+          <div id="modalStatusBadge" style="margin-top: 0.25rem;"></div>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="toggleDepartureStatus('OPEN')" style="background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; padding: 0.4rem 0.85rem; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+            Open
+          </button>
+          <button onclick="toggleDepartureStatus('CLOSED')" style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; padding: 0.4rem 0.85rem; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+            Close
+          </button>
+          <button onclick="toggleDepartureStatus('BLOCKED')" style="background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; padding: 0.4rem 0.85rem; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+            Block
+          </button>
+        </div>
+      </div>
+
+      <!-- Capacities Breakdown Table -->
+      <h4 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin: 0 0 0.75rem 0;">Independent Vehicle Capacities</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+          <thead>
+            <tr style="background: #F1F5F9; border-bottom: 2px solid #CBD5E1; color: #475569;">
+              <th style="padding: 0.6rem 0.75rem;">Vehicle Category</th>
+              <th style="padding: 0.6rem 0.75rem; text-align: center;">Total</th>
+              <th style="padding: 0.6rem 0.75rem; text-align: center;">Booked</th>
+              <th style="padding: 0.6rem 0.75rem; text-align: center;">Blocked</th>
+              <th style="padding: 0.6rem 0.75rem; text-align: center;">Re-attempt</th>
+              <th style="padding: 0.6rem 0.75rem; text-align: center;">Sellable</th>
+            </tr>
+          </thead>
+          <tbody id="modalCapacitiesBody">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Notice / Formula -->
+      <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #EFF6FF; border-left: 3px solid #3B82F6; border-radius: 6px; font-size: 0.8rem; color: #1E40AF;">
+        <strong>Sellable Capacity Formula:</strong> Public Sellable = Total − Confirmed Bookings − Blocked Seats − Re-attempt Holds. Deducted atomically across Direct & OTA channels.
+      </div>
+    </div>
+
+    <div class="nv-modal-footer">
+      <button onclick="closeModal()" style="padding: 0.5rem 1.25rem; border-radius: 8px; border: 1px solid #CBD5E1; background: white; color: #475569; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+        Close
+      </button>
+      <a id="modalBookManualLink" href="#" style="padding: 0.5rem 1.25rem; border-radius: 8px; background: #0F172A; color: white; font-weight: 700; text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+        <i class="ph-bold ph-user-plus"></i> Manual Booking
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  let calendarInstance = null;
+  let currentDepartureId = null;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+
+    calendarInstance = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,listMonth'
+      },
+      events: function(fetchInfo, successCallback, failureCallback) {
+        const tourId = document.getElementById('tourFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        const url = `/admin/api/departures/calendar/?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}&tour_id=${tourId}&status=${status}`;
+
+        fetch(url)
+          .then(res => res.json())
+          .then(data => {
+            successCallback(data.events);
+          })
+          .catch(err => {
+            console.error('Failed to load departures:', err);
+            failureCallback(err);
+          });
+      },
+      eventContent: function(arg) {
+        const ev = arg.event.extendedProps;
+        let badgesHtml = '';
+        if (ev.capacities) {
+          ev.capacities.forEach(c => {
+            const color = c.is_sold_out ? '#EF4444' : '#10B981';
+            badgesHtml += `<span class="vehicle-badge" title="${c.vehicle_type}: ${c.sellable}/${c.total} available">${c.vehicle_icon} ${c.sellable}</span>`;
+          });
+        }
+
+        const timeStr = arg.event.extendedProps.time || '';
+        const titleStr = arg.event.extendedProps.tour_title || arg.event.title;
+
+        return {
+          html: `
+            <div style="font-size: 0.75rem; padding: 2px 4px; overflow: hidden;">
+              <div style="font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
+                <span style="opacity: 0.85;">${timeStr}</span> <span>${titleStr}</span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; margin-top: 2px;">
+                ${badgesHtml}
+              </div>
+            </div>
+          `
+        };
+      },
+      eventClick: function(info) {
+        showDepartureModal(info.event);
+      }
+    });
+
+    calendarInstance.render();
+
+    document.getElementById('tourFilter').addEventListener('change', function() {
+      calendarInstance.refetchEvents();
+    });
+    document.getElementById('statusFilter').addEventListener('change', function() {
+      calendarInstance.refetchEvents();
+    });
+  });
+
+  function showDepartureModal(event) {
+    const props = event.extendedProps;
+    currentDepartureId = event.id;
+
+    document.getElementById('modalTourTitle').innerText = props.tour_title;
+    document.getElementById('modalDateTime').innerText = `Date: ${props.date} @ ${props.time} | Total Sellable: ${props.total_sellable} seats`;
+
+    // Status badge
+    const badgeMap = {
+      'OPEN': '<span style="background:#ECFDF5; color:#059669; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.85rem; border:1px solid #A7F3D0;">OPEN (Active)</span>',
+      'SOLD_OUT': '<span style="background:#FFF7ED; color:#C2410C; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.85rem; border:1px solid #FFEDD5;">SOLD OUT</span>',
+      'BLOCKED': '<span style="background:#FEF2F2; color:#DC2626; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.85rem; border:1px solid #FECACA;">BLOCKED</span>',
+      'CLOSED': '<span style="background:#F1F5F9; color:#475569; padding:4px 10px; border-radius:6px; font-weight:700; font-size:0.85rem; border:1px solid #CBD5E1;">CLOSED</span>',
+    };
+    document.getElementById('modalStatusBadge').innerHTML = badgeMap[props.status] || props.status;
+
+    // Manual booking link
+    document.getElementById('modalBookManualLink').href = `{% url 'admin:manual_booking_create' %}?departure_id=${event.id}&tour_id=${props.tour_id}`;
+
+    // Capacities table
+    const tbody = document.getElementById('modalCapacitiesBody');
+    tbody.innerHTML = '';
+
+    if (props.capacities) {
+      props.capacities.forEach(c => {
+        const sellableColor = c.is_sold_out ? '#EF4444' : '#059669';
+        const row = document.createElement('tr');
+        row.style.borderBottom = '1px solid #E2E8F0';
+        row.innerHTML = `
+          <td style="padding: 0.6rem 0.75rem; font-weight: 700; color: #0F172A;">
+            ${c.vehicle_icon} ${c.vehicle_type}
+          </td>
+          <td style="padding: 0.6rem 0.75rem; text-align: center; font-weight: 600;">${c.total}</td>
+          <td style="padding: 0.6rem 0.75rem; text-align: center; color: #3B82F6; font-weight: 700;">${c.booked}</td>
+          <td style="padding: 0.6rem 0.75rem; text-align: center; color: #F59E0B; font-weight: 700;">${c.blocked}</td>
+          <td style="padding: 0.6rem 0.75rem; text-align: center; color: #8B5CF6; font-weight: 700;">${c.reattempt_reserved}</td>
+          <td style="padding: 0.6rem 0.75rem; text-align: center; color: ${sellableColor}; font-weight: 800; font-size: 0.95rem;">
+            ${c.sellable}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    const modal = document.getElementById('departureModal');
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('departureModal').style.display = 'none';
+  }
+
+  function toggleDepartureStatus(newStatus) {
+    if (!currentDepartureId) return;
+
+    fetch(`/admin/api/departures/${currentDepartureId}/status/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ status: newStatus })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        closeModal();
+        calendarInstance.refetchEvents();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    })
+    .catch(err => {
+      alert('Network error: ' + err);
+    });
+  }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+</script>
+{% endblock %}

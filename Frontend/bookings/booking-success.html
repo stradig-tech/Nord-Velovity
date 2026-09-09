@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reservation Confirmed | {{ booking.booking_ref|default:ref }} | Nord Velocity{% endblock %}
+
+{% block content %}
+<section style="padding: 5rem 1rem; background-color: #F8FAFC; min-height: 75vh; display: flex; align-items: center; justify-content: center;">
+    <div style="max-width: 680px; width: 100%; margin: 0 auto; text-align: center; background: white; padding: 3.5rem 2.5rem; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #E2E8F0;">
+        
+        <!-- Status Icon -->
+        {% if method == 'offline' %}
+        <div style="width: 84px; height: 84px; background: #EEF2FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.75rem; border: 2px solid #C7D2FE;">
+            <i class="ph-bold ph-hand-coins" style="color: #4F46E5; font-size: 2.8rem;"></i>
+        </div>
+        <span style="display: inline-block; background: #FEF3C7; color: #92400E; font-size: 0.8rem; font-weight: 800; padding: 0.3rem 0.85rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+            Offline Reservation Confirmed
+        </span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #0F172A; margin-bottom: 0.75rem;">Your Trip is Secured!</h1>
+        <p style="color: #64748B; font-size: 1rem; line-height: 1.5; margin-bottom: 2rem;">
+            Thank you for booking with Nord Velocity. Your itinerary and seats have been reserved. Please review your offline payment instructions below.
+        </p>
+        {% else %}
+        <div style="width: 84px; height: 84px; background: #ECFDF5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.75rem; border: 2px solid #A7F3D0;">
+            <i class="ph-bold ph-check" style="color: #10B981; font-size: 2.8rem;"></i>
+        </div>
+        <span style="display: inline-block; background: #D1FAE5; color: #065F46; font-size: 0.8rem; font-weight: 800; padding: 0.3rem 0.85rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">
+            Payment Successful
+        </span>
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #0F172A; margin-bottom: 0.75rem;">Booking Confirmed!</h1>
+        <p style="color: #64748B; font-size: 1rem; line-height: 1.5; margin-bottom: 2rem;">
+            Your payment was processed successfully. We're excited to welcome you to the Arctic!
+        </p>
+        {% endif %}
+
+        <!-- Booking Details Card -->
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 1.5rem 1.75rem; border-radius: 16px; margin-bottom: 2rem; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.75rem;">
+                <span style="color: #64748B; font-size: 0.9rem;">Booking Reference:</span>
+                <strong style="color: #4F46E5; font-size: 1.15rem; font-family: monospace;">{{ booking.booking_ref|default:ref }}</strong>
+            </div>
+
+            {% if booking.tour_booking %}
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                <span style="color: #64748B;">Tour Package:</span>
+                <strong style="color: #0F172A;">{{ booking.tour_booking.tour.title }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                <span style="color: #64748B;">Departure Date:</span>
+                <strong style="color: #0F172A;">{{ booking.tour_booking.tour_date.start_date|date:"D, d M Y" }}</strong>
+            </div>
+            {% elif booking.chauffeur_booking %}
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                <span style="color: #64748B;">Chauffeur Service:</span>
+                <strong style="color: #0F172A;">{{ booking.chauffeur_booking.vehicle.vehicle_class.name }} &bull; {{ booking.chauffeur_booking.vehicle.name }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                <span style="color: #64748B;">Route:</span>
+                <strong style="color: #0F172A;">{{ booking.chauffeur_booking.pickup_address }} &rarr; {{ booking.chauffeur_booking.destination_address }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                <span style="color: #64748B;">Pickup Schedule:</span>
+                <strong style="color: #0F172A;">{{ booking.chauffeur_booking.pickup_datetime|date:"D, d M Y - H:i" }}</strong>
+            </div>
+            {% if booking.chauffeur_booking.return_datetime %}
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                <span style="color: #64748B;">Return Schedule:</span>
+                <strong style="color: #0F172A;">{{ booking.chauffeur_booking.return_datetime|date:"D, d M Y - H:i" }}</strong>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                <span style="color: #64748B;">Total Amount:</span>
+                <strong style="color: #0F172A; font-size: 1.05rem;">&euro;{{ booking.total_amount }}</strong>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                <span style="color: #64748B;">Payment Method:</span>
+                <strong style="color: #0F172A;">{{ booking.get_payment_method_display|default:"Offline Payment" }}</strong>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                <span style="color: #64748B;">Confirmation Email Sent To:</span>
+                <strong style="color: #0F172A;">{{ booking.customer.email|default:"Registered Email" }}</strong>
+            </div>
+        </div>
+
+        <!-- Offline Instructions Alert (if offline) -->
+        {% if method == 'offline' or booking.payment_method == 'OFFLINE' or booking.payment_method == 'BANK_TRANSFER' %}
+        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 14px; padding: 1.25rem 1.5rem; text-align: left; margin-bottom: 2rem;">
+            <h4 style="color: #92400E; font-size: 0.95rem; font-weight: 800; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="ph-bold ph-info"></i> How to Complete Payment:
+            </h4>
+            {% if booking.payment_method == 'BANK_TRANSFER' %}
+            <p style="color: #B45309; font-size: 0.86rem; line-height: 1.45; margin: 0 0 0.5rem 0;">
+                Please transfer <strong>&euro;{{ booking.total_amount }}</strong> to our bank account within 48 hours:
+            </p>
+            <div style="background: #FFFFFF; border: 1px solid #FCD34D; border-radius: 8px; padding: 0.75rem; font-size: 0.82rem; color: #78350F;">
+                <div><strong>Bank:</strong> {{ site_settings.bank_name|default:"Nordea Bank Finland" }}</div>
+                <div><strong>Account:</strong> {{ site_settings.bank_account_name|default:"Nord Velocity Oy" }}</div>
+                <div><strong>IBAN:</strong> <span style="font-family: monospace; font-weight: 700;">{{ site_settings.bank_iban|default:"FI12 3456 7890 1234 56" }}</span></div>
+                <div><strong>SWIFT / BIC:</strong> <span style="font-family: monospace; font-weight: 700;">{{ site_settings.bank_swift_bic|default:"NDEAFIFH" }}</span></div>
+                <div><strong>Payment Reference:</strong> <span style="font-family: monospace; font-weight: 700; color: #4F46E5;">{{ booking.booking_ref|default:ref }}</span></div>
+            </div>
+            {% else %}
+            <p style="color: #B45309; font-size: 0.86rem; line-height: 1.45; margin: 0;">
+                Please prepare <strong>&euro;{{ booking.total_amount }}</strong> in Cash (EUR) or with major credit card. You will pay directly upon meetup with your private chauffeur or Arctic concierge.
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Navigation Buttons -->
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'accounts:my_bookings' %}" style="background: #4F46E5; color: white; padding: 0.8rem 1.75rem; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <i class="ph-bold ph-calendar-check"></i>
+                <span>View My Bookings</span>
+            </a>
+            <a href="{% url 'accounts:dashboard' %}" style="border: 1px solid #CBD5E1; background: #FFFFFF; color: #334155; padding: 0.8rem 1.75rem; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 0.95rem;">
+                Customer Dashboard
+            </a>
+            <a href="{% url 'home' %}" style="color: #64748B; padding: 0.8rem 1.25rem; text-decoration: none; font-weight: 600; font-size: 0.95rem;">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

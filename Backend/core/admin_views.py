@@ -33,7 +33,7 @@ def admin_dashboard_view(request):
         'total_guests': total_guests,
         'recent_bookings': recent_bookings,
     }
-    return render(request, 'admin-dashboard.html', context)
+    return render(request, 'admin/admin-dashboard.html', context)
 
 
 @staff_member_required
@@ -47,7 +47,7 @@ def admin_bookings_view(request):
     if status_filter:
         bookings = bookings.filter(status=status_filter.upper())
 
-    return render(request, 'admin-bookings.html', {'bookings': bookings, 'selected_status': status_filter})
+    return render(request, 'admin/admin-bookings.html', {'bookings': bookings, 'selected_status': status_filter})
 
 
 @staff_member_required
@@ -57,7 +57,7 @@ def admin_booking_detail_view(request, booking_ref):
         Booking.objects.select_related('customer', 'tour_booking__tour', 'chauffeur_booking__vehicle_class'),
         booking_ref=booking_ref
     )
-    return render(request, 'admin-booking-detail.html', {'booking': booking})
+    return render(request, 'admin/admin-booking-detail.html', {'booking': booking})
 
 
 @staff_member_required
@@ -66,7 +66,7 @@ def admin_guests_view(request):
     guests = CustomUser.objects.filter(role='CUSTOMER').annotate(
         booking_count=Count('bookings')
     ).order_by('-date_joined')
-    return render(request, 'admin-guest-list.html', {'guests': guests})
+    return render(request, 'admin/admin-guest-list.html', {'guests': guests})
 
 
 @staff_member_required
@@ -74,7 +74,7 @@ def admin_guest_detail_view(request, guest_id):
     """Customer profile and booking history detail."""
     guest = get_object_or_404(CustomUser, id=guest_id)
     guest_bookings = Booking.objects.filter(customer=guest).order_by('-created_at')
-    return render(request, 'admin-guest-detail.html', {'guest': guest, 'bookings': guest_bookings})
+    return render(request, 'admin/admin-guest-detail.html', {'guest': guest, 'bookings': guest_bookings})
 
 
 @staff_member_required
@@ -91,7 +91,7 @@ def admin_reviews_view(request):
         messages.success(request, f"Review status updated for {review.user.email}!")
         return redirect('custom_admin:reviews')
 
-    return render(request, 'admin-reviews.html', {'reviews': reviews})
+    return render(request, 'admin/admin-reviews.html', {'reviews': reviews})
 
 
 @staff_member_required
@@ -105,7 +105,7 @@ def admin_earnings_view(request):
         status__in=['CONFIRMED', 'COMPLETED']
     ).aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
 
-    return render(request, 'admin-earnings.html', {
+    return render(request, 'admin/admin-earnings.html', {
         'revenue_by_type': revenue_by_type,
         'total_revenue': total_revenue
     })
@@ -114,4 +114,4 @@ def admin_earnings_view(request):
 @staff_member_required
 def admin_settings_view(request):
     """Executive platform configuration settings."""
-    return render(request, 'admin-settings.html')
+    return render(request, 'admin/admin-settings.html')

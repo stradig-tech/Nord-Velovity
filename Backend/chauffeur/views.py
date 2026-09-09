@@ -23,7 +23,7 @@ def transport_home_view(request):
         'vehicle_classes': vehicle_classes,
         'fixed_routes': fixed_routes,
     }
-    return render(request, 'transport.html', context)
+    return render(request, 'chauffeur/transport.html', context)
 
 
 def vehicle_list_view(request):
@@ -86,7 +86,7 @@ def vehicle_list_view(request):
         'fare_estimates': fare_estimates,
         'is_roundtrip': is_roundtrip,
     }
-    return render(request, 'cab-list.html', context)
+    return render(request, 'chauffeur/cab-list.html', context)
 
 
 def vehicle_detail_view(request, slug):
@@ -175,7 +175,7 @@ def vehicle_detail_view(request, slug):
         'safety_standards': safety_standards,
         'cab_photos': cab_photos,
     }
-    return render(request, 'cab-details.html', context)
+    return render(request, 'chauffeur/cab-details.html', context)
 
 
 def chauffeur_booking_create_view(request, slug):

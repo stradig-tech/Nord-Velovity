@@ -502,75 +502,6 @@ body {
     box-shadow: 0 6px 20px 0 rgba(0, 102, 255, 0.3);
 }
 
-/* Responsive Fallbacks */
-@media (max-width: 1024px) {
-    .nav-links {
-        gap: 1.5rem;
-    }
-}
-
-/* Responsive Navigation */
-/* Responsive Navigation */
-.mobile-menu-toggle {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 1.75rem;
-    color: var(--text-main);
-    cursor: pointer;
-    padding: 0.5rem;
-}
-
-@media (max-width: 960px) {
-    .mobile-menu-toggle {
-        display: block;
-    }
-    
-    .nav-links {
-        display: none; /* Hidden by default on mobile */
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background-color: #FFFFFF;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 1.5rem 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        gap: 1.5rem;
-        z-index: 999;
-    }
-    
-    .nav-links.active {
-        display: flex;
-    }
-    
-    .nav-actions {
-        display: none;
-    }
-
-    .megamenu {
-        position: static;
-        box-shadow: none;
-        opacity: 1;
-        visibility: visible;
-        display: none;
-        margin-top: 1rem;
-        transform: none;
-    }
-
-    .dropdown:hover .megamenu, .dropdown:focus-within .megamenu {
-        display: block;
-    }
-}
-}
-
-@media (max-width: 600px) {
-    .nav-actions {
-        display: none;
-    }
-}
-
 /* Top Bar */
 .top-bar {
     background-color: #F8FAFC;
@@ -882,12 +813,20 @@ body {
     .hero-bg, .hero-overlay {
         border-radius: 0;
     }
-    .booking-card-wrapper {
-        width: 95%;
-        bottom: -10rem;
-    }
     .hero {
-        margin-bottom: 14rem;
+        margin-bottom: 0 !important;
+        padding-bottom: 5.5rem !important;
+    }
+    .booking-card-wrapper {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: -3.5rem !important;
+        margin-bottom: 2.5rem !important;
+        padding: 0 1rem !important;
     }
 }
 
@@ -4834,6 +4773,22 @@ body {
     top: -2px;
 }
 
+/* Inclusions List (Clean icon lists with zero bullet dots) */
+.inclusions-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.inclusions-list li {
+    list-style: none !important;
+    padding-left: 0 !important;
+    position: static !important;
+}
+.inclusions-list li::before {
+    content: none !important;
+    display: none !important;
+}
+
 /* Gallery */
 .cab-gallery {
     display: grid;
@@ -5303,6 +5258,18 @@ body {
     padding: 1.25rem 1.5rem;
     font-size: 1rem;
     color: #0F172A;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+.itinerary-accordion .accordion-header:hover {
+    background: #F1F5F9;
+}
+.itinerary-accordion .accordion-header i {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+.itinerary-accordion .accordion-item.open .accordion-header {
+    border-bottom: 1px solid #E2E8F0;
 }
 .itinerary-accordion .accordion-body {
     padding: 1.5rem;
@@ -7821,23 +7788,16 @@ input:checked + .slider:before {
 
 .faq-accordion details summary::-webkit-details-marker,
 .faq-item summary::-webkit-details-marker,
-.faq-card summary::-webkit-details-marker {
+.faq-card summary::-webkit-details-marker,
+.faq-accordion details summary::marker,
+.faq-item summary::marker,
+.faq-card summary::marker {
     display: none !important;
+    content: "" !important;
 }
 
 .faq-arrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #F1F5F9;
-    color: #0D6EFD;
-    font-size: 1.1rem;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-    flex-shrink: 0;
-    margin-left: 1rem;
+    display: none !important;
 }
 
 /* Smooth arrow rotation when FAQ is open */
@@ -8051,13 +8011,921 @@ details[open] summary:hover .faq-arrow {
     list-style: none;
 }
 
+/* Responsive Navigation & Logo */
+.navbar-logo-img {
+    height: 54px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.navbar-logo-img:hover {
+    transform: scale(1.03);
+}
+
+/* Navigation Responsive Handling */
+
+.mobile-menu-toggle {
+    display: none;
+    background: #F1F5F9;
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 1.4rem;
+    color: var(--text-main);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.mobile-menu-toggle:hover {
+    background: #E2E8F0;
+    color: #4F46E5;
+}
+
+@keyframes fadeInDrawer {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes expandMega {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 800px; }
+}
+
 @media (max-width: 960px) {
+    .navbar-container {
+        min-height: 64px;
+        padding: 0.5rem 1rem;
+    }
+
+    .navbar-logo-img {
+        height: 44px;
+        transform: none;
+    }
+
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    .nav-links {
+        display: none;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: calc(100vh - 64px);
+        background-color: #FFFFFF;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1.25rem 1rem 3rem 1rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        gap: 0.65rem;
+        z-index: 999;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .nav-links.active {
+        display: flex;
+        animation: fadeInDrawer 0.25s ease forwards;
+    }
+    
+    .nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0F172A;
+        border-radius: 10px;
+        background: #F8FAFC;
+        border: 1px solid #F1F5F9;
+        text-decoration: none;
+        width: 100%;
+    }
+    
+    .dropdown {
+        width: 100%;
+    }
+    
+    .dropdown .megamenu {
+        position: static;
+        box-shadow: none;
+        opacity: 1;
+        visibility: visible;
+        display: none;
+        margin-top: 0.5rem;
+        padding: 0.85rem;
+        background: #F8FAFC;
+        border-radius: 12px;
+        transform: none;
+        border: 1px solid #E2E8F0;
+    }
+    
+    .dropdown.open .megamenu {
+        display: block;
+        animation: expandMega 0.25s ease forwards;
+    }
+    
+    .megamenu .mega-sidebar {
+        background: transparent !important;
+        padding: 0.5rem 0 !important;
+    }
+    
+    .megamenu .mega-content {
+        padding: 0.5rem 0 !important;
+    }
+    
+    .megamenu .mega-promo {
+        display: none !important;
+    }
+    
+    .mega-dest-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
+    }
+    
     .nav-actions {
         display: flex !important;
         align-items: center;
+        gap: 0.6rem;
     }
+    
+    .nav-login-btn {
+        padding: 0.4rem 0.85rem !important;
+        font-size: 0.82rem !important;
+    }
+    
     .user-profile-dropdown {
         right: 0;
         max-width: calc(100vw - 32px);
     }
 }
+
+/* ==========================================================================
+   NORD VELOCITY MASTER RESPONSIVE SYSTEM
+   Ensures 100% device responsiveness across mobile, tablet, and desktop viewports
+   ========================================================================== */
+
+/* Universal Anti-Overflow & Viewport Guard */
+html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw;
+    width: 100%;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+img, video, iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Global Fluid Containers */
+.container,
+.hero-container,
+.packages-container,
+.booking-container,
+.admin-container {
+    width: 100%;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(1rem, 3vw, 2rem);
+    padding-right: clamp(1rem, 3vw, 2rem);
+    box-sizing: border-box;
+}
+
+/* Navigation & Mobile Drawer Utilities */
+body.mobile-nav-open {
+    overflow: hidden !important;
+    touch-action: none;
+}
+
+/* Fluid Hero Typography & Booking Card */
+.hero-title {
+    font-size: clamp(2rem, 5vw, 3.75rem) !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.02em;
+    word-break: break-word;
+}
+
+.hero-subtitle {
+    font-size: clamp(0.95rem, 2vw, 1.25rem) !important;
+    line-height: 1.5 !important;
+    max-width: 600px;
+}
+
+.booking-card-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.booking-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    min-width: 240px;
+    max-width: calc(100vw - 32px);
+    max-height: 280px;
+    overflow-y: auto;
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    z-index: 1050;
+    box-sizing: border-box;
+}
+
+.booking-dropdown-menu.show {
+    display: block;
+}
+
+/* Bento Destination Grid */
+.bento-dest-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 1.5rem;
+    gap: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.bento-tall {
+    grid-row: span 2;
+    min-height: 480px;
+}
+
+.bento-card {
+    min-height: 220px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Explore & Value Props */
+.explore-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.explore-features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.fanned-cards {
+    position: relative;
+    max-width: 100%;
+}
+
+.explore-awards {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+/* Testimonials Track */
+.testimonials-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.testimonials-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+}
+
+/* Tour Packages & Tour Listing */
+.packages-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.packages-sidebar {
+    position: sticky;
+    top: 90px;
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid #E2E8F0;
+    box-sizing: border-box;
+}
+
+.mobile-filter-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+    background: #F8FAFC;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+}
+
+.mobile-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.15rem;
+    background: #0F172A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.mobile-filter-toggle:hover {
+    background: #1E293B;
+}
+
+.packages-grid,
+.tours-grid,
+.dest-cards-grid,
+.country-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.75rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Tour Details & Vehicles */
+.tour-details-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vehicle-option-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vehicle-option-card {
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #FFFFFF;
+    text-align: center;
+}
+
+.vehicle-option-card.selected,
+.vehicle-option-card:hover {
+    border-color: #0F172A;
+    background: #F8FAFC;
+}
+
+/* Checkout Flow */
+.checkout-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2.5rem;
+    align-items: start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.payment-tabs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.booking-tour-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    background: #F8FAFC;
+    border-radius: 14px;
+    border: 1px solid #E2E8F0;
+}
+
+/* Chauffeur / VIP Transport */
+.cab-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cab-swap-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid #E2E8F0;
+    background: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.cab-swap-btn:hover {
+    background: #F1F5F9;
+}
+
+.vehicles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cab-card-main,
+.dest-horizontal-card {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 1.5rem;
+    background: #FFFFFF;
+    border-radius: 16px;
+    border: 1px solid #E2E8F0;
+    overflow: hidden;
+}
+
+/* User Portal / Account Dashboard */
+.user-portal-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.destination-details-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Stats Row */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Global Footer & Newsletter */
+.newsletter-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: clamp(2rem, 4vw, 3.5rem);
+    border-radius: 20px;
+    background: #0F172A;
+    color: #FFFFFF;
+    box-sizing: border-box;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 2.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   BREAKPOINT: TABLET LANDSCAPE & DESKTOP COLLAPSE (<= 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .packages-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .packages-sidebar {
+        position: static;
+        display: none;
+        margin-bottom: 1.5rem;
+    }
+
+    .packages-sidebar.mobile-filter-open,
+    .packages-sidebar.active {
+        display: block;
+        animation: fadeInDrawer 0.25s ease forwards;
+    }
+
+    .mobile-filter-bar {
+        display: flex;
+    }
+
+    .packages-grid,
+    .tours-grid,
+    .dest-cards-grid,
+    .country-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .bento-dest-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .bento-tall {
+        grid-row: auto;
+        min-height: 280px;
+    }
+
+    .explore-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .explore-features {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .vehicles-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .tour-details-layout,
+    .checkout-grid-layout,
+    .destination-details-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .checkout-grid-layout > aside,
+    .tour-details-layout > aside {
+        position: static !important;
+        width: 100%;
+    }
+
+    .user-portal-grid {
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+    }
+
+    .dashboard-sidebar .sidebar-nav {
+        display: flex;
+        overflow-x: auto;
+        gap: 0.5rem;
+        padding-bottom: 0.75rem;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+
+    .dashboard-sidebar .sidebar-nav a {
+        padding: 0.6rem 1.15rem;
+        border-radius: 9999px;
+        background: #F1F5F9;
+        white-space: nowrap;
+    }
+
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .newsletter-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .newsletter-banner form {
+        width: 100%;
+        max-width: 480px;
+    }
+}
+
+/* ==========================================================================
+   BREAKPOINT: MOBILE & TABLET PORTRAIT (<= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .navbar-logo-img {
+        height: 38px;
+    }
+
+    .packages-grid,
+    .tours-grid,
+    .dest-cards-grid,
+    .country-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .bento-dest-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .bento-card {
+        min-height: 200px;
+    }
+
+    .explore-features {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .fanned-cards {
+        transform: scale(0.85);
+        transform-origin: left center;
+        max-width: 100%;
+    }
+
+    .testimonials-track {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .vehicle-option-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .vehicles-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .form-row-2 {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .payment-tabs-grid {
+        grid-template-columns: 1fr;
+        gap: 0.6rem;
+    }
+
+    .cab-booking-card {
+        padding: 1.5rem !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .cab-input-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .cab-input-group {
+        width: 100% !important;
+        text-align: left !important;
+    }
+
+    .cab-input-group * {
+        text-align: left !important;
+    }
+
+    .cab-swap-btn {
+        position: static !important;
+        left: auto !important;
+        bottom: auto !important;
+        align-self: center;
+        transform: rotate(90deg);
+        margin: 0.25rem 0;
+    }
+
+    .page-hero h1,
+    .tours-section h2,
+    .hotels-section h2,
+    .transport-section h2 {
+        font-size: clamp(1.85rem, 4.5vw, 3rem) !important;
+    }
+
+    .hotels-grid,
+    .transport-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+
+    .cab-card-main,
+    .dest-horizontal-card {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .cab-card-main img,
+    .dest-horizontal-card img {
+        height: 190px;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    .booking-tour-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .booking-tour-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+    }
+
+    .stats-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    /* Touch target accessibility */
+    button, 
+    .btn, 
+    input[type="button"], 
+    input[type="submit"],
+    .nav-link,
+    .mobile-filter-toggle {
+        min-height: 44px;
+    }
+
+    /* Modal bounds on mobile */
+    .modal-content,
+    .dialog-content {
+        width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - 24px) !important;
+        margin: 1rem auto;
+        padding: 1.25rem;
+    }
+}
+
+/* ==========================================================================
+   BREAKPOINT: SMALL MOBILE (<= 480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.85rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .fanned-cards {
+        transform: scale(0.72);
+        transform-origin: left center;
+    }
+
+    .container, 
+    .hero-container,
+    .packages-container, 
+    .booking-container,
+    .admin-container {
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+    }
+
+    .booking-dropdown-menu {
+        left: 0 !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+    }
+
+    .booking-card {
+        padding: 1rem !important;
+    }
+
+    .newsletter-banner {
+        padding: 1.5rem 1rem !important;
+    }
+}
+
+/* ==========================================================================
+   HTMX DYNAMIC INTERACTIONS & PROGRESS INDICATOR
+   ========================================================================== */
+.htmx-indicator-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3.5px;
+    z-index: 999999;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(90deg, #4F46E5 0%, #06B6D4 50%, #4F46E5 100%);
+    background-size: 200% 100%;
+    transition: opacity 0.2s ease;
+}
+
+.htmx-request .htmx-indicator-bar,
+body.htmx-request .htmx-indicator-bar,
+.htmx-indicator-bar.htmx-request {
+    opacity: 1;
+    animation: htmxProgressPulse 1.2s infinite linear;
+}
+
+@keyframes htmxProgressPulse {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.htmx-swapping {
+    opacity: 0.35;
+    transition: opacity 0.15s ease-out;
+}
+
+.htmx-settling {
+    opacity: 1;
+    transition: opacity 0.2s ease-in;
+}
+
+.htmx-fade-in {
+    animation: htmxFadeIn 0.25s ease-out;
+}
+
+@keyframes htmxFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Subtle inline loading indicator for filter badges */
+.filter-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(79, 70, 229, 0.2);
+    border-top-color: #4F46E5;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.htmx-request .filter-spinner {
+    display: inline-block;
+}
+

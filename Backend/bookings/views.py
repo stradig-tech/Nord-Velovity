@@ -5,18 +5,25 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
 from .models import Booking, TourBooking
-from tours.models import Tour, TourDate
+from tours.models import Tour, TourDate, Departure, DepartureCapacity, VehicleType
 from accounts.models import CustomUser, CustomerProfile
 from .services import BookingService
 from payments.services import CouponService
-from tours.services import TourPricingService
+from tours.services import TourPricingService, DepartureService
 
 def booking_create_view(request, tour_slug):
     """
     Renders the reservation form (tour-booking.html) to collect guest details before checkout.
+    Supports Departure-based bookings with multi-capacity vehicle types (Private Car, Micro, Group Bus).
     """
-    tour = get_object_or_404(Tour.objects.prefetch_related('dates', 'pricing'), slug=tour_slug, status='PUBLISHED')
+    tour = get_object_or_404(
+        Tour.objects.prefetch_related('departures__capacities__vehicle_type', 'pricing', 'option_pricing'),
+        slug=tour_slug,
+        status='PUBLISHED'
+    )
+    available_departures = tour.departures.filter(status='OPEN').order_by('date', 'time')
     available_dates = tour.dates.filter(status='AVAILABLE').order_by('start_date')
+    vehicle_types = VehicleType.objects.filter(is_active=True).order_by('sort_order', 'default_capacity')
 
     if request.method == 'POST':
         # Customer details
@@ -46,9 +53,27 @@ def booking_create_view(request, tour_slug):
                 )
                 CustomerProfile.objects.create(user=customer)
 
+        departure_id = request.POST.get('departure_id')
         date_id = request.POST.get('date_id')
-        tour_date = TourDate.objects.filter(id=date_id, tour=tour, status='AVAILABLE').first()
-        if not tour_date:
+        vehicle_type_id = request.POST.get('vehicle_type_id')
+
+        departure = None
+        tour_date = None
+        vehicle_type = None
+
+        if departure_id:
+            departure = Departure.objects.filter(id=departure_id, tour=tour).first()
+        elif date_id:
+            tour_date = TourDate.objects.filter(id=date_id, tour=tour).first()
+            if tour_date:
+                departure = Departure.objects.filter(tour=tour, date=tour_date.start_date).first()
+
+        if vehicle_type_id:
+            vehicle_type = VehicleType.objects.filter(id=vehicle_type_id, is_active=True).first()
+        if not vehicle_type:
+            vehicle_type = VehicleType.objects.filter(slug='micro').first() or vehicle_types.first()
+
+        if not departure and not tour_date:
             messages.error(request, "Please select an available departure date.")
             return redirect('bookings:create', tour_slug=tour.slug)
 
@@ -71,6 +96,8 @@ def booking_create_view(request, tour_slug):
             customer=customer,
             tour=tour,
             tour_date=tour_date,
+            departure=departure,
+            vehicle_type=vehicle_type,
             adults=adults,
             children=children,
             guests_info=guests_info,
@@ -84,7 +111,10 @@ def booking_create_view(request, tour_slug):
         else:
             messages.error(request, result.get('error', 'Booking could not be created.'))
 
+    initial_departure_id = request.GET.get('departure_id')
     initial_date_id = request.GET.get('date_id')
+    initial_vehicle_id = request.GET.get('vehicle_type_id') or request.GET.get('vehicle_type')
+
     try:
         initial_adults = max(1, int(request.GET.get('adults', 2)))
     except (ValueError, TypeError):
@@ -94,32 +124,61 @@ def booking_create_view(request, tour_slug):
     except (ValueError, TypeError):
         initial_children = 0
 
-    selected_date = None
-    if initial_date_id:
-        selected_date = available_dates.filter(id=initial_date_id).first()
-    if not selected_date and available_dates.exists():
-        selected_date = available_dates.first()
+    selected_departure = None
+    if initial_departure_id:
+        selected_departure = available_departures.filter(id=initial_departure_id).first()
+    elif initial_date_id:
+        td = available_dates.filter(id=initial_date_id).first()
+        if td:
+            selected_departure = available_departures.filter(date=td.start_date).first()
 
+    if not selected_departure and available_departures.exists():
+        selected_departure = available_departures.first()
+
+    selected_vehicle_type = None
+    if initial_vehicle_id:
+        selected_vehicle_type = (
+            vehicle_types.filter(id=initial_vehicle_id).first() or
+            vehicle_types.filter(slug=initial_vehicle_id).first()
+        )
+    if not selected_vehicle_type:
+        selected_vehicle_type = vehicle_types.filter(slug='micro').first() or vehicle_types.first()
+
+    # Calculate pricing
     pricing = None
     try:
-        pricing = TourPricingService.calculate_price(
-            tour=tour,
-            tour_date=selected_date,
-            adults=initial_adults,
-            children=initial_children
-        )
+        if selected_departure and selected_vehicle_type:
+            dc = selected_departure.capacities.filter(vehicle_type=selected_vehicle_type).first()
+            pricing = DepartureService.calculate_price(
+                tour=tour,
+                vehicle_type=selected_vehicle_type,
+                departure_capacity=dc,
+                adults=initial_adults,
+                children=initial_children
+            )
+        elif available_dates.exists():
+            pricing = TourPricingService.calculate_price(
+                tour=tour,
+                tour_date=available_dates.first(),
+                adults=initial_adults,
+                children=initial_children
+            )
     except Exception:
         pass
 
     context = {
         'tour': tour,
+        'available_departures': available_departures,
         'available_dates': available_dates,
-        'selected_date': selected_date,
+        'vehicle_types': vehicle_types,
+        'selected_departure': selected_departure,
+        'selected_vehicle_type': selected_vehicle_type,
+        'selected_date': selected_departure.date if selected_departure else (available_dates.first().start_date if available_dates.exists() else None),
         'initial_adults': initial_adults,
         'initial_children': initial_children,
         'pricing': pricing,
     }
-    return render(request, 'tour-booking.html', context)
+    return render(request, 'bookings/tour-booking.html', context)
 
 
 def booking_summary_view(request, booking_ref):
@@ -130,6 +189,8 @@ def booking_summary_view(request, booking_ref):
         Booking.objects.select_related(
             'tour_booking__tour',
             'tour_booking__tour_date',
+            'tour_booking__departure',
+            'tour_booking__vehicle_type',
             'chauffeur_booking__vehicle__vehicle_class',
             'customer',
             'coupon'
@@ -162,7 +223,7 @@ def booking_summary_view(request, booking_ref):
         'tour_booking': getattr(booking, 'tour_booking', None),
         'chauffeur_booking': getattr(booking, 'chauffeur_booking', None),
     }
-    return render(request, 'booking-summary.html', context)
+    return render(request, 'bookings/booking-summary.html', context)
 
 
 def booking_success_view(request):
@@ -180,7 +241,7 @@ def booking_success_view(request):
             'chauffeur_booking__vehicle__vehicle_class'
         ).filter(booking_ref=booking_ref).first()
 
-    return render(request, 'booking-success.html', {
+    return render(request, 'bookings/booking-success.html', {
         'booking': booking,
         'tour_booking': getattr(booking, 'tour_booking', None) if booking else None,
         'chauffeur_booking': getattr(booking, 'chauffeur_booking', None) if booking else None,

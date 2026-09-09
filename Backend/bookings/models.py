@@ -12,11 +12,30 @@ class Booking(models.Model):
     coupon = models.ForeignKey('payments.Coupon', on_delete=models.SET_NULL, null=True, blank=True, related_name='bookings')
     
     STATUS_CHOICES = (
-        ('PENDING', 'Pending'), ('CONFIRMED', 'Confirmed'), 
-        ('IN_PROGRESS', 'In Progress'), ('COMPLETED', 'Completed'), 
-        ('CANCELLED', 'Cancelled'), ('REFUNDED', 'Refunded')
+        ('HELD', 'Held / Reserved'),
+        ('PENDING', 'Pending'),
+        ('PENDING_PAYMENT', 'Pending Payment'),
+        ('CONFIRMED', 'Confirmed'),
+        ('IN_PROGRESS', 'In Progress'),
+        ('COMPLETED', 'Completed'),
+        ('CANCELLED', 'Cancelled'),
+        ('EXPIRED', 'Expired'),
+        ('REFUNDED', 'Refunded'),
+        ('PARTIALLY_REFUNDED', 'Partially Refunded'),
     )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    status = models.CharField(max_length=25, choices=STATUS_CHOICES, default='PENDING')
+
+    SOURCE_CHOICES = (
+        ('DIRECT', 'Direct Website'),
+        ('GETYOURGUIDE', 'GetYourGuide'),
+        ('VIATOR', 'Viator'),
+        ('MANUAL', 'Manual (Phone/Agent)'),
+        ('HOTEL_AGENT', 'Hotel Agent'),
+        ('OTHER_OTA', 'Other OTA'),
+    )
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='DIRECT')
+    external_reference = models.CharField(max_length=200, blank=True, null=True, help_text="External OTA booking reference ID")
+    hold_expires_at = models.DateTimeField(null=True, blank=True, help_text="If status is HELD, auto-expire and release capacity after this time")
 
     PAYMENT_METHOD_CHOICES = (
         ('STRIPE', 'Credit Card (Stripe)'),
@@ -78,7 +97,10 @@ class ChauffeurBooking(models.Model):
 class TourBooking(models.Model):
     booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='tour_booking')
     tour = models.ForeignKey(Tour, on_delete=models.RESTRICT)
-    tour_date = models.ForeignKey(TourDate, on_delete=models.RESTRICT)
+    tour_date = models.ForeignKey(TourDate, on_delete=models.SET_NULL, null=True, blank=True)
+    departure = models.ForeignKey('tours.Departure', on_delete=models.SET_NULL, null=True, blank=True, related_name='tour_bookings')
+    departure_capacity = models.ForeignKey('tours.DepartureCapacity', on_delete=models.SET_NULL, null=True, blank=True, related_name='tour_bookings')
+    vehicle_type = models.ForeignKey('tours.VehicleType', on_delete=models.SET_NULL, null=True, blank=True, related_name='tour_bookings')
     
     adults = models.IntegerField(default=1)
     children = models.IntegerField(default=0)
@@ -98,8 +120,53 @@ class TourBookingGuest(models.Model):
 
 class BookingStatusLog(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='status_logs')
-    old_status = models.CharField(max_length=20)
-    new_status = models.CharField(max_length=20)
+    old_status = models.CharField(max_length=25)
+    new_status = models.CharField(max_length=25)
     changed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     reason = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class GuaranteedReattempt(models.Model):
+    """
+    Tracks re-attempt eligibility for guaranteed experience tours (e.g., Northern Lights).
+    Links original failed booking to a re-attempt on next available departure.
+    """
+    original_booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='reattempt_from')
+    original_departure = models.ForeignKey('tours.Departure', on_delete=models.CASCADE, related_name='reattempts_originating')
+
+    reattempt_departure = models.ForeignKey(
+        'tours.Departure', on_delete=models.SET_NULL, null=True, blank=True, related_name='reattempts_received'
+    )
+    reattempt_booking = models.ForeignKey(
+        Booking, on_delete=models.SET_NULL, null=True, blank=True, related_name='reattempt_to'
+    )
+
+    guests_count = models.PositiveIntegerField()
+    REASON_CHOICES = (
+        ('WEATHER', 'Weather Conditions / Aurora Not Visible'),
+        ('OPERATIONAL', 'Operational Issue'),
+        ('OTHER', 'Other'),
+    )
+    reason = models.CharField(max_length=20, choices=REASON_CHOICES, default='WEATHER')
+
+    STATUS_CHOICES = (
+        ('ELIGIBLE', 'Eligible for Re-attempt'),
+        ('REBOOKED', 'Rebooked to New Departure'),
+        ('DECLINED', 'Customer Declined'),
+        ('EXPIRED', 'Offer Expired'),
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ELIGIBLE')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    resolved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Guaranteed Re-attempt"
+        verbose_name_plural = "Guaranteed Re-attempts"
+
+    def __str__(self):
+        return f"Re-attempt: {self.original_booking.booking_ref} → {self.reattempt_departure or 'Pending'}"
+

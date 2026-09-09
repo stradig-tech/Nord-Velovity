@@ -45,7 +45,7 @@ def blog_list_view(request):
         'selected_tag': tag_slug,
         'search_query': search_query,
     }
-    return render(request, 'blog.html', context)
+    return render(request, 'content/blog.html', context)
 
 
 def blog_detail_view(request, slug):
@@ -73,4 +73,4 @@ def blog_detail_view(request, slug):
         'categories': categories,
         'recent_posts': recent_posts,
     }
-    return render(request, 'blog-details.html', context)
+    return render(request, 'content/blog-details.html', context)

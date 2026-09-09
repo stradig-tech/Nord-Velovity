@@ -32,19 +32,19 @@ def home_view(request):
         'testimonials': testimonials,
         'recent_posts': recent_posts,
     }
-    return render(request, 'index.html', context)
+    return render(request, 'core/index.html', context)
 
 
 def about_view(request):
     """Renders the About Us page with dynamic stats and testimonials."""
     testimonials = Testimonial.objects.filter(is_featured=True).order_by('sort_order')[:3]
-    return render(request, 'about.html', {'testimonials': testimonials})
+    return render(request, 'core/about.html', {'testimonials': testimonials})
 
 
 def faq_view(request):
     """Renders the Frequently Asked Questions page with dynamic questions from the admin panel."""
     faqs = FAQItem.objects.filter(is_published=True).order_by('sort_order')
-    return render(request, 'faq.html', {'faqs': faqs})
+    return render(request, 'core/faq.html', {'faqs': faqs})
 
 
 def contact_view(request):
@@ -71,4 +71,4 @@ def contact_view(request):
         else:
             messages.error(request, "Please fill in all required fields (Name, Email, Message).")
 
-    return render(request, 'contact.html')
+    return render(request, 'core/contact.html')

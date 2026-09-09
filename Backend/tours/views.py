@@ -8,9 +8,10 @@ from django.db.models import Q, Min, Count
 
 from .models import (
     Country, Tour, Destination, Season, ExperienceType, TravelStyle, 
-    TourCategory, TourDate, TourPricing
+    TourCategory, TourDate, TourPricing, Departure, DepartureCapacity,
+    VehicleType, TourOptionPricing
 )
-from .services import TourPricingService
+from .services import TourPricingService, DepartureService
 from core.models import Enquiry
 
 def tour_list_view(request):
@@ -90,7 +91,13 @@ def tour_list_view(request):
         'search_query': search_query,
         'total_count': paginator.count,
     }
-    return render(request, 'tour-packages.html', context)
+
+    if request.headers.get('HX-Request'):
+        if request.headers.get('HX-Target') == 'tourResultsContainer':
+            return render(request, 'tours/partials/tour_grid_partial.html', context)
+        return render(request, 'tours/partials/tour_list_partial.html', context)
+
+    return render(request, 'tours/tour-packages.html', context)
 
 
 def tour_detail_view(request, slug):
@@ -100,14 +107,18 @@ def tour_detail_view(request, slug):
     tour = get_object_or_404(
         Tour.objects.prefetch_related(
             'media', 'highlights', 'itinerary', 'inclusions', 
-            'faqs', 'pickups', 'pricing', 'dates', 'reviews', 'surroundings', 'extra_services'
+            'faqs', 'pickups', 'pricing', 'dates', 'reviews', 'surroundings', 'extra_services',
+            'departures__capacities__vehicle_type', 'option_pricing__vehicle_type'
         ),
         slug=slug,
         status='PUBLISHED'
     )
 
-    # Available dates for booking widget
+    # Available departures & dates for booking widget
+    available_departures = tour.departures.filter(status='OPEN').prefetch_related('capacities__vehicle_type').order_by('date', 'time')
     available_dates = tour.dates.filter(status='AVAILABLE').order_by('start_date')
+    vehicle_types = VehicleType.objects.filter(is_active=True).order_by('sort_order', 'default_capacity')
+    option_pricings = tour.option_pricing.filter(is_active=True).select_related('vehicle_type')
 
     # Base pricing
     adult_pricing = tour.pricing.filter(label__iexact='Adult').first()
@@ -128,38 +139,77 @@ def tour_detail_view(request, slug):
         'base_price': base_price,
         'adult_pricing': adult_pricing,
         'child_pricing': child_pricing,
+        'available_departures': available_departures,
         'available_dates': available_dates,
+        'vehicle_types': vehicle_types,
+        'option_pricings': option_pricings,
         'reviews': reviews,
         'related_tours': related_tours,
     }
-    return render(request, 'tour-details.html', context)
+    return render(request, 'tours/tour-details.html', context)
 
 
 def api_calculate_tour_price(request, tour_id):
     """
-    JSON API endpoint for the Vue.js booking widget on tour-details page.
-    Computes real-time price breakdown based on selected guests, dates, and extras.
+    JSON API endpoint for the booking widget on tour-details page.
+    Computes real-time price breakdown based on departure, vehicle type, guests, and extras.
     """
     tour = get_object_or_404(Tour, id=tour_id)
     
     adults = int(request.GET.get('adults', 1))
     children = int(request.GET.get('children', 0))
+    departure_id = request.GET.get('departure_id')
+    vehicle_type_id = request.GET.get('vehicle_type_id') or request.GET.get('vehicle_type')
     date_id = request.GET.get('date_id')
     
-    tour_date = None
-    if date_id:
-        tour_date = TourDate.objects.filter(id=date_id, tour=tour).first()
+    departure = None
+    vehicle_type = None
 
-    try:
-        pricing_data = TourPricingService.calculate_price(
-            tour=tour,
-            tour_date=tour_date,
-            adults=adults,
-            children=children
+    if departure_id:
+        departure = Departure.objects.filter(id=departure_id, tour=tour).first()
+    elif date_id:
+        td = TourDate.objects.filter(id=date_id, tour=tour).first()
+        if td:
+            departure = Departure.objects.filter(tour=tour, date=td.start_date).first()
+
+    if vehicle_type_id:
+        vehicle_type = (
+            VehicleType.objects.filter(id=vehicle_type_id).first() or
+            VehicleType.objects.filter(slug=vehicle_type_id).first()
         )
-        return JsonResponse({'success': True, 'pricing': pricing_data})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    if not vehicle_type:
+        vehicle_type = VehicleType.objects.filter(slug='micro').first() or VehicleType.objects.first()
+
+    if departure and vehicle_type:
+        departure_capacity = departure.capacities.filter(vehicle_type=vehicle_type).first()
+        try:
+            pricing_data = DepartureService.calculate_price(
+                tour=tour,
+                vehicle_type=vehicle_type,
+                departure_capacity=departure_capacity,
+                adults=adults,
+                children=children
+            )
+            avail_res = DepartureService.check_availability(departure, vehicle_type, adults + children)
+            pricing_data['is_available'] = avail_res['available']
+            pricing_data['sellable_seats'] = avail_res.get('sellable', 0)
+            pricing_data['availability_error'] = avail_res.get('error', '')
+            return JsonResponse({'success': True, 'pricing': pricing_data})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    else:
+        # Legacy fallback
+        tour_date = TourDate.objects.filter(id=date_id, tour=tour).first() if date_id else None
+        try:
+            pricing_data = TourPricingService.calculate_price(
+                tour=tour,
+                tour_date=tour_date,
+                adults=adults,
+                children=children
+            )
+            return JsonResponse({'success': True, 'pricing': pricing_data})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
 @require_POST
@@ -214,7 +264,7 @@ def country_detail_view(request, slug):
         'tours': tours,
         'other_countries': other_countries,
     }
-    return render(request, 'country-details.html', context)
+    return render(request, 'destinations/country-details.html', context)
 
 
 def destination_list_view(request):
@@ -228,7 +278,7 @@ def destination_list_view(request):
     if country_slug:
         destinations = destinations.filter(country__slug=country_slug)
 
-    return render(request, 'destination.html', {
+    return render(request, 'destinations/destination.html', {
         'countries': countries,
         'destinations': destinations,
         'selected_country': country_slug,
@@ -250,7 +300,7 @@ def destination_detail_view(request, slug):
             is_active=True
         ).exclude(id=destination.id).order_by('sort_order')[:4]
 
-    return render(request, 'destination-details.html', {
+    return render(request, 'destinations/destination-details.html', {
         'destination': destination, 
         'tours': tours,
         'sibling_destinations': sibling_destinations,

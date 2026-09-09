@@ -1,0 +1,59 @@
+<ul class="sidebar-nav" id="customerSidebarNav">
+    <li>
+        <a href="{% url 'accounts:dashboard' %}" 
+           hx-get="{% url 'accounts:dashboard' %}" 
+           hx-target="#dashboardMainContent" 
+           hx-swap="innerHTML transition:true" 
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           class="{% if active_tab == 'dashboard' %}active{% endif %}">
+            <i class="ph ph-user"></i> My Profile
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'accounts:my_bookings' %}" 
+           hx-get="{% url 'accounts:my_bookings' %}" 
+           hx-target="#dashboardMainContent" 
+           hx-swap="innerHTML transition:true" 
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           class="{% if active_tab == 'bookings' %}active{% endif %}">
+            <i class="ph ph-bookmark-simple"></i> My Bookings
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'accounts:my_wishlist' %}" 
+           hx-get="{% url 'accounts:my_wishlist' %}" 
+           hx-target="#dashboardMainContent" 
+           hx-swap="innerHTML transition:true" 
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           class="{% if active_tab == 'wishlist' %}active{% endif %}">
+            <i class="ph ph-heart"></i> Wishlist
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'accounts:payment_details' %}" 
+           hx-get="{% url 'accounts:payment_details' %}" 
+           hx-target="#dashboardMainContent" 
+           hx-swap="innerHTML transition:true" 
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           class="{% if active_tab == 'payment' %}active{% endif %}">
+            <i class="ph ph-credit-card"></i> Payment Details
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'accounts:settings' %}" 
+           hx-get="{% url 'accounts:settings' %}" 
+           hx-target="#dashboardMainContent" 
+           hx-swap="innerHTML transition:true" 
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           class="{% if active_tab == 'settings' %}active{% endif %}">
+            <i class="ph ph-gear"></i> Settings
+        </a>
+    </li>
+    
+    <li class="sign-out"><a href="{% url 'accounts:logout' %}"><i class="ph-bold ph-sign-out"></i> Sign Out</a></li>
+</ul>

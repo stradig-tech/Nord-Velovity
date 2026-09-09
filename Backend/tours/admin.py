@@ -3,7 +3,8 @@ from .models import (
     Country, Destination, Season, ExperienceType, TravelStyle, DurationBand,
     Tour, TourMedia, TourHighlight, TourItinerary, TourInclusion, 
     TourFAQ, TourPickup, TourDate, TourPricing, TourReview, RelatedTour,
-    TourCategory, TourSurrounding, TourExtraService, Wishlist
+    TourCategory, TourSurrounding, TourExtraService, Wishlist,
+    VehicleType, TourOptionPricing, Departure, DepartureCapacity
 )
 
 # --- Taxonomy Admins ---
@@ -126,6 +127,11 @@ class TourDateInline(admin.TabularInline):
     model = TourDate
     extra = 1
 
+class TourOptionPricingInline(admin.TabularInline):
+    model = TourOptionPricing
+    extra = 1
+    fields = ('vehicle_type', 'adult_price', 'child_price', 'currency', 'early_bird_price', 'early_bird_deadline', 'is_active')
+
 class TourPricingInline(admin.TabularInline):
     model = TourPricing
     extra = 1
@@ -153,15 +159,15 @@ class TourCategoryAdmin(admin.ModelAdmin):
 # --- Main Tour Admin ---
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    list_display = ('title', 'tour_thumbnail', 'destination', 'badge_text', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'status', 'is_featured')
-    list_filter = ('status', 'is_featured', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'destination', 'travel_style')
-    list_editable = ('status', 'is_featured', 'badge_text', 'is_group_tour', 'is_private_tour', 'is_family_tour')
+    list_display = ('title', 'tour_thumbnail', 'destination', 'badge_text', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'status', 'is_featured')
+    list_filter = ('status', 'is_featured', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'destination', 'travel_style')
+    list_editable = ('status', 'is_featured', 'badge_text', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour')
     search_fields = ('title', 'short_summary')
     prepopulated_fields = {'slug': ('title',)}
     inlines = [
         TourMediaInline, TourHighlightInline, TourItineraryInline,
         TourInclusionInline, TourFAQInline, TourPickupInline,
-        TourPricingInline, TourExtraServiceInline, TourDateInline, TourSurroundingInline
+        TourOptionPricingInline, TourPricingInline, TourExtraServiceInline, TourDateInline, TourSurroundingInline
     ]
     filter_horizontal = ('seasons', 'experience_types')
     actions = ['duplicate_tour']
@@ -217,6 +223,8 @@ class TourAdmin(admin.ModelAdmin):
                 pick.pk = None; pick.tour = tour; pick.save()
             for surr in old_tour.surroundings.all():
                 surr.pk = None; surr.tour = tour; surr.save()
+            for op in old_tour.option_pricing.all():
+                op.pk = None; op.tour = tour; op.save()
 
             duplicated_count += 1
 
@@ -261,4 +269,68 @@ class TourReviewAdmin(admin.ModelAdmin):
 class WishlistAdmin(admin.ModelAdmin):
     list_display = ('user', 'tour', 'created_at')
     search_fields = ('user__email', 'tour__title')
+
+
+# --- Central OTA Departure & Capacity Admins ---
+
+@admin.register(VehicleType)
+class VehicleTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'icon', 'default_capacity', 'sort_order', 'is_active')
+    list_editable = ('icon', 'default_capacity', 'sort_order', 'is_active')
+    prepopulated_fields = {'slug': ('name',)}
+    search_fields = ('name', 'description')
+    ordering = ('sort_order', 'default_capacity')
+
+
+@admin.register(TourOptionPricing)
+class TourOptionPricingAdmin(admin.ModelAdmin):
+    list_display = ('tour', 'vehicle_type', 'adult_price', 'child_price', 'currency', 'early_bird_price', 'is_active')
+    list_filter = ('vehicle_type', 'is_active', 'tour')
+    list_editable = ('adult_price', 'child_price', 'is_active')
+    search_fields = ('tour__title', 'vehicle_type__name')
+    ordering = ('tour', 'vehicle_type__sort_order')
+
+
+class DepartureCapacityInline(admin.TabularInline):
+    model = DepartureCapacity
+    extra = 0
+    fields = ('vehicle_type', 'total_capacity', 'booked_count', 'blocked_seats', 'reattempt_reserved', 'price_override_adult', 'price_override_child', 'sellable_display')
+    readonly_fields = ('sellable_display',)
+
+    def sellable_display(self, obj):
+        if obj.id:
+            rem = obj.public_sellable
+            if rem <= 0:
+                return mark_safe('<span style="color:#EF4444; font-weight:700;">SOLD OUT (0)</span>')
+            return mark_safe(f'<span style="color:#10B981; font-weight:700;">{rem} seats</span>')
+        return "-"
+    sellable_display.short_description = "Sellable"
+
+
+@admin.register(Departure)
+class DepartureAdmin(admin.ModelAdmin):
+    list_display = ('tour', 'date', 'time', 'status', 'capacity_overview', 'created_at')
+    list_filter = ('status', 'date', 'tour')
+    list_editable = ('status',)
+    search_fields = ('tour__title', 'notes')
+    ordering = ('date', 'time')
+    date_hierarchy = 'date'
+    inlines = [DepartureCapacityInline]
+
+    def capacity_overview(self, obj):
+        caps = obj.capacities.select_related('vehicle_type').all()
+        if not caps:
+            return mark_safe('<span style="color:#94A3B8;">No capacities set</span>')
+        badges = []
+        for c in caps:
+            icon = c.vehicle_type.icon or '🚗'
+            color = '#EF4444' if c.is_sold_out else '#10B981'
+            badges.append(
+                f'<span style="display:inline-block; margin-right:8px; padding:2px 8px; border-radius:4px; '
+                f'background:#F1F5F9; font-size:0.8rem; border:1px solid #E2E8F0;">'
+                f'{icon} {c.vehicle_type.name}: <strong style="color:{color};">{c.public_sellable}/{c.total_capacity}</strong></span>'
+            )
+        return mark_safe(''.join(badges))
+    capacity_overview.short_description = "Capacity (Sellable / Total)"
+
 

@@ -1,0 +1,235 @@
+{% load static %}
+<!-- Right Area: Tour Grid Container -->
+<main class="packages-results htmx-fade-in" id="tourResultsContainer">
+    
+    <!-- Results Header: Live Count, Active Filter Chips & Sorting -->
+    <div class="results-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; background: #FFFFFF; padding: 1.15rem 1.5rem; border-radius: 14px; border: 1px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+            <p style="font-size: 1.15rem; color: #0F172A; margin: 0; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                <span>We found <strong style="color: #4F46E5; font-size: 1.3rem;">{{ total_count }}</strong> tour package{{ total_count|pluralize }}</span>
+                <span class="filter-spinner" id="gridSpinner"></span>
+            </p>
+
+            <!-- Active Filter Badges with Quick Dismiss -->
+            {% if selected_country or selected_dest or selected_style or search_query %}
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.25rem;">
+                <span style="font-size: 0.75rem; color: #94A3B8; font-weight: 600;">Active:</span>
+                {% if selected_country %}
+                <a href="{% url 'tours:list' %}?{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
+                   hx-get="{% url 'tours:list' %}?{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
+                   hx-target="#packagesLayout"
+                   hx-swap="innerHTML transition:true"
+                   hx-push-url="true"
+                   hx-indicator="#htmx-indicator"
+                   style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; background: #EEF2FF; color: #4F46E5; padding: 0.2rem 0.55rem; border-radius: 999px; text-decoration: none; font-weight: 700;">
+                    <span>Country: {{ selected_country|title }}</span>
+                    <i class="ph-bold ph-x"></i>
+                </a>
+                {% endif %}
+
+                {% if selected_dest %}
+                <a href="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
+                   hx-get="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
+                   hx-target="#packagesLayout"
+                   hx-swap="innerHTML transition:true"
+                   hx-push-url="true"
+                   hx-indicator="#htmx-indicator"
+                   style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; background: #EEF2FF; color: #4F46E5; padding: 0.2rem 0.55rem; border-radius: 999px; text-decoration: none; font-weight: 700;">
+                    <span>Destination: {{ selected_dest|title }}</span>
+                    <i class="ph-bold ph-x"></i>
+                </a>
+                {% endif %}
+
+                {% if selected_style %}
+                <a href="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
+                   hx-get="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
+                   hx-target="#packagesLayout"
+                   hx-swap="innerHTML transition:true"
+                   hx-push-url="true"
+                   hx-indicator="#htmx-indicator"
+                   style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; background: #EEF2FF; color: #4F46E5; padding: 0.2rem 0.55rem; border-radius: 999px; text-decoration: none; font-weight: 700;">
+                    <span>Style: {{ selected_style|title }}</span>
+                    <i class="ph-bold ph-x"></i>
+                </a>
+                {% endif %}
+
+                {% if search_query %}
+                <a href="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
+                   hx-get="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
+                   hx-target="#packagesLayout"
+                   hx-swap="innerHTML transition:true"
+                   hx-push-url="true"
+                   hx-indicator="#htmx-indicator"
+                   style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; background: #FEF3C7; color: #92400E; padding: 0.2rem 0.55rem; border-radius: 999px; text-decoration: none; font-weight: 700;">
+                    <span>"{{ search_query }}"</span>
+                    <i class="ph-bold ph-x"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Live Sort Dropdown -->
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <form id="sortForm" style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                {% if selected_country %}<input type="hidden" name="country" value="{{ selected_country }}">{% endif %}
+                {% if selected_dest %}<input type="hidden" name="destination" value="{{ selected_dest }}">{% endif %}
+                {% if selected_style %}<input type="hidden" name="style" value="{{ selected_style }}">{% endif %}
+                {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                
+                <span style="font-size: 0.88rem; color: #64748B; font-weight: 600;">Sort By:</span>
+                <select name="sort" 
+                        hx-get="{% url 'tours:list' %}"
+                        hx-trigger="change"
+                        hx-target="#tourResultsContainer"
+                        hx-include="#sortForm"
+                        hx-push-url="true"
+                        hx-indicator="#htmx-indicator"
+                        style="border: 1.5px solid #E2E8F0; background: #F8FAFC; padding: 0.45rem 1rem; border-radius: 8px; font-weight: 600; color: #0F172A; outline: none; cursor: pointer; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='#4F46E5';" onblur="this.style.borderColor='#E2E8F0';">
+                    <option value="default" {% if selected_sort == 'default' or not selected_sort %}selected{% endif %}>Featured</option>
+                    <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest</option>
+                    <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price (Low to High)</option>
+                    <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price (High to Low)</option>
+                </select>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tour Cards Grid: 100% Dynamic -->
+    {% if tours %}
+    <div class="tours-grid packages-grid">                    
+        {% for tour in tours %}
+        <div class="tour-card" style="background: #FFFFFF; border-radius: 18px; overflow: hidden; border: 1px solid #E2E8F0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; transition: transform 0.25s, box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 12px 25px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.03)';">
+            
+            <!-- Tour Image Box -->
+            <div class="tour-img-box" style="height: 220px; position: relative; background: #0F172A; overflow: hidden;">
+                {% if tour.media.first %}
+                <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="tour-img" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s;" onmouseover="this.style.transform='scale(1.06)';" onmouseout="this.style.transform='scale(1)';">
+                {% else %}
+                <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="width: 100%; height: 100%; object-fit: cover;">
+                {% endif %}
+
+                <!-- Wishlist Heart Button -->
+                <div class="badge-top-left" style="position: absolute; top: 1rem; left: 1rem; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; color: #EF4444; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                    <i class="ph-fill ph-heart"></i>
+                </div>
+
+                {% if tour.badge_text %}
+                <span style="position: absolute; top: 1rem; left: 3.8rem; background: #F59E0B; color: #0F172A; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.76rem; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,0.18); letter-spacing: 0.3px;">
+                    <i class="ph-bold ph-seal-check"></i> {{ tour.badge_text }}
+                </span>
+                {% endif %}
+                
+                <!-- Badges: Duration & Destination -->
+                <span style="position: absolute; top: 1rem; right: 1rem; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); color: white; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700;">
+                    <i class="ph-bold ph-clock"></i> {{ tour.duration_text }}
+                </span>
+
+                <span style="position: absolute; bottom: 0.85rem; left: 0.85rem; background: #FFFFFF; color: #0F172A; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                    <i class="ph-fill ph-map-pin" style="color: #4F46E5;"></i> {{ tour.destination.name }}{% if tour.destination.country %}, {{ tour.destination.country.name }}{% endif %}
+                </span>
+            </div>
+
+            <!-- Tour Body -->
+            <div class="tour-body" style="padding: 1.5rem; flex: 1; display: flex; flex-direction: column;">
+                <div class="tour-rating" style="display: flex; align-items: center; gap: 0.35rem; color: #F59E0B; margin-bottom: 0.65rem; font-size: 0.9rem;">
+                    <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                    <span class="rating-val" style="color: #64748B; font-weight: 600; font-size: 0.85rem; margin-left: 0.25rem;">(5.0)</span>
+                </div>
+
+                <h4 class="tour-title" style="font-size: 1.22rem; font-weight: 800; color: #0F172A; line-height: 1.35; margin-bottom: 0.75rem;">
+                    <a href="{% url 'tours:detail' tour.slug %}" style="color: #0F172A; text-decoration: none;">{{ tour.title }}</a>
+                </h4>
+                
+                <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1.25rem; line-height: 1.55; flex: 1;">
+                    {{ tour.short_summary|truncatewords:20 }}
+                </p>
+                
+                <!-- Price & CTA Box -->
+                <div class="tour-footer" style="border-top: 1px solid #F1F5F9; padding-top: 1.25rem; margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <span style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase; font-weight: 700; display: block;">Starting From</span>
+                        <div style="display: flex; align-items: baseline; gap: 0.25rem;">
+                            <span style="font-size: 1.45rem; font-weight: 800; color: #0F172A;">€{{ tour.pricing.first.price|default:"790"|floatformat:0 }}</span>
+                            <span style="font-size: 0.82rem; color: #64748B;">/person</span>
+                        </div>
+                        <div style="color: #10B981; font-size: 0.75rem; font-weight: 700; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">
+                            <span>Chauffeur/Guide Included</span>
+                            <i class="ph-bold ph-check"></i>
+                        </div>
+                    </div>
+                    <a href="{% url 'tours:detail' tour.slug %}" style="background: #4F46E5; color: #FFFFFF; font-weight: 700; font-size: 0.88rem; padding: 0.65rem 1.25rem; border-radius: 999px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#4338CA';" onmouseout="this.style.backgroundColor='#4F46E5';">
+                        <span>View Tour</span>
+                        <i class="ph-bold ph-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination with HTMX Live Swap -->
+    {% if page_obj.has_other_pages %}
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 3.5rem;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+           hx-get="{% url 'tours:list' %}?page={{ page_obj.previous_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+           hx-target="#tourResultsContainer"
+           hx-swap="innerHTML show:window:top"
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFFFFF; color: #0F172A; text-decoration: none; font-weight: 600;">
+            &larr; Previous
+        </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        <a href="?page={{ num }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+           hx-get="{% url 'tours:list' %}?page={{ num }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+           hx-target="#tourResultsContainer"
+           hx-swap="innerHTML show:window:top"
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           style="width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: 700; font-size: 0.9rem; {% if page_obj.number == num %}background: #4F46E5; color: #FFFFFF;{% else %}background: #FFFFFF; border: 1px solid #E2E8F0; color: #475569;{% endif %}">
+            {{ num }}
+        </a>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+           hx-get="{% url 'tours:list' %}?page={{ page_obj.next_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+           hx-target="#tourResultsContainer"
+           hx-swap="innerHTML show:window:top"
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFFFFF; color: #0F172A; text-decoration: none; font-weight: 600;">
+            Next &rarr;
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div style="background: #FFFFFF; border-radius: 20px; padding: 4rem 2rem; text-align: center; border: 1px solid #E2E8F0;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem auto;">
+            <i class="ph-bold ph-compass"></i>
+        </div>
+        <h3 style="font-size: 1.5rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">No Tour Packages Found</h3>
+        <p style="color: #64748B; font-size: 1rem; max-width: 500px; margin: 0 auto 1.75rem auto;">
+            We couldn't find any tour packages matching your selected filters. Try clearing some filters to see all available packages.
+        </p>
+        <a href="{% url 'tours:list' %}" 
+           hx-get="{% url 'tours:list' %}"
+           hx-target="#packagesLayout"
+           hx-swap="innerHTML transition:true"
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           style="background: #4F46E5; color: #FFFFFF; padding: 0.75rem 1.75rem; border-radius: 999px; font-weight: 700; text-decoration: none; display: inline-block;">
+            Reset All Filters
+        </a>
+    </div>
+    {% endif %}
+    
+</main>

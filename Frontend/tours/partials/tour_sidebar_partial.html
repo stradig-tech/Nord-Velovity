@@ -1,0 +1,132 @@
+{% load static %}
+<!-- Left Sidebar: Dynamic HTMX Filters -->
+<aside class="packages-sidebar" id="packagesSidebar">
+    <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid #F1F5F9; padding-bottom: 1rem;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+            <i class="ph-bold ph-faders" style="color: #4F46E5;"></i> Filters
+        </h3>
+        {% if selected_country or selected_dest or selected_style or search_query or selected_sort != 'default' %}
+        <a href="{% url 'tours:list' %}" 
+           hx-get="{% url 'tours:list' %}"
+           hx-target="#packagesLayout"
+           hx-swap="innerHTML transition:true"
+           hx-push-url="true"
+           hx-indicator="#htmx-indicator"
+           style="border: none; background: transparent; color: #EF4444; font-weight: 700; text-decoration: none; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+            <i class="ph-bold ph-arrow-counter-clockwise"></i> Reset
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Live Search Keyword Input -->
+    <div class="filter-section" style="margin-bottom: 1.5rem;">
+        <div style="position: relative;">
+            <input type="text" 
+                   name="q" 
+                   id="tourSearchInput"
+                   value="{{ search_query|default:'' }}" 
+                   placeholder="Search tours, Lapland..."
+                   hx-get="{% url 'tours:list' %}"
+                   hx-trigger="keyup changed delay:350ms, search"
+                   hx-target="#tourResultsContainer"
+                   hx-include="#sidebarFilterParams"
+                   hx-push-url="true"
+                   hx-indicator="#htmx-indicator"
+                   style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.25rem; border-radius: 10px; border: 1.5px solid #E2E8F0; font-size: 0.88rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box;"
+                   onfocus="this.style.borderColor='#4F46E5'; this.style.boxShadow='0 0 0 3px rgba(79, 70, 229, 0.1)';" 
+                   onblur="this.style.borderColor='#E2E8F0'; this.style.boxShadow='none';">
+            <i class="ph-bold ph-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 1rem; pointer-events: none;"></i>
+        </div>
+    </div>
+
+    <!-- Hidden state parameters for live search & sort chaining -->
+    <form id="sidebarFilterParams" style="display: none;">
+        {% if selected_country %}<input type="hidden" name="country" value="{{ selected_country }}">{% endif %}
+        {% if selected_dest %}<input type="hidden" name="destination" value="{{ selected_dest }}">{% endif %}
+        {% if selected_style %}<input type="hidden" name="style" value="{{ selected_style }}">{% endif %}
+        {% if selected_sort %}<input type="hidden" name="sort" value="{{ selected_sort }}">{% endif %}
+    </form>
+    
+    <!-- Countries & Destinations Filter -->
+    <div class="filter-section" style="margin-bottom: 1.75rem;">
+        <h4 style="font-size: 0.88rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #0F172A; margin-bottom: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>Countries & Regions</span>
+        </h4>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <!-- All Countries Button -->
+            <a href="{% url 'tours:list' %}{% if selected_sort and selected_sort != 'default' %}?sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+               hx-get="{% url 'tours:list' %}{% if selected_sort and selected_sort != 'default' %}?sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+               hx-target="#packagesLayout"
+               hx-swap="innerHTML transition:true"
+               hx-push-url="true"
+               hx-indicator="#htmx-indicator"
+               style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.75rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: background 0.15s; {% if not selected_country and not selected_dest %}background: #EEF2FF; color: #4F46E5;{% else %}color: #475569; background: #F8FAFC;{% endif %}">
+                <span><i class="ph-bold ph-globe" style="margin-right: 0.35rem;"></i> All Countries</span>
+                <span style="font-size: 0.75rem; background: rgba(0,0,0,0.05); padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 700;">{{ total_count }}</span>
+            </a>
+
+            {% for c in countries %}
+            <div style="border: 1px solid #F1F5F9; border-radius: 10px; overflow: hidden; margin-top: 0.15rem;">
+                <a href="{% url 'tours:list' %}?country={{ c.slug }}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                   hx-get="{% url 'tours:list' %}?country={{ c.slug }}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                   hx-target="#packagesLayout"
+                   hx-swap="innerHTML transition:true"
+                   hx-push-url="true"
+                   hx-indicator="#htmx-indicator"
+                   style="display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: background 0.15s; {% if selected_country == c.slug %}background: #4F46E5; color: #FFFFFF;{% else %}background: #F8FAFC; color: #0F172A;{% endif %}">
+                    <span>{{ c.name }}</span>
+                    <span style="font-size: 0.75rem; opacity: 0.85; font-weight: 600;">{{ c.destinations.count }} places</span>
+                </a>
+
+                <!-- Sub-Destinations for this country -->
+                {% if c.destinations.all %}
+                <div style="padding: 0.4rem 0.5rem; background: #FFFFFF; display: flex; flex-direction: column; gap: 0.2rem;">
+                    {% for d in c.destinations.all %}
+                    <a href="{% url 'tours:list' %}?destination={{ d.slug }}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+                       hx-get="{% url 'tours:list' %}?destination={{ d.slug }}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+                       hx-target="#packagesLayout"
+                       hx-swap="innerHTML transition:true"
+                       hx-push-url="true"
+                       hx-indicator="#htmx-indicator"
+                       style="display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0.65rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; transition: background 0.15s; {% if selected_dest == d.slug %}background: #EEF2FF; color: #4F46E5; font-weight: 700;{% else %}color: #64748B; font-weight: 500;{% endif %}">
+                        <span>&bull; {{ d.name }}</span>
+                        <span style="font-size: 0.72rem; color: #94A3B8;">{{ d.tour_count }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <hr style="border: none; border-top: 1px solid #F1F5F9; margin: 1.25rem 0;">
+    
+    <!-- Travel Style Filter -->
+    {% if styles %}
+    <div class="filter-section" style="margin-bottom: 1.75rem;">
+        <h4 style="font-size: 0.88rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #0F172A; margin-bottom: 0.85rem;">Travel Style</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.45rem;">
+            {% for style in styles %}
+            <a href="{% url 'tours:list' %}?style={{ style.slug }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
+               hx-get="{% url 'tours:list' %}?style={{ style.slug }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
+               hx-target="#packagesLayout"
+               hx-swap="innerHTML transition:true"
+               hx-push-url="true"
+               hx-indicator="#htmx-indicator"
+               style="padding: 0.35rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; text-decoration: none; transition: all 0.15s; {% if selected_style == style.slug %}background: #4F46E5; color: #FFFFFF; border: 1px solid #4F46E5;{% else %}background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;{% endif %}">
+                {{ style.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Concierge Box -->
+    <div style="background: #0F172A; color: white; padding: 1.35rem; border-radius: 14px; text-align: center; margin-top: 1.25rem;">
+        <i class="ph-bold ph-sparkle" style="font-size: 1.75rem; color: #F59E0B; margin-bottom: 0.4rem; display: inline-block;"></i>
+        <h5 style="font-size: 1rem; font-weight: 800; margin-bottom: 0.35rem; color: #FFFFFF;">Bespoke Nordic Tour?</h5>
+        <p style="font-size: 0.8rem; color: #94A3B8; line-height: 1.45; margin-bottom: 0.85rem;">Our concierge can craft a tailor-made luxury expedition for your party.</p>
+        <a href="{% url 'contact' %}" style="display: block; background: #4F46E5; color: white; font-weight: 700; font-size: 0.82rem; padding: 0.55rem; border-radius: 8px; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#4338CA';" onmouseout="this.style.background='#4F46E5';">Inquire Concierge</a>
+    </div>
+</aside>

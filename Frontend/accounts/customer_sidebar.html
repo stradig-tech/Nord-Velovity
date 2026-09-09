@@ -1,0 +1,22 @@
+<div class="dashboard-sidebar form-card">
+    <div class="sidebar-profile-header">
+        <div class="profile-pic-wrapper" style="position: relative; width: 80px; height: 80px; margin: 0 auto; cursor: pointer;" onclick="document.getElementById('avatarFileInput')?.click();" title="Click to upload profile photo">
+            {% if request.user.avatar_url %}
+            <img src="{{ request.user.avatar_url }}" alt="{{ request.user.get_full_name|default:request.user.email }}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); border: 2.5px solid #4F46E5; display: block;">
+            {% else %}
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: #4F46E5; color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
+                {{ request.user.first_name|first|default:request.user.email|first|upper }}
+            </div>
+            {% endif %}
+            <div style="position: absolute; bottom: 0; right: 0; background: #4F46E5; color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" title="Change profile photo">
+                <i class="ph-bold ph-camera"></i>
+            </div>
+        </div>
+        <h3 style="margin-top: 1rem; font-size: 1.15rem; font-weight: 700; color: #0F172A;">
+            {{ request.user.get_full_name|default:request.user.email }}
+        </h3>
+        <p style="color: #64748B; font-size: 0.85rem; margin-top: 0.25rem;">{{ request.user.email }}</p>
+    </div>
+    
+    {% include 'accounts/partials/sidebar_nav_partial.html' with active_tab=active_tab %}
+</div>

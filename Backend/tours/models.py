@@ -91,6 +91,31 @@ class DurationBand(models.Model):
         return self.name
 
 
+# --- VEHICLE TYPE (Global Tour Transport Categories) ---
+
+class VehicleType(models.Model):
+    """
+    System-level vehicle categories for tour departures.
+    Pre-seeded: Private Car (4), Micro (12), Group Bus (54).
+    Admin can add future types without code changes.
+    """
+    name = models.CharField(max_length=100)  # e.g. "Private Car"
+    slug = models.SlugField(unique=True)
+    icon = models.CharField(max_length=50, blank=True, help_text="Emoji or CSS icon class, e.g. 🚗")
+    default_capacity = models.PositiveIntegerField(help_text="Default seat count for this vehicle type")
+    description = models.TextField(blank=True)
+    sort_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['sort_order', 'default_capacity']
+        verbose_name = "Vehicle Type"
+        verbose_name_plural = "Vehicle Types"
+
+    def __str__(self):
+        return f"{self.name} ({self.default_capacity} seats)"
+
+
 # --- TOUR PRODUCT MODELS ---
 
 class Tour(models.Model):
@@ -121,6 +146,11 @@ class Tour(models.Model):
     is_private_tour = models.BooleanField(default=False, verbose_name="Private Tour", help_text="Show in 'Private tours' category on homepage")
     is_family_tour = models.BooleanField(default=False, verbose_name="Family Tour", help_text="Show in 'Family tours' category on homepage")
     sort_order = models.IntegerField(default=0)
+    has_guaranteed_reattempt = models.BooleanField(
+        default=False,
+        help_text="Enable guaranteed re-attempt policy (e.g., Northern Lights). "
+                  "Failed experiences allow customers to re-attempt on the next available day."
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -307,3 +337,109 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user.email} → {self.tour.title}"
+
+
+# --- DEPARTURE & CAPACITY MODELS (OTA Central Booking Architecture) ---
+
+class TourOptionPricing(models.Model):
+    """
+    Per-tour, per-vehicle-type pricing.
+    E.g. 'Northern Lights Hunt' via Private Car = €299/adult, €149/child.
+    Every tour has pricing for each active VehicleType.
+    """
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='option_pricing')
+    vehicle_type = models.ForeignKey(VehicleType, on_delete=models.CASCADE, related_name='tour_pricing')
+
+    adult_price = models.DecimalField(max_digits=10, decimal_places=2)
+    child_price = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='EUR')
+
+    early_bird_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    early_bird_child_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    early_bird_deadline = models.DateField(null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('tour', 'vehicle_type')
+        verbose_name = "Tour Option Pricing"
+        verbose_name_plural = "Tour Option Pricing"
+
+    def __str__(self):
+        return f"{self.tour.title} — {self.vehicle_type.name} (€{self.adult_price}/adult)"
+
+
+class Departure(models.Model):
+    """
+    A specific bookable date+time slot when a tour runs.
+    Each departure has independent capacity per vehicle type via DepartureCapacity.
+    """
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='departures')
+    date = models.DateField()
+    time = models.TimeField()
+
+    STATUS_CHOICES = (
+        ('OPEN', 'Open'),
+        ('CLOSED', 'Closed'),
+        ('SOLD_OUT', 'Sold Out'),
+        ('BLOCKED', 'Blocked'),
+        ('OPERATIONALLY_RESERVED', 'Operationally Reserved'),
+    )
+    status = models.CharField(max_length=25, choices=STATUS_CHOICES, default='OPEN')
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['date', 'time']
+        unique_together = ('tour', 'date', 'time')
+        verbose_name = "Departure"
+        verbose_name_plural = "Departures"
+
+    def __str__(self):
+        return f"{self.tour.title} — {self.date} @ {self.time.strftime('%H:%M')}"
+
+
+class DepartureCapacity(models.Model):
+    """
+    Per-departure, per-vehicle-type independent inventory.
+    All channels (Direct, OTA, Manual) deduct from the same record.
+    
+    Capacity formula:
+        Public Sellable = total_capacity - booked_count - blocked_seats - reattempt_reserved
+    """
+    departure = models.ForeignKey(Departure, on_delete=models.CASCADE, related_name='capacities')
+    vehicle_type = models.ForeignKey(VehicleType, on_delete=models.CASCADE, related_name='departure_capacities')
+
+    total_capacity = models.PositiveIntegerField(help_text="Total seats for this vehicle type on this departure")
+    booked_count = models.PositiveIntegerField(default=0, help_text="Seats confirmed or held across all channels")
+    blocked_seats = models.PositiveIntegerField(default=0, help_text="Admin-blocked seats (not for sale)")
+    reattempt_reserved = models.PositiveIntegerField(default=0, help_text="Seats reserved for guaranteed re-attempt guests")
+
+    # Optional per-departure price override (if null, uses TourOptionPricing)
+    price_override_adult = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
+        help_text="Override adult price for this specific departure. Leave blank to use tour option pricing.")
+    price_override_child = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True,
+        help_text="Override child price for this specific departure. Leave blank to use tour option pricing.")
+
+    class Meta:
+        unique_together = ('departure', 'vehicle_type')
+        verbose_name = "Departure Capacity"
+        verbose_name_plural = "Departure Capacities"
+
+    @property
+    def public_sellable(self):
+        """What the website and OTAs can sell."""
+        return max(0, self.total_capacity - self.booked_count - self.blocked_seats - self.reattempt_reserved)
+
+    @property
+    def is_sold_out(self):
+        return self.public_sellable <= 0
+
+    @property
+    def is_sellable(self):
+        return self.public_sellable > 0
+
+    def __str__(self):
+        return f"{self.departure} — {self.vehicle_type.name}: {self.public_sellable}/{self.total_capacity} available"

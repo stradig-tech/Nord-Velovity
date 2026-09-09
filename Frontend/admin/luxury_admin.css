@@ -1187,3 +1187,162 @@ select:focus, .form-row select:focus {
     color: #FFFFFF !important;
 }
 
+/* ==========================================================================
+   Nord Velocity - Executive Admin Responsive Master Rules
+   ========================================================================== */
+
+#nav-sidebar.admin-sidebar-nav {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+    height: 100vh;
+    max-height: 100vh;
+    background: #0F172A;
+    color: #94A3B8;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #1E293B;
+    padding: 0;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    left: 0;
+    flex-shrink: 0;
+    z-index: 100;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-mobile-toggle {
+    display: none;
+    background: #F1F5F9;
+    border: 1px solid #CBD5E1;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #0F172A;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.admin-mobile-toggle:hover {
+    background: #E2E8F0;
+    color: #4F46E5;
+}
+
+.admin-sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    #nav-sidebar.admin-sidebar-nav {
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+        z-index: 1050 !important;
+        transform: translateX(-100%) !important;
+    }
+
+    body.admin-sidebar-open #nav-sidebar.admin-sidebar-nav {
+        transform: translateX(0) !important;
+    }
+
+    .admin-sidebar-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1040;
+    }
+
+    body.admin-sidebar-open .admin-sidebar-backdrop {
+        display: block;
+    }
+
+    body.admin-sidebar-open {
+        overflow: hidden;
+    }
+
+    .admin-main {
+        width: 100% !important;
+    }
+
+    .admin-mobile-toggle {
+        display: flex !important;
+    }
+
+    .admin-stats-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+
+    .admin-charts-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .admin-bottom-cols {
+        grid-template-columns: 1fr !important;
+    }
+
+    .popular-packages-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    #header {
+        padding: 0.75rem 1rem !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-stats-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .admin-header {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .admin-search {
+        max-width: 150px !important;
+    }
+
+    .admin-search input {
+        font-size: 0.8rem !important;
+    }
+
+    .results, #changelist .results, .table-responsive {
+        display: block !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        width: 100% !important;
+    }
+
+    #changelist-filter {
+        position: static !important;
+        width: 100% !important;
+        margin-top: 1.5rem !important;
+    }
+
+    .submit-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .submit-row input, .submit-row a {
+        text-align: center !important;
+        width: 100% !important;
+    }
+}
+
+
