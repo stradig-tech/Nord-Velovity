@@ -72,6 +72,88 @@ class SiteSetting(models.Model):
     founder_name = models.CharField(max_length=100, default="Nord Velocity Team", blank=True)
     founder_title = models.CharField(max_length=100, default="Founder & Managing Director", blank=True)
 
+    # Homepage Explore Section
+    explore_badge = models.CharField(
+        max_length=200, 
+        default="WE'RE #01 TRAVEL AGENCY IN GLOBALLY", 
+        blank=True, 
+        verbose_name="Explore Subtitle / Badge",
+        help_text="Blue small badge text above the main heading"
+    )
+    explore_title = models.CharField(
+        max_length=250, 
+        default="Explore the World With Confidence.", 
+        blank=True, 
+        verbose_name="Explore Main Heading"
+    )
+    explore_description_1 = models.TextField(
+        blank=True, 
+        default="Travel is more than visiting places - it's about discovering cultures, creating memories, and experiencing the world in a way that stays with you forever. Our travel agency is dedicated to designing seamless and inspiring journeys for explorers who want more than just a typical vacation.", 
+        verbose_name="Short Description (Paragraph 1)"
+    )
+    explore_description_2 = models.TextField(
+        blank=True, 
+        default="Our team of passionate travel experts works closely with each traveler to understand their interests, preferences, and expectations. This allows us to create journeys that feel personal, well-organized, and truly extraordinary.", 
+        verbose_name="Short Description (Paragraph 2)"
+    )
+    explore_button_text = models.CharField(
+        max_length=100, 
+        default="Discover More", 
+        blank=True,
+        verbose_name="Button Label"
+    )
+    explore_button_url = models.CharField(
+        max_length=255, 
+        default="/about/", 
+        blank=True,
+        verbose_name="Button Link URL"
+    )
+    explore_image_main = models.ImageField(
+        upload_to='site/explore/', 
+        blank=True, 
+        null=True, 
+        verbose_name="Main Center Card Image",
+        help_text="Front center card in fanned display (optional, falls back to default if not uploaded)"
+    )
+    explore_image_left = models.ImageField(
+        upload_to='site/explore/', 
+        blank=True, 
+        null=True, 
+        verbose_name="Left Tilted Card Image",
+        help_text="Left tilted card in fanned display (optional, falls back to default if not uploaded)"
+    )
+    explore_image_right = models.ImageField(
+        upload_to='site/explore/', 
+        blank=True, 
+        null=True, 
+        verbose_name="Right Tilted Card Image",
+        help_text="Right tilted card in fanned display (optional, falls back to default if not uploaded)"
+    )
+    explore_award_1_count = models.CharField(
+        max_length=50,
+        default="5,000,000",
+        blank=True,
+        verbose_name="Award 1 Count (e.g. 15,000+ or 5,000,000)"
+    )
+    explore_award_1_label = models.CharField(
+        max_length=100,
+        default="Trusted by 5M Users",
+        blank=True,
+        verbose_name="Award 1 Label"
+    )
+    explore_award_2_title = models.CharField(
+        max_length=100,
+        default="BEST CITY<br>TOUR AWARD",
+        blank=True,
+        verbose_name="Award 2 Title"
+    )
+    explore_award_2_year = models.CharField(
+        max_length=20,
+        default="2025",
+        blank=True,
+        verbose_name="Award 2 Year"
+    )
+
     # Mobile App Download Section
     app_store_url = models.URLField(blank=True, default="https://apple.com/app-store")
     play_store_url = models.URLField(blank=True, default="https://play.google.com")
@@ -85,6 +167,24 @@ class SiteSetting(models.Model):
     class Meta:
         verbose_name = "Site Setting"
         verbose_name_plural = "Site Settings"
+
+    @property
+    def get_explore_image_main_url(self):
+        if self.explore_image_main:
+            return self.explore_image_main.url
+        return '/static/images/explore/explore_2.jpg'
+
+    @property
+    def get_explore_image_left_url(self):
+        if self.explore_image_left:
+            return self.explore_image_left.url
+        return '/static/images/explore/explore_1.jpg'
+
+    @property
+    def get_explore_image_right_url(self):
+        if self.explore_image_right:
+            return self.explore_image_right.url
+        return '/static/images/explore/explore_3.jpg'
 
     @property
     def is_youtube_video(self):

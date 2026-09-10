@@ -34,11 +34,18 @@ class CountryAdmin(admin.ModelAdmin):
 
 @admin.register(Destination)
 class DestinationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'country', 'packages_count', 'circle_preview', 'is_featured_in_nav', 'is_active', 'sort_order')
+    list_display = ('name', 'flag_preview', 'country', 'packages_count', 'circle_preview', 'is_featured_in_nav', 'is_active', 'sort_order')
     list_filter = ('is_featured_in_nav', 'is_active', 'country')
     search_fields = ('name', 'country__name', 'description', 'highlights')
     prepopulated_fields = {'slug': ('name',)}
     list_editable = ('is_featured_in_nav', 'is_active', 'sort_order')
+
+    def flag_preview(self, obj):
+        url = obj.get_flag_url
+        if url:
+            return mark_safe(f'<img src="{url}" style="height: 18px; width: 28px; object-fit: cover; border-radius: 2px; border: 1px solid #CBD5E1;">')
+        return mark_safe('<span style="color: #94A3B8; font-size: 0.8rem;">No flag</span>')
+    flag_preview.short_description = "Flag"
 
     def packages_count(self, obj):
         return obj.tours.count()

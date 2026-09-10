@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <!-- HTMX for dynamic partial updates without page reload -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <link rel="stylesheet" href="{% static 'style.css' %}?v=2.1">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=3.1">
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +27,30 @@
             });
         });
     </script>
+    <style>
+        .tag-flag-icon {
+            width: 20px;
+            height: 14px;
+            object-fit: cover;
+            border-radius: 2.5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+        .country-flag-icon {
+            width: 20px;
+            height: 14px;
+            object-fit: cover;
+            border-radius: 2.5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+    </style>
 </head> 
 <body>     
     <!-- HTMX Global Arctic Progress Bar -->
@@ -38,15 +62,29 @@
                 <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo bg-transparent.png' %}{% endif %}" alt="{{ site_settings.site_name }}" class="navbar-logo-img">             
             </a>              
             
-            <!-- Dynamic Navigation Links -->             
-            <nav class="nav-links">
+            <!-- Dynamic Navigation Links (Desktop Navbar & Mobile Off-Canvas Drawer) -->             
+            <nav class="nav-links" id="mainNavLinks">
+                <!-- Mobile Drawer Header (Visible on mobile off-canvas drawer) -->
+                <div class="mobile-drawer-header">
+                    <a href="{% url 'home' %}" class="drawer-logo">
+                        <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo bg-transparent.png' %}{% endif %}" alt="{{ site_settings.site_name }}" class="drawer-logo-img">
+                    </a>
+                    <button type="button" class="drawer-close-btn" aria-label="Close navigation menu" id="drawerCloseBtn">
+                        <i class="ph-bold ph-x"></i>
+                    </button>
+                </div>
+
                 {% for item in navbar_items %}
                     {% if item.menu_type == 'DESTINATION' %}
                     <!-- Destination Mega Menu -->
                     <div class="dropdown">
                         <a href="{{ item.url }}" class="nav-link dropdown-toggle" aria-expanded="false">
-                            {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
-                            {{ item.title }} <i class="ph ph-caret-down"></i>
+                            <span class="nav-link-text">
+                                {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
+                                {{ item.title }}
+                            </span>
+                            <i class="ph ph-caret-down"></i>
+                            <span class="accordion-icon"><i class="ph-bold ph-plus plus-icon"></i><i class="ph-bold ph-minus minus-icon"></i></span>
                         </a>
                         <div class="megamenu">
                             <div class="mega-sidebar bg-light-blue">
@@ -54,8 +92,8 @@
                                     {% for country in nav_countries %}
                                     <li>
                                         <a href="{% url 'tours:list' %}?country={{ country.slug }}" style="display: flex; align-items: center; gap: 0.5rem;">
-                                            {% if country.flag_icon %}
-                                            <img src="{{ country.flag_icon.url }}" alt="{{ country.name }}" class="country-flag-icon">
+                                            {% if country.get_flag_url %}
+                                            <img src="{{ country.get_flag_url }}" alt="{{ country.name }}" class="country-flag-icon">
                                             {% else %}
                                             <i class="ph-bold ph-caret-right text-muted"></i>
                                             {% endif %}
@@ -106,8 +144,12 @@
                     <!-- Company Mega Menu -->
                     <div class="dropdown">
                         <a href="{{ item.url }}" class="nav-link dropdown-toggle" aria-expanded="false">
-                            {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
-                            {{ item.title }} <i class="ph ph-caret-down"></i>
+                            <span class="nav-link-text">
+                                {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
+                                {{ item.title }}
+                            </span>
+                            <i class="ph ph-caret-down"></i>
+                            <span class="accordion-icon"><i class="ph-bold ph-plus plus-icon"></i><i class="ph-bold ph-minus minus-icon"></i></span>
                         </a>
                         <div class="megamenu">
                             <div class="mega-sidebar bg-light-blue">
@@ -154,8 +196,12 @@
                     <!-- Tour Mega Menu -->
                     <div class="dropdown">
                         <a href="{{ item.url }}" class="nav-link dropdown-toggle" aria-expanded="false">
-                            {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
-                            {{ item.title }} <i class="ph ph-caret-down"></i>
+                            <span class="nav-link-text">
+                                {% if item.icon %}<img src="{{ item.icon.url }}" alt="{{ item.title }}" class="nav-icon-img">{% endif %}
+                                {{ item.title }}
+                            </span>
+                            <i class="ph ph-caret-down"></i>
+                            <span class="accordion-icon"><i class="ph-bold ph-plus plus-icon"></i><i class="ph-bold ph-minus minus-icon"></i></span>
                         </a>
                         <div class="megamenu">
                             <div class="mega-sidebar bg-light-blue">
@@ -294,6 +340,9 @@
         </div>
     </header>
 
+    <!-- Mobile Menu Backdrop Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
     {% block content %}
     {% endblock %}
 
@@ -352,8 +401,8 @@
                     </div>
                     <div class="tags-grid">
                         {% for dest in nav_destinations %}
-                        <a href="{% url 'tours:list' %}?destination={{ dest.slug }}" class="tag-pill" style="text-decoration: none; color: inherit;">
-                            <i class="ph-fill ph-flag"></i> {{ dest.name }}
+                        <a href="{% url 'tours:list' %}?destination={{ dest.slug }}" class="tag-pill" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center;">
+                            <img src="{{ dest.get_flag_url }}" alt="{{ dest.name }}" class="tag-flag-icon" onerror="this.outerHTML='<i class=\'ph-fill ph-flag\'></i>'"> {{ dest.name }}
                         </a>
                         {% endfor %}
                     </div>
@@ -391,7 +440,7 @@
                 <!-- Column 1: Info -->
                 <div class="footer-col footer-info">
                     <a href="{% url 'home' %}" class="footer-logo">
-                        <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo foote.jpeg' %}{% endif %}" alt="{{ site_settings.site_name }}" style="height: 75px; width: auto; object-fit: contain; border-radius: 8px;">
+                        <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo foote.jpeg' %}{% endif %}" alt="{{ site_settings.site_name }}" style="height: 58px; width: auto; object-fit: contain; border-radius: 8px;">
                     </a>
                     <h5 class="footer-agency-name">{{ site_settings.site_name }}</h5>
                     <div class="footer-address" style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.45rem; margin-bottom: 1.75rem;">

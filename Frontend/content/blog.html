@@ -24,7 +24,9 @@
                 <div class="tip-card">
                     <div class="tip-img-box">
                         {% if post.featured_image %}
-                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="tip-img" style="object-fit: cover;">
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="tip-img" style="object-fit: cover; width: 100%; height: 100%;">
+                        {% elif post.get_featured_image_url %}
+                        <img src="{{ post.get_featured_image_url }}" alt="{{ post.title }}" class="tip-img" style="object-fit: cover; width: 100%; height: 100%;">
                         {% else %}
                         <div class="tip-img" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem;"><i class="ph-bold ph-article"></i></div>
                         {% endif %}

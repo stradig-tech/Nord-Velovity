@@ -15,7 +15,9 @@ def home_view(request):
 
     countries = Country.objects.filter(is_active=True).prefetch_related('destinations').order_by('sort_order')
     finland = countries.filter(slug='finland').first()
-    other_countries = countries.exclude(slug='finland')[:4]
+    other_countries = countries.exclude(slug='finland').exclude(hero_image__exact='').exclude(hero_image__isnull=True)[:4]
+    if not other_countries.exists():
+        other_countries = countries.exclude(slug='finland')[:4]
 
     destinations = Destination.objects.filter(is_active=True).order_by('sort_order')[:8]
     categories = TourCategory.objects.filter(is_active=True).order_by('sort_order')[:6]

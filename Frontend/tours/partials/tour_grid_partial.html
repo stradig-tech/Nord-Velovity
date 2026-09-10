@@ -110,23 +110,26 @@
                 <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="width: 100%; height: 100%; object-fit: cover;">
                 {% endif %}
 
-                <!-- Wishlist Heart Button -->
-                <div class="badge-top-left" style="position: absolute; top: 1rem; left: 1rem; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; color: #EF4444; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                    <i class="ph-fill ph-heart"></i>
-                </div>
+                <!-- Badges: Top Left Stack (Heart Button + Promo Tag) -->
+                <div class="tour-badges-top-left">
+                    <div class="badge-top-left tour-wishlist-btn" title="Save to Wishlist">
+                        <i class="ph-fill ph-heart"></i>
+                    </div>
 
-                {% if tour.badge_text %}
-                <span style="position: absolute; top: 1rem; left: 3.8rem; background: #F59E0B; color: #0F172A; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.76rem; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,0.18); letter-spacing: 0.3px;">
-                    <i class="ph-bold ph-seal-check"></i> {{ tour.badge_text }}
-                </span>
-                {% endif %}
+                    {% if tour.badge_text %}
+                    <span class="tour-card-badge-promo">
+                        <i class="ph-bold ph-seal-check"></i> {{ tour.badge_text }}
+                    </span>
+                    {% endif %}
+                </div>
                 
-                <!-- Badges: Duration & Destination -->
-                <span style="position: absolute; top: 1rem; right: 1rem; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); color: white; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700;">
+                <!-- Duration Badge (Top Right) -->
+                <span class="tour-card-duration">
                     <i class="ph-bold ph-clock"></i> {{ tour.duration_text }}
                 </span>
 
-                <span style="position: absolute; bottom: 0.85rem; left: 0.85rem; background: #FFFFFF; color: #0F172A; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+                <!-- Location Badge (Bottom Left - Hidden on Mobile View) -->
+                <span class="tour-card-location tour-location-badge">
                     <i class="ph-fill ph-map-pin" style="color: #4F46E5;"></i> {{ tour.destination.name }}{% if tour.destination.country %}, {{ tour.destination.country.name }}{% endif %}
                 </span>
             </div>

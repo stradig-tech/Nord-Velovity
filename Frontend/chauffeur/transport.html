@@ -10,33 +10,68 @@
 {% block content %}
 <section class="transport-hero">
     <div class="transport-hero-container">
-        <!-- Booking Card -->
+        <!-- Modern Executive Booking Card -->
         <div class="cab-booking-card">
-            <h2 class="cab-booking-title">Book Your Online Cab</h2>
+            <!-- Header & Badge -->
+            <div class="cab-booking-header">
+                <div class="cab-badge-pill">
+                    <span class="cab-badge-dot"></span>
+                    <span>VIP Executive Chauffeur</span>
+                </div>
+                <h2 class="cab-booking-title">Book Your Ride</h2>
+                <p class="cab-booking-subtitle">Seamless airport transfers & luxury travel across Finland</p>
+            </div>
             
             <form action="{% url 'chauffeur:list' %}" method="get" id="cabSearchForm">
-                <div class="cab-trip-type">
-                    <label class="radio-label" style="cursor: pointer;">
+                <!-- Segmented Trip Type Switcher -->
+                <div class="cab-trip-type-segmented" role="radiogroup" aria-label="Trip Type">
+                    <label class="trip-type-tab active" id="labelOneWay">
                         <input type="radio" name="trip_type" value="oneway" checked id="tripOneWay">
-                        <span class="radio-custom"></span>
-                        One Way
+                        <span class="tab-content">
+                            <i class="ph-bold ph-arrow-right"></i>
+                            <span>One Way</span>
+                        </span>
                     </label>
-                    <label class="radio-label" style="cursor: pointer;">
+                    <label class="trip-type-tab" id="labelRoundTrip">
                         <input type="radio" name="trip_type" value="roundtrip" id="tripRoundTrip">
-                        <span class="radio-custom"></span>
-                        Round Trip
+                        <span class="tab-content">
+                            <i class="ph-bold ph-arrows-clockwise"></i>
+                            <span>Round Trip</span>
+                        </span>
                     </label>
                 </div>
                 
-                <div class="cab-input-row">
-                    <div class="cab-input-group">
-                        <label for="pickupInput" class="cab-input-label">Pickup</label>
-                        <input type="text" name="pickup" id="pickupInput" class="cab-input" placeholder="e.g. Helsinki-Vantaa Airport (HEL)" required list="nordicLocations" autocomplete="off">
+                <!-- Route Location Inputs (Stacked with Route Line & Floating Swap Button) -->
+                <div class="cab-route-wrapper">
+                    <!-- Pickup Field -->
+                    <div class="cab-field-card">
+                        <div class="cab-field-icon cab-icon-pickup">
+                            <i class="ph-fill ph-map-pin"></i>
+                        </div>
+                        <div class="cab-field-body">
+                            <label for="pickupInput" class="cab-field-label">PICKUP LOCATION</label>
+                            <input type="text" name="pickup" id="pickupInput" class="cab-field-input" placeholder="Airport, hotel, address..." required list="nordicLocations" autocomplete="off">
+                        </div>
                     </div>
-                    <button type="button" class="cab-swap-btn" id="swapLocationsBtn" title="Swap pickup and drop-off locations"><i class="ph-bold ph-arrows-left-right"></i></button>
-                    <div class="cab-input-group" style="text-align: right;">
-                        <label for="dropInput" class="cab-input-label" style="display:block; width:100%;">Drop</label>
-                        <input type="text" name="drop" id="dropInput" class="cab-input" placeholder="e.g. Hotel Kämp, Helsinki" required list="nordicLocations" style="text-align: right;" autocomplete="off">
+
+                    <!-- Swap Button connecting Pickup and Drop -->
+                    <div class="cab-swap-wrapper">
+                        <button type="button" class="cab-swap-btn" id="swapLocationsBtn" title="Swap pickup and drop-off locations" aria-label="Swap pickup and drop-off locations">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display: block;">
+                                <path d="M7 4v16M7 20l-3.5-3.5M7 20l3.5-3.5M17 20V4M17 4l-3.5 3.5M17 4l3.5 3.5"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Drop Field -->
+                    <div class="cab-field-card">
+                        <div class="cab-field-icon cab-icon-drop">
+                            <i class="ph-fill ph-navigation-arrow"></i>
+                        </div>
+                        <div class="cab-field-body">
+                            <label for="dropInput" class="cab-field-label">DROP-OFF DESTINATION</label>
+                            <input type="text" name="drop" id="dropInput" class="cab-field-input" placeholder="Destination address, hotel..." required list="nordicLocations" autocomplete="off">
+                        </div>
                     </div>
                 </div>
 
@@ -45,6 +80,7 @@
                     <option value="Helsinki-Vantaa Airport (HEL)">
                     <option value="Helsinki Central Railway Station">
                     <option value="Hotel Kämp, Helsinki">
+                    <option value="Clarion Hotel Helsinki">
                     <option value="Rovaniemi Airport (RVN)">
                     <option value="Santa Claus Village, Rovaniemi">
                     <option value="Arctic TreeHouse Hotel, Rovaniemi">
@@ -56,30 +92,58 @@
                     <option value="Turku Port / Harbor">
                 </datalist>
                 
-                <div class="cab-input-row" style="margin-top: 1.5rem;">
-                    <div class="cab-input-group">
-                        <label for="pickupDate" class="cab-input-label">Pickup Date</label>
-                        <input type="text" name="date" id="pickupDate" class="cab-input" placeholder="Select date" required style="cursor: pointer;">
+                <!-- Schedule: Pickup Date & Pickup Time -->
+                <div class="cab-schedule-grid">
+                    <div class="cab-field-card">
+                        <div class="cab-field-icon cab-icon-time">
+                            <i class="ph-fill ph-calendar-blank"></i>
+                        </div>
+                        <div class="cab-field-body">
+                            <label for="pickupDate" class="cab-field-label">PICKUP DATE</label>
+                            <input type="text" name="date" id="pickupDate" class="cab-field-input cab-picker-input" placeholder="Select date" required readonly>
+                        </div>
                     </div>
-                    <div class="cab-input-group" style="text-align: right;">
-                        <label for="pickupTime" class="cab-input-label" style="display:block; width:100%;">Pickup time</label>
-                        <input type="text" name="time" id="pickupTime" class="cab-input" placeholder="Select time" required style="text-align: right; cursor: pointer;">
+                    <div class="cab-field-card">
+                        <div class="cab-field-icon cab-icon-time">
+                            <i class="ph-fill ph-clock"></i>
+                        </div>
+                        <div class="cab-field-body">
+                            <label for="pickupTime" class="cab-field-label">PICKUP TIME</label>
+                            <input type="text" name="time" id="pickupTime" class="cab-field-input cab-picker-input" placeholder="Select time" required readonly>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Return Date/Time (Revealed when Round Trip is selected) -->
-                <div class="cab-input-row" id="returnDateTimeRow" style="margin-top: 1.5rem; display: none;">
-                    <div class="cab-input-group">
-                        <label for="returnDate" class="cab-input-label">Return Date</label>
-                        <input type="text" name="return_date" id="returnDate" class="cab-input" placeholder="Select return date" style="cursor: pointer;">
+                <div class="cab-schedule-grid cab-return-row" id="returnDateTimeRow" style="display: none;">
+                    <div class="cab-field-card">
+                        <div class="cab-field-icon cab-icon-return">
+                            <i class="ph-fill ph-calendar-check"></i>
+                        </div>
+                        <div class="cab-field-body">
+                            <label for="returnDate" class="cab-field-label">RETURN DATE</label>
+                            <input type="text" name="return_date" id="returnDate" class="cab-field-input cab-picker-input" placeholder="Select return date" readonly>
+                        </div>
                     </div>
-                    <div class="cab-input-group" style="text-align: right;">
-                        <label for="returnTime" class="cab-input-label" style="display:block; width:100%;">Return time</label>
-                        <input type="text" name="return_time" id="returnTime" class="cab-input" placeholder="Select return time" style="text-align: right; cursor: pointer;">
+                    <div class="cab-field-card">
+                        <div class="cab-field-icon cab-icon-return">
+                            <i class="ph-fill ph-clock-clockwise"></i>
+                        </div>
+                        <div class="cab-field-body">
+                            <label for="returnTime" class="cab-field-label">RETURN TIME</label>
+                            <input type="text" name="return_time" id="returnTime" class="cab-field-input cab-picker-input" placeholder="Select return time" readonly>
+                        </div>
                     </div>
                 </div>
-                
-                <button type="submit" class="btn btn-primary w-100" style="margin-top: 2rem; border-radius: 8px; padding: 0.8rem; font-weight: 600; display: block; text-align: center; border: none; cursor: pointer; width: 100%;">Search Cabs</button>
+
+
+                <!-- CTA Submit Button -->
+                <button type="submit" class="cab-submit-btn" id="searchCabsBtn">
+                    <span class="btn-text">Search Available Cabs</span>
+                    <span class="btn-icon-circle">
+                        <i class="ph-bold ph-arrow-right"></i>
+                    </span>
+                </button>
             </form>
         </div>
     </div>
@@ -89,7 +153,7 @@
 <section class="vehicles-section">
     <div class="container">
         <h2 class="section-title text-center">Our Executive Luxury Fleet</h2>
-        <div class="vehicles-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div class="vehicles-grid">
             {% for vc in vehicle_classes %}
             <div class="vehicle-card" onclick="window.location.href='{% url 'chauffeur:list' %}?class={{ vc.id }}';" style="cursor: pointer;">
                 <div class="vehicle-icon-wrapper">
@@ -100,7 +164,7 @@
                     {% endif %}
                 </div>
                 <h4 class="vehicle-name">{{ vc.name }}</h4>
-                <p class="vehicle-count">{{ vc.vehicles.count }} Active {% if vc.vehicles.count == 1 %}Vehicle{% else %}Vehicles{% endif %} &bull; Up to {{ vc.max_passengers }} Guests</p>
+                <p class="vehicle-count">{{ vc.vehicles.count }} Active {% if vc.vehicles.count == 1 %}Vehicle{% else %}Vehicles{% endif %}{% if vc.max_passengers %} &bull; Up to {{ vc.max_passengers }} Guests{% endif %}</p>
             </div>
             {% empty %}
             <p class="text-center text-muted" style="grid-column: 1/-1;">Fleet vehicles are being prepared.</p>
@@ -148,10 +212,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
 
-        const fpPickup = flatpickr(pickupDateEl, {
+        flatpickr(pickupDateEl, {
             dateFormat: "Y-m-d",
             altInput: true,
             altFormat: "D, d M Y",
+            altInputClass: "cab-field-input cab-picker-input",
             minDate: "today",
             defaultDate: tomorrow
         });
@@ -161,6 +226,9 @@ document.addEventListener('DOMContentLoaded', function() {
             enableTime: true,
             noCalendar: true,
             dateFormat: "H:i",
+            altInput: true,
+            altFormat: "H:i",
+            altInputClass: "cab-field-input cab-picker-input",
             time_24hr: true,
             defaultDate: "10:00"
         });
@@ -175,6 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dateFormat: "Y-m-d",
                 altInput: true,
                 altFormat: "D, d M Y",
+                altInputClass: "cab-field-input cab-picker-input",
                 minDate: "today",
                 defaultDate: dayAfter
             });
@@ -183,6 +252,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 enableTime: true,
                 noCalendar: true,
                 dateFormat: "H:i",
+                altInput: true,
+                altFormat: "H:i",
+                altInputClass: "cab-field-input cab-picker-input",
                 time_24hr: true,
                 defaultDate: "16:00"
             });
@@ -194,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const pickupInput = document.getElementById('pickupInput');
     const dropInput = document.getElementById('dropInput');
 
+    let swapRotation = 0;
     if (swapBtn && pickupInput && dropInput) {
         swapBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -201,26 +274,32 @@ document.addEventListener('DOMContentLoaded', function() {
             pickupInput.value = dropInput.value;
             dropInput.value = temp;
 
-            // Visual feedback animation
-            swapBtn.style.transform = 'rotate(180deg) scale(1.1)';
+            swapRotation += 180;
+            swapBtn.style.transform = `scale(1.12) rotate(${swapRotation}deg)`;
             setTimeout(() => {
-                swapBtn.style.transform = 'none';
-            }, 300);
+                swapBtn.style.transform = `rotate(${swapRotation}deg)`;
+            }, 250);
         });
     }
 
     // 5. Round Trip vs One Way Toggle
     const tripOneWay = document.getElementById('tripOneWay');
     const tripRoundTrip = document.getElementById('tripRoundTrip');
+    const labelOneWay = document.getElementById('labelOneWay');
+    const labelRoundTrip = document.getElementById('labelRoundTrip');
     const returnRow = document.getElementById('returnDateTimeRow');
     const returnDateInput = document.getElementById('returnDate');
 
     function updateTripType() {
         if (tripRoundTrip && tripRoundTrip.checked) {
-            returnRow.style.display = 'flex';
+            if (labelRoundTrip) labelRoundTrip.classList.add('active');
+            if (labelOneWay) labelOneWay.classList.remove('active');
+            if (returnRow) returnRow.style.display = 'grid';
             if (returnDateInput) returnDateInput.required = true;
         } else {
-            returnRow.style.display = 'none';
+            if (labelOneWay) labelOneWay.classList.add('active');
+            if (labelRoundTrip) labelRoundTrip.classList.remove('active');
+            if (returnRow) returnRow.style.display = 'none';
             if (returnDateInput) returnDateInput.required = false;
         }
     }

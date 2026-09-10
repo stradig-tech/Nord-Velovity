@@ -23,6 +23,21 @@ class Country(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def get_flag_url(self):
+        if self.flag_icon:
+            return self.flag_icon.url
+        slug_str = f"{self.slug} {self.name}".lower()
+        if 'denmark' in slug_str:
+            return '/media/countries/flags/flag_denmark.svg'
+        if 'sweden' in slug_str:
+            return '/media/countries/flags/flag_sweden.svg'
+        if 'norway' in slug_str:
+            return '/media/countries/flags/flag_norway.svg'
+        if 'iceland' in slug_str:
+            return '/media/countries/flags/flag_iceland.svg'
+        return '/media/countries/flags/flag_finland.svg'
+
 class Destination(models.Model):
     name = models.CharField(max_length=150) # e.g. Rovaniemi
     slug = models.SlugField(unique=True)
@@ -47,6 +62,21 @@ class Destination(models.Model):
         if self.country:
             return f"{self.name} ({self.country.name})"
         return self.name
+
+    @property
+    def get_flag_url(self):
+        if self.country and self.country.flag_icon:
+            return self.country.flag_icon.url
+        slug_str = f"{self.slug} {self.name} {self.country.slug if self.country else ''}".lower()
+        if 'denmark' in slug_str or 'copenhagen' in slug_str:
+            return '/media/countries/flags/flag_denmark.svg'
+        if 'sweden' in slug_str or 'stockholm' in slug_str or 'kiruna' in slug_str or 'abisko' in slug_str:
+            return '/media/countries/flags/flag_sweden.svg'
+        if 'norway' in slug_str or 'oslo' in slug_str or 'troms' in slug_str:
+            return '/media/countries/flags/flag_norway.svg'
+        if 'iceland' in slug_str or 'reykjavik' in slug_str:
+            return '/media/countries/flags/flag_iceland.svg'
+        return '/media/countries/flags/flag_finland.svg'
 
 class Season(models.Model):
     name = models.CharField(max_length=50) # e.g. Winter, Summer

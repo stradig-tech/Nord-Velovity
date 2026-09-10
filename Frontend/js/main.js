@@ -1,60 +1,99 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile Navigation Toggle & Drawer
+    // Mobile Navigation Off-Canvas Drawer & Accordion
     const menuToggle = document.querySelector('.mobile-menu-toggle');
     const navLinks = document.querySelector('.nav-links');
+    const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+    const mobileOverlay = document.getElementById('mobileMenuOverlay');
     const menuIcon = menuToggle ? menuToggle.querySelector('i') : null;
     
+    function openMobileNav() {
+        if (!navLinks) return;
+        navLinks.classList.add('active');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('mobile-nav-open');
+    }
+
+    function closeMobileNav() {
+        if (!navLinks) return;
+        navLinks.classList.remove('active');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('mobile-nav-open');
+    }
+
     if (menuToggle && navLinks) {
         menuToggle.addEventListener('click', function(e) {
             e.stopPropagation();
-            const isOpen = navLinks.classList.toggle('active');
-            menuToggle.setAttribute('aria-expanded', isOpen);
-            document.body.classList.toggle('mobile-nav-open', isOpen);
-            
-            if (menuIcon) {
-                if (isOpen) {
-                    menuIcon.classList.remove('ph-list');
-                    menuIcon.classList.add('ph-x');
-                } else {
-                    menuIcon.classList.remove('ph-x');
-                    menuIcon.classList.add('ph-list');
-                }
+            if (navLinks.classList.contains('active')) {
+                closeMobileNav();
+            } else {
+                openMobileNav();
             }
         });
+
+        if (drawerCloseBtn) {
+            drawerCloseBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeMobileNav();
+            });
+        }
+
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closeMobileNav();
+            });
+        }
 
         // Close mobile drawer when clicking outside
         document.addEventListener('click', function(e) {
             if (navLinks.classList.contains('active') && !navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
-                navLinks.classList.remove('active');
-                menuToggle.setAttribute('aria-expanded', 'false');
-                document.body.classList.remove('mobile-nav-open');
-                if (menuIcon) {
-                    menuIcon.classList.remove('ph-x');
-                    menuIcon.classList.add('ph-list');
-                }
+                closeMobileNav();
             }
         });
 
-        // Mobile mega menu accordion toggle
-        const dropdownToggles = navLinks.querySelectorAll('.dropdown > .dropdown-toggle');
-        dropdownToggles.forEach(function(toggle) {
-            toggle.addEventListener('click', function(e) {
+        // Close on window resize if above mobile breakpoint
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 960 && navLinks.classList.contains('active')) {
+                closeMobileNav();
+            }
+        });
+
+        // Mobile mega menu accordion toggle - clicking the +/- icon toggles submenu accordion
+        const accordionIcons = navLinks.querySelectorAll('.dropdown > .dropdown-toggle .accordion-icon');
+        accordionIcons.forEach(function(icon) {
+            icon.addEventListener('click', function(e) {
                 if (window.innerWidth <= 960) {
-                    const parentDropdown = toggle.closest('.dropdown');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const parentDropdown = icon.closest('.dropdown');
                     if (parentDropdown) {
                         const isOpen = parentDropdown.classList.contains('open');
-                        // If not open, prevent jump and expand accordion
-                        if (!isOpen) {
-                            e.preventDefault();
-                            // Close sibling open dropdowns
-                            navLinks.querySelectorAll('.dropdown.open').forEach(function(d) {
-                                if (d !== parentDropdown) d.classList.remove('open');
-                            });
-                            parentDropdown.classList.add('open');
-                        }
+                        // Close sibling open dropdowns
+                        navLinks.querySelectorAll('.dropdown.open').forEach(function(d) {
+                            if (d !== parentDropdown) d.classList.remove('open');
+                        });
+                        parentDropdown.classList.toggle('open', !isOpen);
                     }
                 }
             });
+        });
+
+        // All nav links navigate to their destination page normally.
+        // On mobile, close the drawer when navigating so the page transition is clean.
+        navLinks.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                // If user tapped the accordion toggle icon (+/-), don't navigate
+                if (e.target.closest('.accordion-icon')) return;
+
+                if (window.innerWidth <= 960) {
+                    closeMobileNav();
+                }
+            });
+        });
+
+        // Ensure mobile drawer is cleanly reset when navigating back via browser history
+        window.addEventListener('pageshow', function() {
+            closeMobileNav();
         });
     }
 
@@ -119,15 +158,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Global Day-by-Day Itinerary Accordion click delegation
     document.addEventListener('click', function(e) {
+        if (e.defaultPrevented) return;
         const header = e.target.closest('.itinerary-accordion .accordion-header');
         if (header) {
+            // Avoid duplicate execution if already handled by inline handler
+            if (header.hasAttribute('onclick')) return;
+
             const item = header.closest('.accordion-item');
             if (!item) return;
             const body = item.querySelector('.accordion-body');
             const icon = header.querySelector('i');
             if (!body) return;
 
-            const isOpen = item.classList.contains('open') || (body.style.display !== 'none' && window.getComputedStyle(body).display !== 'none');
+            const isOpen = item.classList.contains('open');
             if (isOpen) {
                 item.classList.remove('open');
                 body.style.display = 'none';

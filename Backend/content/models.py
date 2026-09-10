@@ -43,6 +43,17 @@ class BlogPost(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def get_featured_image_url(self):
+        if self.featured_image:
+            return self.featured_image.url
+        slug_str = f"{self.slug} {self.title}".lower()
+        if 'sauna' in slug_str:
+            return '/media/blog/sauna_loyly.jpg'
+        if 'northern' in slug_str or 'light' in slug_str or 'lapland' in slug_str or 'aurora' in slug_str:
+            return '/media/blog/northern_lights_lapland.jpg'
+        return '/media/blog/sauna_loyly.jpg'
+
 class StaticPage(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)

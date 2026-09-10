@@ -15,9 +15,9 @@
                 <div class="cab-card-main" style="border-bottom: none; padding-bottom: 1rem;">
                     <div class="cab-img-box">
                         {% if cab_photos.0 %}
-                        <img src="{{ cab_photos.0.image_file.url }}" alt="{{ vehicle.name|default:vehicle_class.name }}" style="max-height: 100px; width: auto; object-fit: contain;">
+                        <img src="{{ cab_photos.0.image_file.url }}" alt="{{ vehicle.name|default:vehicle_class.name }}" class="cab-card-img">
                         {% elif vehicle.photos.first %}
-                        <img src="{{ vehicle.photos.first.image_file.url }}" alt="{{ vehicle.name|default:vehicle_class.name }}" style="max-height: 100px; width: auto; object-fit: contain;">
+                        <img src="{{ vehicle.photos.first.image_file.url }}" alt="{{ vehicle.name|default:vehicle_class.name }}" class="cab-card-img">
                         {% else %}
                         <i class="ph-fill ph-car-profile" style="font-size: 4rem; color: #4F46E5;"></i>
                         {% endif %}

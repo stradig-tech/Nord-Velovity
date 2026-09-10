@@ -22,9 +22,9 @@
             <div style="color: #64748b; font-size: 0.95rem;">By <strong>{{ post.author.get_full_name|default:post.author.username }}</strong> &bull; {{ post.publish_date|default:post.created_at|date:"F d, Y" }}</div>
         </div>
 
-        {% if post.featured_image %}
+        {% if post.featured_image or post.get_featured_image_url %}
         <div style="border-radius: 16px; overflow: hidden; margin-bottom: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-            <img src="{{ post.featured_image.url }}" style="width: 100%; max-height: 480px; object-fit: cover; display: block;" alt="{{ post.featured_image_alt|default:post.title }}">
+            <img src="{{ post.featured_image.url|default:post.get_featured_image_url }}" style="width: 100%; max-height: 480px; object-fit: cover; display: block;" alt="{{ post.featured_image_alt|default:post.title }}">
         </div>
         {% endif %}
         

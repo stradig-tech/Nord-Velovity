@@ -24,7 +24,10 @@ from django.utils.safestring import mark_safe
 @admin.register(SiteSetting)
 class SiteSettingAdmin(admin.ModelAdmin):
     list_display = ('site_name', 'logo_thumbnail', 'contact_phone', 'contact_email', 'default_currency', 'maintenance_mode', 'updated_at')
-    readonly_fields = ('logo_preview', 'favicon_preview', 'preview_image_display')
+    readonly_fields = (
+        'logo_preview', 'favicon_preview', 'preview_image_display',
+        'explore_image_left_preview', 'explore_image_main_preview', 'explore_image_right_preview'
+    )
     
     fieldsets = (
         ("Brand & Identity", {
@@ -43,6 +46,19 @@ class SiteSettingAdmin(admin.ModelAdmin):
                 'hero_subtitle',
                 'hero_video_url',
                 ('hero_video_file', 'hero_background_image'),
+            )
+        }),
+        ("🌍 Homepage Explore Section (Heading, Descriptions, Button & Fanned Images)", {
+            'description': "Manage the 'Explore the World With Confidence' section on the homepage including titles, paragraphs, images, and award badges.",
+            'fields': (
+                ('explore_badge', 'explore_title'),
+                'explore_description_1',
+                'explore_description_2',
+                ('explore_button_text', 'explore_button_url'),
+                ('explore_image_left', 'explore_image_main', 'explore_image_right'),
+                ('explore_image_left_preview', 'explore_image_main_preview', 'explore_image_right_preview'),
+                ('explore_award_1_count', 'explore_award_1_label'),
+                ('explore_award_2_title', 'explore_award_2_year'),
             )
         }),
         ("Platform Statistics & Partners Section", {
@@ -132,6 +148,36 @@ class SiteSettingAdmin(admin.ModelAdmin):
             ''')
         return mark_safe('<span style="color: #94a3b8; font-style: italic;">No OG image uploaded (default: blank)</span>')
     preview_image_display.short_description = "OG Image Preview"
+
+    def explore_image_main_preview(self, obj):
+        url = obj.get_explore_image_main_url if obj else '/static/images/explore/explore_2.jpg'
+        return mark_safe(f'''
+            <div style="display: inline-flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
+                <img src="{url}" style="height: 75px; width: 110px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+                <span style="font-size: 11px; color: #475569; font-weight: 700;">Center Card (Front)</span>
+            </div>
+        ''')
+    explore_image_main_preview.short_description = "Center Card Preview"
+
+    def explore_image_left_preview(self, obj):
+        url = obj.get_explore_image_left_url if obj else '/static/images/explore/explore_1.jpg'
+        return mark_safe(f'''
+            <div style="display: inline-flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
+                <img src="{url}" style="height: 75px; width: 110px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+                <span style="font-size: 11px; color: #475569; font-weight: 700;">Left Card</span>
+            </div>
+        ''')
+    explore_image_left_preview.short_description = "Left Card Preview"
+
+    def explore_image_right_preview(self, obj):
+        url = obj.get_explore_image_right_url if obj else '/static/images/explore/explore_3.jpg'
+        return mark_safe(f'''
+            <div style="display: inline-flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px; background: #F8FAFC; border-radius: 8px; border: 1px solid #E2E8F0;">
+                <img src="{url}" style="height: 75px; width: 110px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
+                <span style="font-size: 11px; color: #475569; font-weight: 700;">Right Card</span>
+            </div>
+        ''')
+    explore_image_right_preview.short_description = "Right Card Preview"
 
     def has_add_permission(self, request):
         # Only allow 1 settings file to ever exist

@@ -104,9 +104,9 @@
                 <div class="cab-card-main">
                     <div class="cab-img-box">
                         {% if v.photos.first %}
-                        <img src="{{ v.photos.first.image_file.url }}" alt="{{ v.name }}" style="max-height: 90px; width: auto; object-fit: contain;">
+                        <img src="{{ v.photos.first.image_file.url }}" alt="{{ v.name }}" class="cab-card-img">
                         {% elif v.vehicle_class.image %}
-                        <img src="{{ v.vehicle_class.image.url }}" alt="{{ v.name }}" style="max-height: 90px; width: auto; object-fit: contain;">
+                        <img src="{{ v.vehicle_class.image.url }}" alt="{{ v.name }}" class="cab-card-img">
                         {% else %}
                         <i class="ph-fill ph-car-profile" style="font-size: 4rem; color: #4F46E5;"></i>
                         {% endif %}
