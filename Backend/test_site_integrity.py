@@ -6,7 +6,7 @@ django.setup()
 
 from django.test import Client
 from django.contrib.auth import get_user_model
-from tours.models import Tour, Departure, VehicleType
+from tours.models import Tour, Departure, VehicleType, Wishlist
 from channels.models import Channel
 
 User = get_user_model()
@@ -94,9 +94,48 @@ def run_checks():
         assert first_dep.status == orig_status
         print(f"   Status restored to: {first_dep.status}")
 
+    print("\n--- 5. Testing Wishlist Feature Endpoints & Templates ---")
+    if first_tour:
+        # A. Unauthenticated toggle request -> 401 JSON
+        unauth_client = Client()
+        wish_url = f"/accounts/api/wishlist/toggle/{first_tour.id}/"
+        resp = unauth_client.post(wish_url, content_type='application/json')
+        print(f"POST {wish_url} (Guest) -> {resp.status_code}")
+        assert resp.status_code == 401, f"Expected 401, got {resp.status_code}"
+        data = resp.json()
+        assert data.get('login_required') is True
+        print(f"   Guest redirected to: {data.get('login_url')}")
+
+        # B. Authenticated toggle request -> Save
+        Wishlist.objects.filter(user=admin_user).delete()
+        resp = client.post(wish_url, content_type='application/json')
+        print(f"POST {wish_url} (Auth user - save) -> {resp.status_code}")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data.get('success') is True
+        assert data.get('is_saved') is True
+        print(f"   Success: {data.get('message')}, total count = {data.get('count')}")
+
+        # C. GET /accounts/my-wishlist/
+        wishlist_page = client.get('/accounts/my-wishlist/')
+        print(f"GET /accounts/my-wishlist/ -> {wishlist_page.status_code}")
+        assert wishlist_page.status_code == 200
+        assert first_tour.title.encode('utf-8') in wishlist_page.content or first_tour.slug.encode('utf-8') in wishlist_page.content
+        print("   Tour appears on /accounts/my-wishlist/ successfully!")
+
+        # D. Authenticated toggle request -> Remove
+        resp = client.post(wish_url, content_type='application/json')
+        print(f"POST {wish_url} (Auth user - remove) -> {resp.status_code}")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data.get('success') is True
+        assert data.get('is_saved') is False
+        print(f"   Success: {data.get('message')}, total count = {data.get('count')}")
+
     print("\n==============================================")
-    print(" ALL 22 SITE INTEGRITY CHECKS PASSED WITH 200 OK!")
+    print(" ALL SITE INTEGRITY & WISHLIST CHECKS PASSED WITH 200 OK!")
     print("==============================================\n")
 
 if __name__ == '__main__':
     run_checks()
+

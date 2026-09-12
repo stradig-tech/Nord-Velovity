@@ -129,10 +129,17 @@ def tour_detail_view(request, slug):
     reviews = tour.reviews.filter(is_approved=True).order_by('-created_at')
 
     # Recommended / Related tours
-    related_tours = Tour.objects.filter(
+    related_tours = list(Tour.objects.filter(
         destination=tour.destination,
         status='PUBLISHED'
-    ).exclude(id=tour.id).prefetch_related('pricing')[:3]
+    ).exclude(id=tour.id).select_related('destination__country').prefetch_related('pricing', 'media')[:3])
+    if len(related_tours) < 3:
+        needed = 3 - len(related_tours)
+        exclude_ids = [tour.id] + [t.id for t in related_tours]
+        fallback_tours = list(Tour.objects.filter(
+            status='PUBLISHED'
+        ).exclude(id__in=exclude_ids).select_related('destination__country').prefetch_related('pricing', 'media')[:needed])
+        related_tours.extend(fallback_tours)
 
     context = {
         'tour': tour,

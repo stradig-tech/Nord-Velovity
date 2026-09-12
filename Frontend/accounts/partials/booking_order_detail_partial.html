@@ -1,0 +1,440 @@
+{% load static %}
+<div class="form-card htmx-fade-in" style="padding: 0; background: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid #E2E8F0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);">
+
+    <!-- Top Action & Navigation Bar -->
+    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; background: #F8FAFC;">
+        <a href="{% url 'accounts:my_bookings' %}" 
+           hx-get="{% url 'accounts:my_bookings' %}" 
+           hx-target="#dashboardMainContent" 
+           hx-swap="innerHTML transition:true" 
+           hx-push-url="true" 
+           style="color: #4F46E5; text-decoration: none; font-size: 0.92rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; transition: transform 0.2s;"
+           onmouseover="this.style.transform='translateX(-3px)';"
+           onmouseout="this.style.transform='none';">
+            <i class="ph-bold ph-arrow-left"></i> <span>Back to My Bookings</span>
+        </a>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <button type="button" onclick="window.print()" class="btn" style="background: #FFFFFF; color: #334155; border: 1.5px solid #CBD5E1; padding: 0.45rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#94A3B8'; this.style.background='#F1F5F9';" onmouseout="this.style.borderColor='#CBD5E1'; this.style.background='#FFFFFF';">
+                <i class="ph-bold ph-printer"></i> <span>Print / Save Voucher</span>
+            </button>
+            <a href="mailto:concierge@nordvelocity.com?subject=Inquiry for Booking %23{{ booking.booking_ref }}" class="btn" style="background: #0F172A; color: #FFFFFF; padding: 0.45rem 1.1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#4F46E5';" onmouseout="this.style.background='#0F172A';">
+                <i class="ph-bold ph-headset"></i> <span>Contact Concierge</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Order Details Body -->
+    <div style="padding: 2rem;">
+
+        <!-- Order Header Banner -->
+        <div style="display: flex; gap: 1.75rem; padding: 1.5rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; margin-bottom: 2rem; align-items: center; flex-wrap: wrap;">
+            <div style="width: 140px; height: 105px; border-radius: 10px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: #EEF2FF;">
+                {% if tour_booking and tour_booking.tour.media.first %}
+                    <img src="{{ tour_booking.tour.media.first.file.url }}" alt="{{ tour_booking.tour.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% elif tour_booking and tour_booking.tour.destination.hero_image %}
+                    <img src="{{ tour_booking.tour.destination.hero_image.url }}" alt="{{ tour_booking.tour.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% elif chauffeur_booking and chauffeur_booking.vehicle.photos.first %}
+                    <img src="{{ chauffeur_booking.vehicle.photos.first.image_file.url }}" alt="{{ chauffeur_booking.vehicle.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="Nordic Excursion" style="width: 100%; height: 100%; object-fit: cover;">
+                {% endif %}
+            </div>
+
+            <div style="flex: 1; min-width: 250px;">
+                <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+                    <span style="background: #EEF2FF; color: #4F46E5; font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        {{ booking.get_booking_type_display }} Order
+                    </span>
+                    <span style="font-size: 0.85rem; color: #64748B;">Booked on {{ booking.created_at|date:"F d, Y \a\t H:i" }}</span>
+                </div>
+                
+                <h2 style="font-size: 1.45rem; font-weight: 800; color: #0F172A; margin: 0 0 0.5rem 0; line-height: 1.3;">
+                    {% if tour_booking and tour_booking.tour %}
+                        {{ tour_booking.tour.title }}
+                    {% elif chauffeur_booking and chauffeur_booking.vehicle %}
+                        Chauffeur: {{ chauffeur_booking.vehicle.vehicle_class.name }} ({{ chauffeur_booking.vehicle.name }})
+                    {% else %}
+                        Nordic Travel Reservation
+                    {% endif %}
+                </h2>
+
+                <div style="display: flex; gap: 1.5rem; font-size: 0.88rem; color: #475569; flex-wrap: wrap; align-items: center;">
+                    <span>Booking Ref: <strong style="color: #0F172A; font-family: monospace; font-size: 0.95rem;">#{{ booking.booking_ref }}</strong></span>
+                    {% if tour and tour.destination %}
+                    <span><i class="ph-bold ph-map-pin" style="color: #4F46E5;"></i> {{ tour.destination.name }}{% if tour.destination.country %}, {{ tour.destination.country.name }}{% endif %}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 0.5rem; flex-shrink: 0;">
+                <span class="booking-status-badge {% if booking.status == 'CONFIRMED' %}confirmed{% elif booking.status == 'COMPLETED' %}completed{% else %}pending{% endif %}" style="font-size: 0.82rem; padding: 0.4rem 1.1rem;">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; display: inline-block; {% if booking.status == 'CONFIRMED' %}background: #16A34A;{% elif booking.status == 'COMPLETED' %}background: #4F46E5;{% else %}background: #D97706;{% endif %}"></span>
+                    {{ booking.get_status_display }}
+                </span>
+                <span style="font-size: 1.25rem; font-weight: 800; color: #0F172A;">€{{ booking.total_amount }}</span>
+            </div>
+        </div>
+
+        <!-- Section 1: Status Lifecycle & Progression Stepper -->
+        <div style="margin-bottom: 2.5rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.75rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0F172A; margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ph-bold ph-chart-line-up" style="color: #4F46E5;"></i> <span>Order Status &amp; Progress</span>
+            </h3>
+
+            <!-- 4-Step Stepper -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; position: relative;">
+                
+                <!-- Step 1: Received -->
+                <div style="padding: 1rem; border-radius: 10px; background: #F0FDF4; border: 1.5px solid #BBF7D0;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                        <span style="width: 24px; height: 24px; border-radius: 50%; background: #16A34A; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">✓</span>
+                        <strong style="font-size: 0.88rem; color: #166534;">1. Order Placed</strong>
+                    </div>
+                    <p style="font-size: 0.78rem; color: #475569; margin: 0;">{{ booking.created_at|date:"M d, Y" }}</p>
+                </div>
+
+                <!-- Step 2: Confirmed -->
+                <div style="padding: 1rem; border-radius: 10px; {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}background: #F0FDF4; border: 1.5px solid #BBF7D0;{% else %}background: #F8FAFC; border: 1px dashed #CBD5E1;{% endif %}">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                        <span style="width: 24px; height: 24px; border-radius: 50%; {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}background: #16A34A; color: white;{% else %}background: #CBD5E1; color: #64748B;{% endif %} display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">
+                            {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}✓{% else %}2{% endif %}
+                        </span>
+                        <strong style="font-size: 0.88rem; {% if booking.status == 'CONFIRMED' or booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}color: #166534;{% else %}color: #64748B;{% endif %}">2. Confirmed &amp; Reserved</strong>
+                    </div>
+                    <p style="font-size: 0.78rem; color: #475569; margin: 0;">Guide &amp; permits assigned</p>
+                </div>
+
+                <!-- Step 3: Departure -->
+                <div style="padding: 1rem; border-radius: 10px; {% if booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}background: #F0FDF4; border: 1.5px solid #BBF7D0;{% elif booking.status == 'CONFIRMED' %}background: #EEF2FF; border: 1.5px solid #C7D2FE;{% else %}background: #F8FAFC; border: 1px dashed #CBD5E1;{% endif %}">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                        <span style="width: 24px; height: 24px; border-radius: 50%; {% if booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}background: #16A34A; color: white;{% elif booking.status == 'CONFIRMED' %}background: #4F46E5; color: white;{% else %}background: #CBD5E1; color: #64748B;{% endif %} display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">
+                            {% if booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}✓{% else %}3{% endif %}
+                        </span>
+                        <strong style="font-size: 0.88rem; {% if booking.status == 'CONFIRMED' %}color: #3730A3;{% elif booking.status == 'IN_PROGRESS' or booking.status == 'COMPLETED' %}color: #166534;{% else %}color: #64748B;{% endif %}">3. Tour Departure</strong>
+                    </div>
+                    <p style="font-size: 0.78rem; color: #475569; margin: 0;">
+                        {% if tour_booking and tour_booking.departure %}
+                            {{ tour_booking.departure.date|date:"M d, Y" }}
+                        {% else %}
+                            Ready for excursion
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Step 4: Completed -->
+                <div style="padding: 1rem; border-radius: 10px; {% if booking.status == 'COMPLETED' %}background: #F0FDF4; border: 1.5px solid #BBF7D0;{% else %}background: #F8FAFC; border: 1px dashed #CBD5E1;{% endif %}">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                        <span style="width: 24px; height: 24px; border-radius: 50%; {% if booking.status == 'COMPLETED' %}background: #16A34A; color: white;{% else %}background: #CBD5E1; color: #64748B;{% endif %} display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">
+                            {% if booking.status == 'COMPLETED' %}✓{% else %}4{% endif %}
+                        </span>
+                        <strong style="font-size: 0.88rem; {% if booking.status == 'COMPLETED' %}color: #166534;{% else %}color: #64748B;{% endif %}">4. Completed</strong>
+                    </div>
+                    <p style="font-size: 0.78rem; color: #475569; margin: 0;">Post-tour wrap-up</p>
+                </div>
+            </div>
+
+            <!-- Status Explanation Box -->
+            <div style="margin-top: 1.25rem; padding: 1rem 1.25rem; border-radius: 8px; background: {% if booking.status == 'CONFIRMED' %}#F0FDF4; border: 1px solid #DCFCE7; color: #166534;{% elif booking.status == 'COMPLETED' %}#EEF2FF; border: 1px solid #E0E7FF; color: #3730A3;{% else %}#FFFBEB; border: 1px solid #FEF3C7; color: #92400E;{% endif %} font-size: 0.88rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+                <i class="ph-bold {% if booking.status == 'CONFIRMED' %}ph-check-circle{% elif booking.status == 'COMPLETED' %}ph-trophy{% else %}ph-clock{% endif %}" style="font-size: 1.2rem; flex-shrink: 0; margin-top: 2px;"></i>
+                <div>
+                    {% if booking.status == 'CONFIRMED' %}
+                        <strong>Your reservation is fully confirmed!</strong> Our dispatch team has reserved your vehicle, allocated licensed Nordic guides, and prepared equipment for your group.
+                    {% elif booking.status == 'COMPLETED' %}
+                        <strong>This tour experience has concluded.</strong> Thank you for traveling with Nord Velocity! We hope you had an unforgettable Arctic adventure.
+                    {% elif booking.status == 'PENDING' %}
+                        <strong>Your booking is currently pending confirmation.</strong> Our operations team is reviewing availability and will notify you via email shortly.
+                    {% else %}
+                        <strong>Current Status: {{ booking.get_status_display }}</strong>. If you need any assistance regarding this order, please contact our concierge team.
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: How the Tour Occurs (Logistics, Schedule & Meeting Point) -->
+        <div style="margin-bottom: 2.5rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.75rem;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ph-bold ph-compass" style="color: #4F46E5;"></i> <span>How the Tour Occurs &amp; Schedule</span>
+            </h3>
+
+            <!-- 4 Logistics Boxes -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                
+                <div style="padding: 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <span style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Departure Date &amp; Time</span>
+                    <div style="margin-top: 0.35rem; font-size: 1rem; font-weight: 700; color: #0F172A;">
+                        {% if tour_booking and tour_booking.departure %}
+                            {{ tour_booking.departure.date|date:"l, M d, Y" }}
+                            <div style="font-size: 0.85rem; color: #4F46E5; font-weight: 600;">Time: {{ tour_booking.departure.time|time:"H:i" }} EET</div>
+                        {% elif tour_booking and tour_booking.tour_date %}
+                            {{ tour_booking.tour_date.start_date|date:"l, M d, Y" }}
+                        {% elif chauffeur_booking %}
+                            {{ chauffeur_booking.pickup_datetime|date:"l, M d, Y \a\t H:i" }}
+                        {% else %}
+                            {{ booking.created_at|date:"M d, Y" }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div style="padding: 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <span style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Meeting &amp; Pickup Point</span>
+                    <div style="margin-top: 0.35rem; font-size: 0.95rem; font-weight: 700; color: #0F172A;">
+                        {% if tour and tour.pickups.first %}
+                            {{ tour.pickups.first.name }}
+                        {% elif chauffeur_booking %}
+                            {{ chauffeur_booking.pickup_address }}
+                        {% else %}
+                            Hotel Lobby or Central Station Terminal
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.78rem; color: #64748B;">Please be ready 15 minutes before</span>
+                </div>
+
+                <div style="padding: 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <span style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Duration &amp; Style</span>
+                    <div style="margin-top: 0.35rem; font-size: 0.95rem; font-weight: 700; color: #0F172A;">
+                        {% if tour %}
+                            {{ tour.duration_text }} &bull; {{ tour.travel_style.name|default:"Guided Expedition" }}
+                        {% elif chauffeur_booking %}
+                            ~{{ chauffeur_booking.estimated_duration_min }} Mins ({{ chauffeur_booking.distance_km }} km)
+                        {% else %}
+                            Standard Service
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.78rem; color: #64748B;">English-speaking certified guide</span>
+                </div>
+
+                <div style="padding: 1rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <span style="font-size: 0.76rem; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px;">Assigned Vehicle</span>
+                    <div style="margin-top: 0.35rem; font-size: 0.95rem; font-weight: 700; color: #0F172A;">
+                        {% if tour_booking and tour_booking.vehicle_type %}
+                            {{ tour_booking.vehicle_type.name }}
+                        {% elif chauffeur_booking and chauffeur_booking.vehicle %}
+                            {{ chauffeur_booking.vehicle.name }}
+                        {% else %}
+                            Mercedes Executive Fleet
+                        {% endif %}
+                    </div>
+                    <span style="font-size: 0.78rem; color: #16A34A; font-weight: 600;"><i class="ph-bold ph-wifi-high"></i> Heated &bull; Panoramic Wi-Fi</span>
+                </div>
+            </div>
+
+            <!-- Day-by-Day Itinerary -->
+            {% if tour and tour.itinerary.all %}
+            <div style="margin-top: 1.5rem; border-top: 1px solid #F1F5F9; padding-top: 1.5rem;">
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 1rem 0;">
+                    <i class="ph-bold ph-calendar-check" style="color: #4F46E5;"></i> Day-by-Day Itinerary
+                </h4>
+                
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for day in tour.itinerary.all %}
+                    <div style="display: flex; gap: 1.25rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 1.25rem; align-items: flex-start;">
+                        <div style="background: #4F46E5; color: white; border-radius: 8px; width: 50px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;">
+                            <span style="font-size: 0.65rem; text-transform: uppercase; line-height: 1;">Day</span>
+                            <span style="font-size: 1.25rem; line-height: 1.1;">{{ day.day_number }}</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <h5 style="font-size: 1rem; font-weight: 700; color: #0F172A; margin: 0 0 0.4rem 0;">{{ day.title }}</h5>
+                            <p style="font-size: 0.88rem; color: #475569; margin: 0; line-height: 1.6;">{{ day.description }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tour Inclusions -->
+            {% if tour and tour.inclusions.all %}
+            <div style="margin-top: 1.5rem; border-top: 1px solid #F1F5F9; padding-top: 1.5rem;">
+                <h4 style="font-size: 1.05rem; font-weight: 800; color: #0F172A; margin: 0 0 1rem 0;">
+                    <i class="ph-bold ph-check-square-offset" style="color: #16A34A;"></i> Included in Your Package
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">
+                    {% for inc in tour.inclusions.all %}
+                    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; color: #334155;">
+                        <i class="ph-bold ph-check-circle" style="color: #16A34A; font-size: 1.1rem; flex-shrink: 0;"></i>
+                        <span>{{ inc.text }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Section 3: Travelers & Guests Breakdown -->
+        <div style="margin-bottom: 2.5rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.75rem;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ph-bold ph-users-three" style="color: #4F46E5;"></i> <span>Travelers &amp; Passenger Information</span>
+            </h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 1.25rem;">
+                <div style="padding: 1.25rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Lead Passenger / Booker</span>
+                    <h4 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0.35rem 0 0.25rem 0;">
+                        {{ booking.customer.get_full_name|default:booking.customer.username }}
+                    </h4>
+                    <p style="font-size: 0.85rem; color: #64748B; margin: 0;"><i class="ph-bold ph-envelope"></i> {{ booking.customer.email }}</p>
+                    {% if booking.customer.phone %}
+                    <p style="font-size: 0.85rem; color: #64748B; margin: 0.2rem 0 0 0;"><i class="ph-bold ph-phone"></i> {{ booking.customer.phone }}</p>
+                    {% endif %}
+                </div>
+
+                <div style="padding: 1.25rem; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0;">
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Party Size &amp; Composition</span>
+                    <h4 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0.35rem 0 0.25rem 0;">
+                        {% if tour_booking %}
+                            {{ tour_booking.total_guests }} Total Traveler{% if tour_booking.total_guests > 1 %}s{% endif %}
+                        {% elif chauffeur_booking %}
+                            {{ chauffeur_booking.passenger_count }} Passenger{% if chauffeur_booking.passenger_count > 1 %}s{% endif %} &bull; {{ chauffeur_booking.luggage_count }} Luggage
+                        {% else %}
+                            1 Traveler
+                        {% endif %}
+                    </h4>
+                    <p style="font-size: 0.85rem; color: #475569; margin: 0;">
+                        {% if tour_booking %}
+                            {{ tour_booking.adults }} Adult{% if tour_booking.adults > 1 %}s{% endif %}{% if tour_booking.children > 0 %}, {{ tour_booking.children }} Child{% if tour_booking.children > 1 %}ren{% endif %}{% endif %}
+                        {% else %}
+                            Private Executive Party
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Guest Names List if available -->
+            {% if tour_booking and tour_booking.guests.all %}
+            <div style="margin-top: 1rem; border-top: 1px solid #F1F5F9; padding-top: 1rem;">
+                <h5 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin: 0 0 0.75rem 0;">Registered Guest Names:</h5>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    {% for g in tour_booking.guests.all %}
+                    <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #F1F5F9; border: 1px solid #E2E8F0; padding: 0.35rem 0.85rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: #1E293B;">
+                        <i class="ph-bold ph-user" style="color: #4F46E5;"></i> {{ g.full_name }} ({{ g.get_guest_type_display }})
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Special Requests / Notes -->
+            {% if tour_booking.special_requests or tour_booking.dietary_requirements or booking.customer_notes %}
+            <div style="margin-top: 1rem; border-top: 1px solid #F1F5F9; padding-top: 1rem;">
+                <h5 style="font-size: 0.95rem; font-weight: 700; color: #0F172A; margin: 0 0 0.5rem 0;">Special Requests &amp; Dietary Notes:</h5>
+                <p style="font-size: 0.88rem; color: #475569; margin: 0; background: #F8FAFC; padding: 0.85rem; border-radius: 8px; border: 1px solid #E2E8F0;">
+                    {{ tour_booking.special_requests|default:booking.customer_notes }}
+                    {% if tour_booking.dietary_requirements %}
+                    <br><strong>Dietary requirements:</strong> {{ tour_booking.dietary_requirements }}
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Section 4: Payment Full Details & Receipt -->
+        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.75rem;">
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: #0F172A; margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ph-bold ph-credit-card" style="color: #4F46E5;"></i> <span>Payment Summary &amp; Itemized Receipt</span>
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 340px; gap: 2.5rem; flex-wrap: wrap;">
+                <!-- Left: Itemized Cost Table -->
+                <div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #E2E8F0; text-align: left;">
+                                <th style="padding-bottom: 0.75rem; color: #64748B; font-size: 0.8rem; text-transform: uppercase;">Description</th>
+                                <th style="padding-bottom: 0.75rem; text-align: right; color: #64748B; font-size: 0.8rem; text-transform: uppercase;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #F1F5F9;">
+                                <td style="padding: 0.85rem 0; color: #0F172A; font-weight: 600;">
+                                    {% if tour %}
+                                        {{ tour.title }} &mdash; Base Package ({{ tour_booking.total_guests }} Travelers)
+                                    {% elif chauffeur_booking %}
+                                        Chauffeur Transfer Service ({{ chauffeur_booking.vehicle.name }})
+                                    {% else %}
+                                        Nordic Travel Service
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 0.85rem 0; text-align: right; font-weight: 700; color: #0F172A;">
+                                    €{{ booking.subtotal }}
+                                </td>
+                            </tr>
+
+                            {% if booking.discount_amount > 0 %}
+                            <tr style="border-bottom: 1px solid #F1F5F9;">
+                                <td style="padding: 0.85rem 0; color: #16A34A; font-weight: 600;">
+                                    Promotional Discount {% if booking.coupon %}({{ booking.coupon.code }}){% endif %}
+                                </td>
+                                <td style="padding: 0.85rem 0; text-align: right; font-weight: 700; color: #16A34A;">
+                                    -€{{ booking.discount_amount }}
+                                </td>
+                            </tr>
+                            {% endif %}
+
+                            <tr style="border-bottom: 1px solid #F1F5F9;">
+                                <td style="padding: 0.85rem 0; color: #64748B;">
+                                    Taxes, Permits &amp; VAT (Included)
+                                </td>
+                                <td style="padding: 0.85rem 0; text-align: right; font-weight: 600; color: #64748B;">
+                                    €0.00
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td style="padding-top: 1rem; font-size: 1.15rem; font-weight: 800; color: #0F172A;">
+                                    Grand Total
+                                </td>
+                                <td style="padding-top: 1rem; text-align: right; font-size: 1.35rem; font-weight: 800; color: #0F172A;">
+                                    €{{ booking.total_amount }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Right: Payment Method & Settlement Status Box -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <span style="font-size: 0.82rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Payment Status</span>
+                            <span style="font-size: 0.8rem; font-weight: 800; padding: 0.25rem 0.75rem; border-radius: 999px; {% if booking.payment_status == 'PAID' %}background: #DCFCE7; color: #15803D;{% else %}background: #FEF3C7; color: #B45309;{% endif %}">
+                                {{ booking.get_payment_status_display }}
+                            </span>
+                        </div>
+
+                        <div style="border-top: 1px dashed #CBD5E1; padding-top: 1rem; margin-bottom: 1rem;">
+                            <div style="font-size: 0.85rem; color: #64748B; margin-bottom: 0.25rem;">Payment Method</div>
+                            <div style="font-size: 0.95rem; font-weight: 700; color: #0F172A; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="ph-bold {% if booking.payment_method == 'STRIPE' %}ph-credit-card{% elif booking.payment_method == 'PAYPAL' %}ph-paypal-logo{% else %}ph-money{% endif %}" style="color: #4F46E5;"></i>
+                                {{ booking.get_payment_method_display }}
+                            </div>
+                        </div>
+
+                        <div style="font-size: 0.82rem; color: #64748B; line-height: 1.5; background: white; padding: 0.85rem; border-radius: 8px; border: 1px solid #E2E8F0;">
+                            {% if booking.payment_status == 'PAID' %}
+                                <i class="ph-bold ph-check-circle" style="color: #16A34A;"></i> Fully settled. Official receipt registered with Finnish Tax Administration.
+                            {% else %}
+                                <i class="ph-bold ph-info" style="color: #D97706;"></i> Amount due to chauffeur/guide upon tour departure in cash or via card reader terminal.
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.25rem;">
+                        <a href="{% url 'tours:list' %}" class="btn" style="width: 100%; text-align: center; background: #0F172A; color: white; padding: 0.65rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem; text-decoration: none; display: block; transition: background 0.2s;" onmouseover="this.style.background='#4F46E5';" onmouseout="this.style.background='#0F172A';">
+                            Explore More Nordic Tours
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% if is_htmx %}
+<!-- OOB Sidebar Swap for Active Tab Sync -->
+<div id="customerSidebarNav" hx-swap-oob="outerHTML">
+    {% include 'accounts/partials/sidebar_nav_partial.html' with active_tab='bookings' %}
+</div>
+{% endif %}

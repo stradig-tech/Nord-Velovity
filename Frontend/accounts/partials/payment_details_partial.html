@@ -84,7 +84,9 @@
     </div>
 </div>
 
+{% if is_htmx %}
 <!-- OOB Sidebar Swap for Active Tab Sync -->
 <div id="customerSidebarNav" hx-swap-oob="outerHTML">
     {% include 'accounts/partials/sidebar_nav_partial.html' with active_tab='payment' %}
 </div>
+{% endif %}

@@ -23,9 +23,6 @@
                     <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
                     {% endif %}
                     <div class="badge-stack-right">
-                        {% if tour.badge_text %}
-                        <span class="tour-badge red-bg">{{ tour.badge_text }}</span>
-                        {% endif %}
                         <span class="tour-badge yellow-bg text-dark">{{ tour.travel_style.name|default:'Private Tour' }}</span>
                     </div>
                 </div>

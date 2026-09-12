@@ -186,5 +186,163 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Delegated click handler for tour wishlist buttons
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.tour-wishlist-btn, [data-wishlist-tour-id]');
+        if (btn) {
+            const tourId = btn.getAttribute('data-wishlist-tour-id');
+            if (tourId && !btn.hasAttribute('onclick')) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.toggleWishlist(tourId, btn, e);
+            }
+        }
+    });
 });
+
+// Helper: Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Global Wishlist Toast Notification
+function showWishlistToast(message, isSaved) {
+    let toast = document.getElementById('wishlistToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'wishlistToast';
+        toast.className = 'wishlist-toast';
+        document.body.appendChild(toast);
+    }
+    const icon = isSaved ? '<i class="ph-fill ph-heart" style="color: #EF4444; font-size: 1.25rem;"></i>' : '<i class="ph-bold ph-heart-break" style="color: #94A3B8; font-size: 1.25rem;"></i>';
+    toast.innerHTML = icon + '<span>' + message + '</span>';
+    toast.classList.add('show');
+    clearTimeout(window.wishlistToastTimeout);
+    window.wishlistToastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Global Wishlist Toggle Function
+window.toggleWishlist = function(tourId, buttonEl, event, callback) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    if (!tourId) return;
+
+    if (buttonEl) {
+        buttonEl.style.transform = 'scale(1.22)';
+        setTimeout(() => { if (buttonEl) buttonEl.style.transform = ''; }, 200);
+    }
+
+    const csrftoken = getCookie('csrftoken') || document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+    fetch('/accounts/api/wishlist/toggle/' + tourId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (response.status === 401) {
+            return response.json().then(data => {
+                showWishlistToast('Please log in to save tours to your wishlist', false);
+                setTimeout(() => {
+                    window.location.href = data.login_url || '/accounts/login/';
+                }, 1200);
+                throw new Error('Login required');
+            });
+        }
+        if (!response.ok) throw new Error('Network error');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Update all buttons for this tour ID across the DOM
+            const matchingBtns = document.querySelectorAll('[data-wishlist-tour-id="' + tourId + '"]');
+            matchingBtns.forEach(btn => {
+                const icon = btn.querySelector('i');
+                const textSpan = btn.querySelector('.wishlist-btn-text');
+                if (data.is_saved) {
+                    btn.classList.add('active', 'is-wishlisted');
+                    btn.setAttribute('title', 'Remove from Wishlist');
+                    if (icon) {
+                        icon.className = 'ph-fill ph-heart';
+                        icon.style.color = '#EF4444';
+                    }
+                    if (textSpan) textSpan.textContent = 'Saved to Wishlist';
+                } else {
+                    btn.classList.remove('active', 'is-wishlisted');
+                    btn.setAttribute('title', 'Save to Wishlist');
+                    if (icon) {
+                        icon.className = 'ph-bold ph-heart';
+                        icon.style.color = '';
+                    }
+                    if (textSpan) textSpan.textContent = 'Save to Wishlist';
+                }
+            });
+
+            // Update all wishlist counter badges
+            const badges = document.querySelectorAll('.wishlist-counter-badge');
+            badges.forEach(b => {
+                b.textContent = data.count;
+                b.style.display = data.count > 0 ? (b.classList.contains('badge-pill') ? 'inline-flex' : 'flex') : 'none';
+            });
+
+            showWishlistToast(data.message, data.is_saved);
+
+            if (typeof callback === 'function') {
+                callback(data);
+            }
+        }
+    })
+    .catch(err => {
+        if (err.message !== 'Login required') {
+            console.error('Wishlist error:', err);
+        }
+    });
+};
+
+// Global Wishlist Item Removal Helper
+window.removeWishlistItem = function(tourId, btn) {
+    if (confirm('Remove this tour from your wishlist?')) {
+        window.toggleWishlist(tourId, btn, null, function(data) {
+            if (!data.is_saved) {
+                const card = document.getElementById('wishlist-card-' + tourId);
+                if (card) {
+                    card.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        card.remove();
+                        const remaining = document.querySelectorAll('.wishlist-card');
+                        const countHeader = document.getElementById('wishlistCountHeader');
+                        if (countHeader) countHeader.textContent = 'My Wishlist (' + remaining.length + ')';
+                        if (remaining.length === 0) {
+                            const emptyState = document.getElementById('wishlistEmptyState');
+                            if (emptyState) emptyState.style.display = 'block';
+                        }
+                    }, 300);
+                }
+            }
+        });
+    }
+};
 

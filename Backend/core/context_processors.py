@@ -141,6 +141,16 @@ def site_settings(request):
         except Exception:
             pass
 
+    user_wishlist_ids = set()
+    wishlist_count = 0
+    if hasattr(request, 'user') and request.user.is_authenticated:
+        try:
+            from tours.models import Wishlist
+            user_wishlist_ids = set(Wishlist.objects.filter(user=request.user).values_list('tour_id', flat=True))
+            wishlist_count = len(user_wishlist_ids)
+        except Exception:
+            pass
+
     return {
         'site_settings': settings_obj,
         'navbar_items': navbar_items,
@@ -158,5 +168,8 @@ def site_settings(request):
         'admin_notifications': admin_notifications,
         'admin_unread_count': admin_unread_count or pending_bookings_count,
         'pending_bookings': pending_bookings_count,
+        'is_htmx': bool(request.headers.get('HX-Request')) if hasattr(request, 'headers') else False,
+        'user_wishlist_ids': user_wishlist_ids,
+        'wishlist_count': wishlist_count,
     }
 

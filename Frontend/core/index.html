@@ -206,7 +206,6 @@
                             {% else %}
                                 <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
                             {% endif %}
-                            <div class="badge-top-left"><i class="ph ph-heart"></i></div>
                             <div class="badge-stack-right">
                                 {% if tour.is_featured %}<span class="tour-badge green-bg">Featured</span>{% endif %}
                                 <span class="tour-badge yellow-bg text-dark">{{ tour.travel_style.name|default:"Luxury Tour" }}</span>
@@ -229,7 +228,12 @@
                                         <span class="price-main">{{ site_settings.currency_symbol }}{{ tour.pricing.first.price|default:"750"|floatformat:0 }}</span><span class="price-sub">/per person</span>
                                     </div>
                                 </div>
-                                <a href="{% url 'tours:detail' tour.slug %}" class="btn btn-primary rounded-pill" style="text-decoration: none; display: inline-block;">View Tour</a>
+                                <div class="tour-footer-actions">
+                                    <button type="button" class="tour-wishlist-btn {% if tour.id in user_wishlist_ids %}active is-wishlisted{% endif %}" onclick="toggleWishlist({{ tour.id }}, this, event)" data-wishlist-tour-id="{{ tour.id }}" title="{% if tour.id in user_wishlist_ids %}Remove from Wishlist{% else %}Save to Wishlist{% endif %}" aria-label="Toggle Wishlist">
+                                        <i class="{% if tour.id in user_wishlist_ids %}ph-fill ph-heart{% else %}ph-bold ph-heart{% endif %}" style="{% if tour.id in user_wishlist_ids %}color: #EF4444;{% endif %}"></i>
+                                    </button>
+                                    <a href="{% url 'tours:detail' tour.slug %}" class="btn btn-primary rounded-pill" style="text-decoration: none; display: inline-flex; align-items: center;">View Tour</a>
+                                </div>
                             </div>
                         </div>
                     </div>

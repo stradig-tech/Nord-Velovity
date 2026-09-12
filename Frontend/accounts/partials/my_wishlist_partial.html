@@ -1,7 +1,7 @@
 {% load static %}
 <div class="form-card htmx-fade-in" style="padding: 0;">
     <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0;">My Wishlist ({{ wishlists.count }})</h2>
+        <h2 id="wishlistCountHeader" style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0;">My Wishlist ({{ wishlists.count }})</h2>
         <a href="{% url 'tours:list' %}" style="font-size: 0.88rem; color: #4F46E5; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.35rem;">
             <span>Explore More Tours</span> <i class="ph-bold ph-arrow-right"></i>
         </a>
@@ -11,7 +11,7 @@
         <div class="wishlist-items-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
             {% for item in wishlists %}
             {% with tour=item.tour %}
-            <div class="wishlist-card" style="display: flex; gap: 1.5rem; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; padding: 1.25rem; align-items: center; flex-wrap: wrap;">
+            <div class="wishlist-card" id="wishlist-card-{{ tour.id }}" style="display: flex; gap: 1.5rem; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; padding: 1.25rem; align-items: center; flex-wrap: wrap; background: #FFFFFF; transition: all 0.25s ease;">
                 {% if tour.media.first %}
                 <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="wishlist-img" style="width: 140px; height: 100px; border-radius: 8px; object-fit: cover;">
                 {% else %}
@@ -33,30 +33,37 @@
                         <div class="wishlist-price">
                             {% with pricing=tour.pricing.first %}
                             {% if pricing %}
-                            <strong style="font-size: 1.25rem; font-weight: 800; color: #0F172A;">€{{ pricing.sale_price|default:pricing.base_price }}</strong> <span style="font-size: 0.8rem; color: #64748B;">/per person</span>
+                            <strong style="font-size: 1.25rem; font-weight: 800; color: #0F172A;">€{{ pricing.early_bird_price|default:pricing.price }}</strong> <span style="font-size: 0.8rem; color: #64748B;">/per person</span>
                             {% else %}
                             <strong style="font-size: 1.1rem; color: #0F172A;">Inquire</strong>
                             {% endif %}
                             {% endwith %}
                         </div>
-                        <a href="{% url 'tours:detail' tour.slug %}" class="btn" style="background: #0F172A; color: white; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#4F46E5';" onmouseout="this.style.background='#0F172A';">View Tour</a>
+                        <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                            <button type="button" onclick="removeWishlistItem({{ tour.id }}, this)" class="btn" style="background: #FFF1F2; color: #E11D48; border: 1.5px solid #FECDD3; padding: 0.45rem 0.95rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#FEE2E2'; this.style.color='#BE123C';" onmouseout="this.style.background='#FFF1F2'; this.style.color='#E11D48';" title="Remove from Wishlist">
+                                <i class="ph-bold ph-trash"></i> <span>Remove</span>
+                            </button>
+                            <a href="{% url 'tours:detail' tour.slug %}" class="btn" style="background: #0F172A; color: white; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.background='#4F46E5';" onmouseout="this.style.background='#0F172A';">View Tour</a>
+                        </div>
                     </div>
                 </div>
             </div>
             {% endwith %}
-            {% empty %}
-            <div style="text-align: center; padding: 4rem 2rem; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1;">
+            {% endfor %}
+
+            <div id="wishlistEmptyState" style="{% if wishlists.count > 0 %}display: none;{% else %}display: block;{% endif %} text-align: center; padding: 4rem 2rem; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1;">
                 <i class="ph-bold ph-heart-break" style="font-size: 3rem; color: #94A3B8; margin-bottom: 1rem;"></i>
                 <h4 style="font-size: 1.15rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Your Wishlist is Empty</h4>
                 <p style="color: #64748B; font-size: 0.9rem; max-width: 400px; margin: 0 auto 1.5rem auto;">Explore our curated Arctic tours and save your dream experiences for later.</p>
                 <a href="{% url 'tours:list' %}" class="btn" style="background: #4F46E5; color: white; padding: 0.6rem 1.4rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">Discover Tours</a>
             </div>
-            {% endfor %}
         </div>
     </div>
 </div>
 
+{% if is_htmx %}
 <!-- OOB Sidebar Swap for Active Tab Sync -->
 <div id="customerSidebarNav" hx-swap-oob="outerHTML">
     {% include 'accounts/partials/sidebar_nav_partial.html' with active_tab='wishlist' %}
 </div>
+{% endif %}

@@ -262,7 +262,12 @@
             </nav>              
             
             <!-- Action Buttons -->             
-            <div class="nav-actions">
+            <div class="nav-actions" style="display: flex; align-items: center; gap: 0.75rem;">
+                <a href="{% url 'accounts:my_wishlist' %}" class="nav-wishlist-btn" title="My Wishlist" aria-label="View Wishlist" style="position: relative; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #475569; text-decoration: none; transition: all 0.2s ease;">
+                    <i class="ph-bold ph-heart" style="font-size: 1.25rem;"></i>
+                    <span class="wishlist-counter-badge" style="position: absolute; top: -3px; right: -3px; {% if wishlist_count == 0 %}display: none;{% else %}display: flex;{% endif %} align-items: center; justify-content: center; min-width: 19px; height: 19px; padding: 0 4px; border-radius: 999px; background: #EF4444; color: #FFFFFF; font-size: 0.7rem; font-weight: 800; border: 2px solid #FFFFFF;">{{ wishlist_count }}</span>
+                </a>
+
                 {% if request.user.is_authenticated %}
                 <div class="user-profile-menu-wrapper" id="userProfileWrapper">
                     <button type="button" class="user-profile-btn" id="userProfileTrigger" aria-expanded="false" aria-label="User profile menu" title="{{ request.user.get_full_name|default:request.user.username }}">
@@ -303,9 +308,12 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{% url 'accounts:my_wishlist' %}" class="dropdown-item">
-                                    <i class="ph ph-heart"></i>
-                                    <span>My Wishlist</span>
+                                <a href="{% url 'accounts:my_wishlist' %}" class="dropdown-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <i class="ph ph-heart"></i>
+                                        <span>My Wishlist</span>
+                                    </div>
+                                    <span class="wishlist-counter-badge badge-pill" style="{% if wishlist_count == 0 %}display: none;{% else %}display: inline-flex;{% endif %} background: #FEE2E2; color: #EF4444; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 999px;">{{ wishlist_count }}</span>
                                 </a>
                             </li>
                             <li>

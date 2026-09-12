@@ -198,14 +198,68 @@ def my_bookings_view(request):
 
 
 @login_required
+def booking_order_detail_view(request, booking_ref):
+    """
+    Renders the customer's full tour/chauffeur order details:
+    - Booking reference, status lifecycle, and timeline
+    - How the tour occurs: dates, meeting points, duration, vehicle, day-by-day itinerary, inclusions
+    - Guest information and special requests
+    - Payment breakdown, payment method, settlement status, and receipt
+    """
+    booking = get_object_or_404(
+        Booking.objects.select_related(
+            'customer',
+            'coupon',
+            'tour_booking__tour__destination__country',
+            'tour_booking__tour_date',
+            'tour_booking__departure',
+            'tour_booking__vehicle_type',
+            'chauffeur_booking__vehicle__vehicle_class',
+        ).prefetch_related(
+            'tour_booking__tour__media',
+            'tour_booking__tour__highlights',
+            'tour_booking__tour__itinerary',
+            'tour_booking__tour__inclusions',
+            'tour_booking__tour__pickups',
+            'tour_booking__guests',
+            'chauffeur_booking__vehicle__photos',
+            'status_logs',
+        ),
+        booking_ref=booking_ref
+    )
+
+    # Security: Ensure only the booking owner or staff can view
+    if booking.customer != request.user and not request.user.is_staff:
+        messages.error(request, "You do not have permission to view this booking order.")
+        return redirect('accounts:my_bookings')
+
+    tour_booking = getattr(booking, 'tour_booking', None)
+    chauffeur_booking = getattr(booking, 'chauffeur_booking', None)
+    tour = tour_booking.tour if tour_booking else None
+
+    context = {
+        'booking': booking,
+        'tour_booking': tour_booking,
+        'chauffeur_booking': chauffeur_booking,
+        'tour': tour,
+        'active_tab': 'bookings',
+    }
+
+    if request.headers.get('HX-Request'):
+        return render(request, 'accounts/partials/booking_order_detail_partial.html', context)
+    return render(request, 'accounts/booking-order-detail.html', context)
+
+
+@login_required
 def my_wishlist_view(request):
     """List of tours saved to customer's wishlist."""
     wishlists = Wishlist.objects.filter(user=request.user).select_related(
-        'tour__destination'
-    ).prefetch_related('tour__pricing').order_by('-created_at')
+        'tour__destination__country'
+    ).prefetch_related('tour__pricing', 'tour__media').order_by('-created_at')
 
     context = {
         'wishlists': wishlists,
+        'active_tab': 'wishlist',
     }
     if request.headers.get('HX-Request'):
         return render(request, 'accounts/partials/my_wishlist_partial.html', context)
@@ -221,21 +275,28 @@ def payment_details_view(request):
     return render(request, 'accounts/payment-details.html', context)
 
 
-@login_required
 @require_POST
 def api_toggle_wishlist(request, tour_id):
     """AJAX endpoint to add/remove a tour from the customer's wishlist."""
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'login_required': True,
+            'login_url': f"/accounts/login/?next={request.META.get('HTTP_REFERER', '/tours/')}",
+            'message': "Please log in to save tours to your wishlist."
+        }, status=401)
+
     tour = get_object_or_404(Tour, id=tour_id)
     wishlist_item = Wishlist.objects.filter(user=request.user, tour=tour).first()
 
     if wishlist_item:
         wishlist_item.delete()
         is_saved = False
-        message = "Removed from your wishlist."
+        message = f"Removed '{tour.title}' from your wishlist."
     else:
         Wishlist.objects.create(user=request.user, tour=tour)
         is_saved = True
-        message = "Saved to your wishlist!"
+        message = f"Saved '{tour.title}' to your wishlist!"
 
     return JsonResponse({
         'success': True,
