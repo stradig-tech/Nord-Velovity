@@ -28,10 +28,9 @@
            hx-swap="innerHTML transition:true" 
            hx-push-url="true"
            hx-indicator="#htmx-indicator"
-           class="{% if active_tab == 'wishlist' %}active{% endif %}"
-           style="display: flex; justify-content: space-between; align-items: center;">
+           class="{% if active_tab == 'wishlist' %}active{% endif %}">
             <span><i class="ph ph-heart"></i> Wishlist</span>
-            <span class="wishlist-counter-badge badge-pill" style="{% if wishlist_count == 0 %}display: none;{% else %}display: inline-flex;{% endif %} background: #FEE2E2; color: #EF4444; font-size: 0.72rem; font-weight: 800; padding: 0.12rem 0.45rem; border-radius: 999px;">{{ wishlist_count }}</span>
+            <span class="wishlist-counter-badge badge-pill" style="{% if wishlist_count == 0 %}display: none;{% else %}display: inline-flex;{% endif %} background: #FEE2E2; color: #EF4444; font-size: 0.72rem; font-weight: 800; padding: 0.12rem 0.45rem; border-radius: 999px; margin-left: 0.25rem;">{{ wishlist_count }}</span>
         </a>
     </li>
     <li>

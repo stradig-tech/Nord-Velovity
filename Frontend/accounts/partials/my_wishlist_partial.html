@@ -1,13 +1,13 @@
 {% load static %}
 <div class="form-card htmx-fade-in" style="padding: 0;">
-    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+    <div class="wishlist-header-bar" style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
         <h2 id="wishlistCountHeader" style="font-size: 1.4rem; font-weight: 800; color: #0f172a; margin: 0;">My Wishlist ({{ wishlists.count }})</h2>
         <a href="{% url 'tours:list' %}" style="font-size: 0.88rem; color: #4F46E5; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 0.35rem;">
             <span>Explore More Tours</span> <i class="ph-bold ph-arrow-right"></i>
         </a>
     </div>
     
-    <div style="padding: 1.5rem 2rem;">
+    <div class="wishlist-body" style="padding: 1.5rem 2rem;">
         <div class="wishlist-items-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
             {% for item in wishlists %}
             {% with tour=item.tour %}

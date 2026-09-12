@@ -2,7 +2,7 @@
 <div class="form-card htmx-fade-in" style="padding: 0; background: #FFFFFF; border-radius: 16px; overflow: hidden; border: 1px solid #E2E8F0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);">
 
     <!-- Top Action & Navigation Bar -->
-    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; background: #F8FAFC;">
+    <div class="order-detail-header-actions" style="padding: 1.5rem 2rem; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; background: #F8FAFC;">
         <a href="{% url 'accounts:my_bookings' %}" 
            hx-get="{% url 'accounts:my_bookings' %}" 
            hx-target="#dashboardMainContent" 
@@ -25,11 +25,11 @@
     </div>
 
     <!-- Main Order Details Body -->
-    <div style="padding: 2rem;">
+    <div class="order-detail-body" style="padding: 2rem;">
 
         <!-- Order Header Banner -->
-        <div style="display: flex; gap: 1.75rem; padding: 1.5rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; margin-bottom: 2rem; align-items: center; flex-wrap: wrap;">
-            <div style="width: 140px; height: 105px; border-radius: 10px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: #EEF2FF;">
+        <div class="order-header-banner" style="display: flex; gap: 1.75rem; padding: 1.5rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; margin-bottom: 2rem; align-items: center; flex-wrap: wrap;">
+            <div class="order-header-banner-img" style="width: 140px; height: 105px; border-radius: 10px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: #EEF2FF;">
                 {% if tour_booking and tour_booking.tour.media.first %}
                     <img src="{{ tour_booking.tour.media.first.file.url }}" alt="{{ tour_booking.tour.title }}" style="width: 100%; height: 100%; object-fit: cover;">
                 {% elif tour_booking and tour_booking.tour.destination.hero_image %}
@@ -334,7 +334,7 @@
                 <i class="ph-bold ph-credit-card" style="color: #4F46E5;"></i> <span>Payment Summary &amp; Itemized Receipt</span>
             </h3>
 
-            <div style="display: grid; grid-template-columns: 1fr 340px; gap: 2.5rem; flex-wrap: wrap;">
+            <div class="order-payment-grid" style="display: grid; grid-template-columns: 1fr 340px; gap: 2.5rem; flex-wrap: wrap;">
                 <!-- Left: Itemized Cost Table -->
                 <div>
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem;">
@@ -394,7 +394,7 @@
                 </div>
 
                 <!-- Right: Payment Method & Settlement Status Box -->
-                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div class="order-receipt-card" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <span style="font-size: 0.82rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Payment Status</span>

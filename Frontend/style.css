@@ -1500,28 +1500,30 @@ body {
 
 .tour-footer .tour-wishlist-btn {
     position: static !important;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: #F8FAFC;
-    border: 1.5px solid #E2E8F0;
+    width: auto !important;
+    height: auto !important;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: none !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #64748B;
-    font-size: 1.25rem;
+    color: #94A3B8;
+    font-size: 1.45rem;
     cursor: pointer;
-    box-shadow: none;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    box-shadow: none !important;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
     flex-shrink: 0;
-    padding: 0;
+    padding: 0 4px;
     outline: none;
 }
 
 .tour-footer .tour-wishlist-btn:hover {
-    transform: scale(1.08);
-    background: #FFF1F2;
-    border-color: #FECACA;
+    transform: scale(1.18);
+    background: transparent !important;
+    border: none !important;
     color: #EF4444;
 }
 
@@ -1531,10 +1533,10 @@ body {
 
 .tour-footer .tour-wishlist-btn.active,
 .tour-footer .tour-wishlist-btn.is-wishlisted {
-    background: #FFF1F2 !important;
-    border-color: #FECACA !important;
+    background: transparent !important;
+    border: none !important;
     color: #EF4444 !important;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.18) !important;
+    box-shadow: none !important;
 }
 
 .tour-footer .tour-wishlist-btn.active i,
@@ -10473,24 +10475,47 @@ body.mobile-nav-open {
     }
 
     .user-portal-grid {
-        grid-template-columns: 1fr;
-        gap: 1.75rem;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .dashboard-sidebar {
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
     }
 
     .dashboard-sidebar .sidebar-nav {
-        display: flex;
-        overflow-x: auto;
-        gap: 0.5rem;
-        padding-bottom: 0.75rem;
-        -webkit-overflow-scrolling: touch;
-        white-space: nowrap;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        white-space: nowrap !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li {
+        flex: 0 0 auto !important;
     }
 
     .dashboard-sidebar .sidebar-nav a {
-        padding: 0.6rem 1.15rem;
-        border-radius: 9999px;
-        background: #F1F5F9;
-        white-space: nowrap;
+        padding: 0.55rem 1rem !important;
+        border-radius: 9999px !important;
+        background: #F1F5F9 !important;
+        white-space: nowrap !important;
     }
 
     .stats-row {
@@ -11113,11 +11138,17 @@ body.mobile-nav-open {
 
     .tour-card .tour-footer .tour-wishlist-btn {
         position: static !important;
-        width: 38px !important;
-        height: 38px !important;
-        font-size: 1.15rem !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        font-size: 1.35rem !important;
         flex-shrink: 0 !important;
+        background: transparent !important;
+        border: none !important;
         box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 2px !important;
     }
 
     .tour-card .tour-footer .btn,
@@ -11898,9 +11929,14 @@ body.mobile-nav-open {
     }
 
     .tour-card .tour-footer .tour-wishlist-btn {
-        width: 34px !important;
-        height: 34px !important;
-        font-size: 1rem !important;
+        width: auto !important;
+        height: auto !important;
+        font-size: 1.25rem !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
     }
 
     .vehicles-grid {
@@ -12392,5 +12428,501 @@ body.htmx-request .htmx-indicator-bar,
         margin-top: 0.25rem;
     }
 }
+
+/* ==========================================================================
+   CUSTOMER DASHBOARD & PORTAL RESPONSIVE STYLES (TABLET & MOBILE)
+   ========================================================================== */
+.dashboard {
+    background-color: #F8FAFC;
+    min-height: 80vh;
+    padding: 3rem 0;
+}
+
+@media (max-width: 991px) {
+    .dashboard {
+        padding: 1.25rem 0 2.5rem 0 !important;
+        min-height: auto !important;
+    }
+
+    .user-portal-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        gap: 1.25rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Customer Sidebar Card */
+    .dashboard-sidebar {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        padding: 1.25rem 1rem 1rem 1rem !important;
+        margin-bottom: 0 !important;
+        border-radius: 14px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    /* Profile Header in Sidebar */
+    .sidebar-profile-header {
+        text-align: center !important;
+        padding-bottom: 0.85rem !important;
+        margin-bottom: 0.85rem !important;
+        border-bottom: 1px solid #F1F5F9 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .sidebar-profile-header .profile-pic-wrapper {
+        width: 68px !important;
+        height: 68px !important;
+        margin: 0 auto 0.65rem auto !important;
+    }
+
+    .sidebar-profile-header .profile-pic-wrapper img,
+    .sidebar-profile-header .profile-pic-wrapper > div:first-child {
+        width: 68px !important;
+        height: 68px !important;
+        font-size: 1.7rem !important;
+    }
+
+    .sidebar-profile-header h3 {
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        margin-top: 0.35rem !important;
+        margin-bottom: 0.15rem !important;
+        color: #0F172A !important;
+        word-break: break-word !important;
+    }
+
+    .sidebar-profile-header p {
+        font-size: 0.82rem !important;
+        color: #64748B !important;
+        margin: 0 !important;
+        word-break: break-all !important;
+    }
+
+    /* Navigation Pills on Mobile */
+    .dashboard-sidebar .sidebar-nav {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        gap: 0.45rem !important;
+        padding: 0.2rem 0.2rem 0.5rem 0.2rem !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        list-style: none !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li {
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li.sign-out {
+        margin-top: 0 !important;
+        border-top: none !important;
+        padding-top: 0 !important;
+        margin-left: 0.25rem !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li a {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.4rem !important;
+        padding: 0.55rem 0.95rem !important;
+        font-size: 0.84rem !important;
+        font-weight: 600 !important;
+        border-radius: 9999px !important;
+        white-space: nowrap !important;
+        background: #F1F5F9 !important;
+        color: #475569 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+        border: 1px solid transparent !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li a i {
+        font-size: 1.05rem !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li a:hover {
+        background: #E2E8F0 !important;
+        color: #0F172A !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li a.active {
+        background: #4F46E5 !important;
+        color: #FFFFFF !important;
+        border-color: #4F46E5 !important;
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25) !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li a.active i {
+        color: #FFFFFF !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li.sign-out a {
+        background: #FEF2F2 !important;
+        color: #EF4444 !important;
+        border-color: #FECACA !important;
+    }
+
+    .dashboard-sidebar .sidebar-nav li.sign-out a:hover {
+        background: #FEE2E2 !important;
+    }
+
+    /* Main Content Area */
+    .dashboard-main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Form Cards & Containers */
+    .form-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 1.25rem 1rem !important;
+        border-radius: 14px !important;
+        margin-bottom: 1.25rem !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+    }
+
+    .form-card-title {
+        font-size: 1.2rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+
+    .form-card-desc {
+        font-size: 0.88rem !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    /* Profile Progress Card */
+    .profile-progress-card {
+        padding: 1.25rem 1rem !important;
+    }
+
+    .progress-checklist {
+        flex-direction: column !important;
+        gap: 0.65rem !important;
+    }
+
+    .check-item {
+        font-size: 0.82rem !important;
+        word-break: break-word !important;
+        line-height: 1.35 !important;
+    }
+
+    /* Forms */
+    .form-row-2 {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+    }
+
+    .dashboard-form .form-group {
+        margin-bottom: 1rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .dashboard-form label {
+        font-size: 0.85rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+
+    .dashboard-form input[type="text"],
+    .dashboard-form input[type="email"],
+    .dashboard-form input[type="password"],
+    .dashboard-form select,
+    .dashboard-form textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 0.92rem !important;
+        padding: 0.65rem 0.85rem !important;
+    }
+
+    .form-actions-right {
+        text-align: left !important;
+        margin-top: 1.25rem !important;
+        width: 100% !important;
+    }
+
+    .form-actions-right .btn,
+    .form-actions-right .btn-primary-solid {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+        padding: 0.7rem 1.25rem !important;
+    }
+
+    /* Profile Photo Upload Row in Dashboard */
+    .avatar-upload-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    /* =========================================
+       MY BOOKINGS PAGE RESPONSIVE
+       ========================================= */
+    .bookings-header {
+        padding: 1rem !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    .bookings-header .form-card-title {
+        font-size: 1.25rem !important;
+    }
+
+    .bookings-tabs {
+        width: 100% !important;
+        display: flex !important;
+        gap: 0.35rem !important;
+        box-sizing: border-box !important;
+    }
+
+    .booking-tab-btn {
+        flex: 1 !important;
+        text-align: center !important;
+        padding: 0.45rem 0.5rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    .bookings-list {
+        padding: 1rem 0.75rem !important;
+    }
+
+    .booking-list-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.85rem !important;
+        padding: 1rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .booking-img-wrapper {
+        width: 100% !important;
+        height: 165px !important;
+        border-radius: 10px !important;
+    }
+
+    .booking-details {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .booking-title {
+        font-size: 1.08rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+
+    .booking-id {
+        font-size: 0.82rem !important;
+        margin-bottom: 0.65rem !important;
+    }
+
+    .booking-meta-info {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.35rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .booking-right-col {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        border-top: 1px solid #F1F5F9 !important;
+        padding-top: 0.75rem !important;
+        margin-top: 0.25rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* =========================================
+       BOOKING ORDER DETAIL PAGE RESPONSIVE
+       ========================================= */
+    .order-detail-header-actions {
+        padding: 1rem 0.85rem !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    .order-detail-header-actions .btn {
+        flex: 1 !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .order-detail-body {
+        padding: 1rem 0.75rem !important;
+    }
+
+    .order-header-banner {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1rem !important;
+        gap: 1rem !important;
+    }
+
+    .order-header-banner-img {
+        width: 100% !important;
+        height: 180px !important;
+    }
+
+    .order-payment-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .order-receipt-card {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* =========================================
+       MY WISHLIST PAGE RESPONSIVE
+       ========================================= */
+    .wishlist-header-bar {
+        padding: 1rem 0.85rem !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+
+    .wishlist-body {
+        padding: 1rem 0.75rem !important;
+    }
+
+    .wishlist-card {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1rem !important;
+        gap: 0.85rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .wishlist-img {
+        width: 100% !important;
+        height: 175px !important;
+        border-radius: 8px !important;
+    }
+
+    .wishlist-details {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .wishlist-title {
+        font-size: 1.1rem !important;
+    }
+
+    .wishlist-bottom-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+        margin-top: 1rem !important;
+    }
+
+    .wishlist-bottom-row > div:last-child {
+        display: flex !important;
+        width: 100% !important;
+        gap: 0.5rem !important;
+    }
+
+    .wishlist-bottom-row > div:last-child .btn {
+        flex: 1 !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    /* =========================================
+       PAYMENT DETAILS PAGE RESPONSIVE
+       ========================================= */
+    .payment-header-bar {
+        padding: 1rem 0.85rem !important;
+    }
+
+    .payment-body {
+        padding: 1rem 0.85rem !important;
+    }
+
+    .saved-cards-row {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .credit-card-ui {
+        min-height: 160px !important;
+        padding: 1.25rem !important;
+    }
+
+    .cc-number {
+        font-size: 1.3rem !important;
+        letter-spacing: 1.5px !important;
+    }
+
+    .add-card-header {
+        padding: 1rem !important;
+    }
+
+    .add-card-body {
+        padding: 1rem !important;
+    }
+
+    /* =========================================
+       SETTINGS PAGE RESPONSIVE
+       ========================================= */
+    .settings-radio {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.65rem !important;
+        height: auto !important;
+    }
+
+    .toggle-item {
+        font-size: 0.88rem !important;
+        gap: 0.75rem !important;
+    }
+
+    .toggle-item span {
+        flex: 1 !important;
+        line-height: 1.35 !important;
+    }
+}
+
 
 

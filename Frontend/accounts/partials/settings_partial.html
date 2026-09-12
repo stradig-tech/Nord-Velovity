@@ -1,11 +1,11 @@
 {% load static %}
 <!-- Notification Settings -->
 <div class="form-card htmx-fade-in" style="padding: 0; margin-bottom: 2rem;">
-    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9;">
+    <div class="settings-header-bar" style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9;">
         <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0;">Notification Settings</h2>
     </div>
     
-    <div style="padding: 1.5rem 2rem;">
+    <div class="settings-body" style="padding: 1.5rem 2rem;">
         
         <div class="settings-newsletter">
             <label style="font-weight: 700; color: #0F172A;">Newsletter<span class="req" style="color: #ef4444;">*</span></label>
@@ -86,18 +86,18 @@
 
 <!-- Security Settings -->
 <div class="form-card htmx-fade-in" style="padding: 0;">
-    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9;">
+    <div class="settings-header-bar" style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9;">
         <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0;">Security Settings</h2>
     </div>
     
-    <div style="padding: 1.5rem 2rem;">
+    <div class="settings-body" style="padding: 1.5rem 2rem;">
         
         <div class="security-section">
             <h4 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.4rem;">Two-factor authentication</h4>
             <p style="font-size: 0.95rem; color: #64748b; margin-bottom: 1rem;">Add a phone number to set up two-factor authentication.</p>
             
             <form class="dashboard-form" style="max-width: 100%; display: flex; gap: 0.75rem; flex-wrap: wrap;" onsubmit="event.preventDefault(); alert('Verification code sent to mobile.');">
-                <input type="text" placeholder="Enter mobile number" style="padding: 0.6rem 1rem; border: 1px solid #CBD5E1; border-radius: 8px; width: 280px;">
+                <input type="text" placeholder="Enter mobile number" style="padding: 0.6rem 1rem; border: 1px solid #CBD5E1; border-radius: 8px; flex: 1; min-width: 180px;">
                 <button type="submit" class="btn btn-purple" style="background: #4F46E5; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Send Code</button>
             </form>
         </div>

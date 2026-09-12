@@ -16,13 +16,13 @@
 <section class="hero" style="{% if site_settings.hero_background_image %}background-image: url('{{ site_settings.hero_background_image.url }}');{% else %}background-image: url('{% static 'images/hero/Winter-landscape-19-2-scaled.jpg' %}');{% endif %} background-size: cover; background-position: center;">
     <div class="hero-bg">
         {% if site_settings.hero_video_file %}
-            <video autoplay muted loop playsinline style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; pointer-events: none;">
+            <video autoplay muted loop playsinline poster="/static/images/hero/Winter-landscape-19-2-scaled.jpg" style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; pointer-events: none;">
                 <source src="{{ site_settings.hero_video_file.url }}" type="video/mp4">
             </video>
         {% elif site_settings.hero_video_url and site_settings.is_youtube_video %}
             <iframe src="{{ site_settings.hero_video_embed_url }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen tabindex="-1" style="position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; transform: translate(-50%, -50%); pointer-events: none;"></iframe>
         {% elif site_settings.hero_video_url %}
-            <video autoplay muted loop playsinline style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; pointer-events: none;">
+            <video autoplay muted loop playsinline poster="/static/images/hero/Winter-landscape-19-2-scaled.jpg" style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; pointer-events: none;">
                 <source src="{{ site_settings.hero_video_url }}" type="video/mp4">
             </video>
         {% endif %}
