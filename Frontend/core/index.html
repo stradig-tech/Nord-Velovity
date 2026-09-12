@@ -251,16 +251,16 @@
                   <p class="popular-dest-subtitle">Explore the world's most sought-after getaways curated by our premium travel specialists.</p>
               </div>
               
-              <div class="bento-filters">
-                  <button class="bento-filter-btn active" onclick="window.location.href='{% url 'tours:destination_list' %}'"><i class="ph-bold ph-compass"></i> Popular</button>
-                  <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'"><i class="ph-bold ph-globe-hemisphere-west"></i> North Islands</button>
-                  <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'"><i class="ph-bold ph-globe-hemisphere-west"></i> Northern Europe</button>
-                  <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'"><i class="ph-bold ph-globe-hemisphere-west"></i> Western Europe</button>
-                  <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'"><i class="ph-bold ph-globe-hemisphere-east"></i> Eastern Europe</button>
-                  <button class="bento-filter-btn" onclick="window.location.href='{% url 'tours:destination_list' %}'"><i class="ph-bold ph-globe-hemisphere-east"></i> Southern Europe</button>
+              <div class="bento-filters" id="bentoFilters">
+                  <button class="bento-filter-btn active" type="button" data-category="popular"><i class="ph-bold ph-compass"></i> Popular</button>
+                  <button class="bento-filter-btn" type="button" data-category="north-islands"><i class="ph-bold ph-globe-hemisphere-west"></i> North Islands</button>
+                  <button class="bento-filter-btn" type="button" data-category="northern-europe"><i class="ph-bold ph-globe-hemisphere-west"></i> Northern Europe</button>
+                  <button class="bento-filter-btn" type="button" data-category="western-europe"><i class="ph-bold ph-globe-hemisphere-west"></i> Western Europe</button>
+                  <button class="bento-filter-btn" type="button" data-category="eastern-europe"><i class="ph-bold ph-globe-hemisphere-east"></i> Eastern Europe</button>
+                  <button class="bento-filter-btn" type="button" data-category="southern-europe"><i class="ph-bold ph-globe-hemisphere-east"></i> Southern Europe</button>
               </div>
 
-              <div class="bento-dest-grid">
+              <div class="bento-dest-grid" id="bentoDestGrid">
                    
                    <!-- Finland: Tall Featured Card -->
                    {% if finland %}
@@ -293,13 +293,13 @@
                </div>
 
               <div class="bento-nav">
-                  <button class="bento-nav-btn" aria-label="Previous destination"><i class="ph-bold ph-arrow-left"></i></button>
-                  <div class="bento-dots">
-                      <span class="bento-dot active"></span>
-                      <span class="bento-dot"></span>
-                      <span class="bento-dot"></span>
+                  <button class="bento-nav-btn" id="bentoPrevBtn" type="button" aria-label="Previous destination"><i class="ph-bold ph-arrow-left"></i></button>
+                  <div class="bento-dots" id="bentoDots">
+                      <span class="bento-dot active" data-page="0"></span>
+                      <span class="bento-dot" data-page="1"></span>
+                      <span class="bento-dot" data-page="2"></span>
                   </div>
-                  <button class="bento-nav-btn bento-nav-btn-primary" aria-label="Next destination"><i class="ph-bold ph-arrow-right"></i></button>
+                  <button class="bento-nav-btn bento-nav-btn-primary" id="bentoNextBtn" type="button" aria-label="Next destination"><i class="ph-bold ph-arrow-right"></i></button>
               </div>
           </div>
       </section>
@@ -1037,8 +1037,235 @@ function enableDragScroll(el) {
     });
 }
 
+// Bento Destinations Dynamic Filter & Carousel Engine (No Page Reload)
+function initBentoDestinationCarousel() {
+    var grid = document.getElementById('bentoDestGrid');
+    var filtersContainer = document.getElementById('bentoFilters');
+    var prevBtn = document.getElementById('bentoPrevBtn');
+    var nextBtn = document.getElementById('bentoNextBtn');
+    var dotsContainer = document.getElementById('bentoDots');
+
+    if (!grid || !filtersContainer) return;
+
+    var currentCategory = 'popular';
+    var currentPage = 0;
+
+    var bentoCatalog = {
+        'popular': [
+            [
+                { tall: true, name: "Finland", badgeDot: "#3B82F6", url: "{% url 'tours:country_detail' 'finland' %}", image: "/media/countries/finland_15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg", desc: "Land of a thousand lakes, midnight sun, and magical northern lights." },
+                { tall: false, name: "Norway", badgeDot: "#EF4444", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/countries/norway_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "Dramatic fjords, majestic mountains, and arctic coastal expeditions." },
+                { tall: false, name: "Denmark", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/countries/denmark_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "Fairy-tale royal castles, coastal dunes, and cozy hygge culture." },
+                { tall: false, name: "Sweden", badgeDot: "#F59E0B", url: "{% url 'tours:country_detail' 'sweden' %}", image: "/media/countries/sweden_Pyha_Sunrise-550x358.jpg", desc: "Sophisticated Nordic design, vast royal forests, and arctic wonder." },
+                { tall: false, name: "Iceland", badgeDot: "#8B5CF6", url: "{% url 'tours:country_detail' 'iceland' %}", image: "/media/countries/iceland_Snowmobiling-Adventure-in-Levi5-550x358.jpg", desc: "Geothermal blue lagoons, thunderous waterfalls, and volcanic glaciers." }
+            ],
+            [
+                { tall: true, name: "Rovaniemi & Lapland", badgeDot: "#3B82F6", url: "/tours/?destination=rovaniemi", image: "/media/destinations/rovaniemi_31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg", desc: "Official hometown of Santa Claus, aurora glass igloos, and husky wilderness." },
+                { tall: false, name: "Tromsø & Fjords", badgeDot: "#EF4444", url: "/tours/?destination=tromso", image: "/media/destinations/tromso_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "Gateway to the high Arctic with whale watching and fjord rib safaris." },
+                { tall: false, name: "Copenhagen", badgeDot: "#10B981", url: "/tours/?destination=copenhagen", image: "/media/destinations/copenhagen_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "Iconic colorful Nyhavn harbor, Michelin gastronomy, and royal palaces." },
+                { tall: false, name: "Stockholm", badgeDot: "#F59E0B", url: "/tours/?destination=stockholm", image: "/media/destinations/stockholm_Pyha_Sunrise-550x358.jpg", desc: "Venice of the North across 14 islands with historic Gamla Stan." },
+                { tall: false, name: "Finnish Lakeland", badgeDot: "#06B6D4", url: "/tours/?destination=lakeland", image: "/media/destinations/lakeland_7111_13901216855_cca37b8607_b_800_600_nofilter.jpg", desc: "Crystal-clear labyrinth of freshwater lakes, pine villas, and private saunas." }
+            ],
+            [
+                { tall: true, name: "Levi Ski Resort", badgeDot: "#6366F1", url: "/tours/?destination=levi", image: "/media/destinations/levi_15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg", desc: "Premier Nordic ski resort with snowmobile trails and aurora domes." },
+                { tall: false, name: "Kiruna & Abisko", badgeDot: "#F59E0B", url: "/tours/?destination=kiruna-abisko", image: "/media/destinations/kiruna-abisko_31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg", desc: "Home to the world-famous Icehotel and microclimate aurora sky stations." },
+                { tall: false, name: "Turku Archipelago", badgeDot: "#10B981", url: "/tours/?destination=turku-archipelago", image: "/media/destinations/turku-archipelago_65535_54407223633_9fc6ebf472_c_800_600_nofilter.jpg", desc: "Over 20,000 pristine maritime islands, medieval castles, and coastal calm." },
+                { tall: false, name: "Oslo", badgeDot: "#EF4444", url: "/tours/?destination=oslo", image: "/media/destinations/oslo_Snowmobiling-Adventure-in-Levi5-550x358.jpg", desc: "Architectural masterpiece with Opera House, Munch Museum, and harbor fjord." },
+                { tall: false, name: "Inari & Saariselkä", badgeDot: "#3B82F6", url: "/tours/?destination=inari-saariselka", image: "/media/destinations/inari-saariselka_1-Northern-Lights-Snowmobile-Levi-550x358.jpg", desc: "Heart of indigenous Sámi culture, golden national parks, and wild fells." }
+            ]
+        ],
+        'north-islands': [
+            [
+                { tall: true, name: "Iceland", badgeDot: "#8B5CF6", url: "{% url 'tours:country_detail' 'iceland' %}", image: "/media/countries/iceland_Snowmobiling-Adventure-in-Levi5-550x358.jpg", desc: "Volcanic black sand beaches, geothermal hot springs, and glacier lagoons." },
+                { tall: false, name: "Lofoten Islands", badgeDot: "#EF4444", url: "/tours/?destination=tromso", image: "/media/destinations/tromso_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "Jagged mountain peaks rising directly from Arctic turquoise seas." },
+                { tall: false, name: "Faroe Islands", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/destinations/explore_1.jpg", desc: "Dramatic sea stacks, emerald turf-roof villages, and towering sea cliffs." },
+                { tall: false, name: "Svalbard", badgeDot: "#3B82F6", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/destinations/inari-saariselka_1-Northern-Lights-Snowmobile-Levi-550x358.jpg", desc: "The true High Arctic where glaciers calve into icy fjords under polar skies." },
+                { tall: false, name: "Greenland", badgeDot: "#06B6D4", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Massive ice sheet fjords, Inuit settlements, and midnight sun sailing." }
+            ],
+            [
+                { tall: true, name: "Åland Islands", badgeDot: "#3B82F6", url: "/tours/?destination=turku-archipelago", image: "/media/destinations/turku-archipelago_65535_54407223633_9fc6ebf472_c_800_600_nofilter.jpg", desc: "Autonomous archipelago of 6,700 islands with tranquil sailing waters." },
+                { tall: false, name: "Senja Island", badgeDot: "#EF4444", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/countries/norway_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "Norway's fairy-tale island with rugged coastlines and secret aurora coves." },
+                { tall: false, name: "Bornholm", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/countries/denmark_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "The sunshine Baltic jewel with round churches, white beaches, and gourmet smokehouses." },
+                { tall: false, name: "Westman Islands", badgeDot: "#8B5CF6", url: "{% url 'tours:country_detail' 'iceland' %}", image: "/media/destinations/offer_1.jpg", desc: "Puffin colonies, volcanic craters, and dramatic ocean panoramas." },
+                { tall: false, name: "Vesterålen", badgeDot: "#F59E0B", url: "/tours/?destination=tromso", image: "/media/destinations/explore_3.jpg", desc: "Whale safari capital of Scandinavia with midnight kayaking adventures." }
+            ]
+        ],
+        'northern-europe': [
+            [
+                { tall: true, name: "Norway", badgeDot: "#EF4444", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/countries/norway_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "World-heritage fjords, Geiranger, Flam railway, and arctic expeditions." },
+                { tall: false, name: "Finland", badgeDot: "#3B82F6", url: "{% url 'tours:country_detail' 'finland' %}", image: "/media/countries/finland_15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg", desc: "Pristine nature, tranquil lake retreats, and modern Nordic architecture." },
+                { tall: false, name: "Sweden", badgeDot: "#F59E0B", url: "{% url 'tours:country_detail' 'sweden' %}", image: "/media/countries/sweden_Pyha_Sunrise-550x358.jpg", desc: "Lush southern beech forests, royal palaces, and vibrant culinary scenes." },
+                { tall: false, name: "Denmark", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/countries/denmark_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "Viking heritage, sleek Scandinavian design, and Michelin dining." },
+                { tall: false, name: "Estonia", badgeDot: "#06B6D4", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/helsinki_65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg", desc: "Fairy-tale cobblestone medieval Tallinn just a short ferry across from Helsinki." }
+            ],
+            [
+                { tall: true, name: "Finnish Lapland", badgeDot: "#3B82F6", url: "/tours/?destination=rovaniemi", image: "/media/destinations/rovaniemi_31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg", desc: "The winter wonderland of Santa Claus, snow hotels, and snowshoe expeditions." },
+                { tall: false, name: "Bergen & Fjords", badgeDot: "#EF4444", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/destinations/oslo_Snowmobiling-Adventure-in-Levi5-550x358.jpg", desc: "Hanseatic wooden wharf, apple blossom fjords, and mountain railways." },
+                { tall: false, name: "Gothenburg", badgeDot: "#F59E0B", url: "{% url 'tours:country_detail' 'sweden' %}", image: "/media/destinations/stockholm_Pyha_Sunrise-550x358.jpg", desc: "West coast seafood haven with granite islands and lively boulevards." },
+                { tall: false, name: "Aarhus", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/destinations/copenhagen_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "Danish cultural capital featuring the iconic rainbow ARoS art pavilion." },
+                { tall: false, name: "Riga & Jurmala", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Baltic Art Nouveau capital alongside pine-fringed golden white beaches." }
+            ]
+        ],
+        'western-europe': [
+            [
+                { tall: true, name: "Scottish Highlands", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Mystic lochs, Isle of Skye, ancient clan castles, and single malt distilleries." },
+                { tall: false, name: "Ireland", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_3.jpg", desc: "Cliffs of Moher, Ring of Kerry, emerald valleys, and authentic pubs." },
+                { tall: false, name: "Amsterdam", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_2.jpg", desc: "Historic canal ring, Van Gogh masterpiece museum, and tulip gardens." },
+                { tall: false, name: "French Alps", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_3.jpg", desc: "Chamonix Mont-Blanc, high alpine glaciers, and luxury chalet retreats." },
+                { tall: false, name: "Bavaria", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_4.jpg", desc: "Neuschwanstein fairytale castle, Bavarian Alps, and historic Munich." }
+            ],
+            [
+                { tall: true, name: "Swiss Alps", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/static/images/hero/Winter-landscape-19-2-scaled.jpg", desc: "Zermatt Matterhorn peaks, Glacier Express train, and crystal mountain lakes." },
+                { tall: false, name: "Bruges & Ghent", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Medieval canals, cobblestone squares, artisan chocolatiers, and gothic belfries." },
+                { tall: false, name: "Salzburg", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_1.jpg", desc: "Mozart's birthplace nestled under alpine fortresses and Austrian music halls." },
+                { tall: false, name: "Cotswolds", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Honey-stone English villages, Roman thermal baths, and manor gardens." },
+                { tall: false, name: "Provence", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_3.jpg", desc: "Lavender fields, hilltop vineyards, Roman aqueducts, and Mediterranean light." }
+            ]
+        ],
+        'eastern-europe': [
+            [
+                { tall: true, name: "Prague & Bohemia", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_2.jpg", desc: "City of a Hundred Spires, Charles Bridge, and majestic Prague Castle." },
+                { tall: false, name: "Krakow & Tatras", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Renaissance Rynek square, Wawel royal castle, and alpine mountain peaks." },
+                { tall: false, name: "Budapest", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_3.jpg", desc: "Grand Parliament on the Danube, Szechenyi thermal baths, and Buda Castle." },
+                { tall: false, name: "Lake Bled", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_4.jpg", desc: "Iconic island church amidst emerald waters backed by Julian Alpine summits." },
+                { tall: false, name: "Transylvania", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Carpathian mountain passes, fortified Saxon churches, and Bran Castle." }
+            ],
+            [
+                { tall: true, name: "Plitvice Lakes", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_3.jpg", desc: "16 cascading turquoise terraced lakes surrounded by ancient beech forest." },
+                { tall: false, name: "Tallinn Old Town", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/helsinki_65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg", desc: "Immaculately preserved Hanseatic ramparts, watchtowers, and hidden courtyards." },
+                { tall: false, name: "High Tatras", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_1.jpg", desc: "Pristine Slovakian alpine crests, glacial tarns, and cable car ascents." },
+                { tall: false, name: "Vilnius & Trakai", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Baroque church spires and the red-brick medieval island castle of Trakai." },
+                { tall: false, name: "Rila & Sofia", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_2.jpg", desc: "Frescoed Eastern Orthodox UNESCO monastery nestled in the Rila mountains." }
+            ]
+        ],
+        'southern-europe': [
+            [
+                { tall: true, name: "Italian Dolomites", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/static/images/citys/dest_rome.jpg", desc: "Spectacular limestone jagged peaks, alpine meadows, and luxury Cortina lodges." },
+                { tall: false, name: "Santorini", badgeDot: "#06B6D4", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_1.jpg", desc: "Whitewashed caldera cliffside villas, blue domes, and golden Aegean sunsets." },
+                { tall: false, name: "Andalusia", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_2.jpg", desc: "Moorish Alhambra palaces, Seville flamenco plazas, and sun-soaked pueblos." },
+                { tall: false, name: "Dubrovnik", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_3.jpg", desc: "Pearl of the Adriatic encircled by towering stone walls and azure waters." },
+                { tall: false, name: "Algarve Coast", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_4.jpg", desc: "Golden sea arches, Benagil sea caves, and Atlantic cliffside trails." }
+            ],
+            [
+                { tall: true, name: "Amalfi Coast", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/static/images/citys/dest_rome.jpg", desc: "Dramatic pastel cliff towns, lemon groves, and yacht-filled Mediterranean bays." },
+                { tall: false, name: "Mallorca", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Tramuntana mountain drives, secluded pine coves, and Palma cathedral." },
+                { tall: false, name: "Crete & Chania", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Venetian harbor lighthouses, pink sand Elafonisi beaches, and olive groves." },
+                { tall: false, name: "Kotor Bay", badgeDot: "#06B6D4", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_3.jpg", desc: "The southern-most fjord of Europe with Venetian fortresses and emerald bays." },
+                { tall: false, name: "Madeira", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_1.jpg", desc: "Subtropical floating garden of the Atlantic with levada walks and sea cliffs." }
+            ]
+        ]
+    };
+
+    function renderBentoGrid(category, page, animate) {
+        var pages = bentoCatalog[category] || bentoCatalog['popular'];
+        if (!pages || pages.length === 0) return;
+
+        if (page >= pages.length) page = 0;
+        if (page < 0) page = pages.length - 1;
+        currentPage = page;
+
+        var items = pages[currentPage];
+        if (!items) return;
+
+        function applyHTML() {
+            var html = '';
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var tallClass = item.tall ? ' bento-tall' : '';
+                html += '<div class="bento-card' + tallClass + '" onclick="window.location.href=\'' + item.url + '\'" style="background-image: url(\'' + item.image + '\');">';
+                html += '    <div class="bento-gradient"></div>';
+                html += '    <div class="bento-badge"><span class="bento-badge-dot" style="background-color: ' + item.badgeDot + ';"></span> ' + item.name + '</div>';
+                html += '    <div class="bento-content">';
+                html += '        <h3 class="bento-title">' + item.name + '</h3>';
+                html += '        <p class="bento-desc">' + item.desc + '</p>';
+                html += '    </div>';
+                html += '</div>';
+            }
+            grid.innerHTML = html;
+            renderDots(pages.length, currentPage);
+
+            if (animate) {
+                requestAnimationFrame(function() {
+                    grid.classList.remove('bento-transitioning');
+                });
+            }
+        }
+
+        if (animate) {
+            grid.classList.add('bento-transitioning');
+            setTimeout(applyHTML, 160);
+        } else {
+            applyHTML();
+        }
+    }
+
+    function renderDots(totalPages, activeIndex) {
+        if (!dotsContainer) return;
+        var dotsHtml = '';
+        for (var i = 0; i < totalPages; i++) {
+            var activeClass = (i === activeIndex) ? ' active' : '';
+            dotsHtml += '<span class="bento-dot' + activeClass + '" data-page="' + i + '" title="Page ' + (i + 1) + '"></span>';
+        }
+        dotsContainer.innerHTML = dotsHtml;
+    }
+
+    // Filter pill click events (no page reload!)
+    var filterButtons = filtersContainer.querySelectorAll('.bento-filter-btn');
+    filterButtons.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var category = this.getAttribute('data-category');
+            if (!category || category === currentCategory) return;
+
+            filterButtons.forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+
+            currentCategory = category;
+            currentPage = 0;
+            renderBentoGrid(currentCategory, currentPage, true);
+        });
+    });
+
+    // Arrow Prev click (no page reload!)
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var pages = bentoCatalog[currentCategory] || bentoCatalog['popular'];
+            currentPage = (currentPage - 1 + pages.length) % pages.length;
+            renderBentoGrid(currentCategory, currentPage, true);
+        });
+    }
+
+    // Arrow Next click (no page reload!)
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var pages = bentoCatalog[currentCategory] || bentoCatalog['popular'];
+            currentPage = (currentPage + 1) % pages.length;
+            renderBentoGrid(currentCategory, currentPage, true);
+        });
+    }
+
+    // Dots click delegation (no page reload!)
+    if (dotsContainer) {
+        dotsContainer.addEventListener('click', function(e) {
+            var dot = e.target.closest('.bento-dot');
+            if (!dot) return;
+            var targetPage = parseInt(dot.getAttribute('data-page'), 10);
+            if (!isNaN(targetPage) && targetPage !== currentPage) {
+                renderBentoGrid(currentCategory, targetPage, true);
+            }
+        });
+    }
+
+    // Initialize dots for current category
+    var initialPages = bentoCatalog[currentCategory] || bentoCatalog['popular'];
+    renderDots(initialPages.length, 0);
+}
+
 // Initialize mobile sliders on load
 document.addEventListener('DOMContentLoaded', function() {
+    initBentoDestinationCarousel();
     initMobileSliderDots('testimonialsTrack', 'testimonialsDots', '.testi-card');
     initMobileSliderDots('homeTipsGrid', 'tipsDots', '.tip-card');
     enableDragScroll(document.getElementById('testimonialsTrack'));

@@ -4,7 +4,19 @@
 {% block title %}{{ vehicle_class.name|default:'Vehicle Details' }} | Nord Velocity Fleet{% endblock %}
 
 {% block content %}
-<section class="container" style="padding-bottom: 5rem;">
+<section class="container" style="padding-top: 2.5rem; padding-bottom: 5rem;">
+    
+    <!-- Breadcrumbs -->
+    <div style="margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #64748B;">
+        <a href="{% url 'home' %}" style="color: #64748B; text-decoration: none;">Home</a>
+        <i class="ph-bold ph-caret-right" style="font-size: 0.75rem;"></i>
+        <a href="{% url 'chauffeur:hub' %}" style="color: #64748B; text-decoration: none;">Transport</a>
+        <i class="ph-bold ph-caret-right" style="font-size: 0.75rem;"></i>
+        <a href="{% url 'chauffeur:list' %}" style="color: #64748B; text-decoration: none;">Executive Fleet</a>
+        <i class="ph-bold ph-caret-right" style="font-size: 0.75rem;"></i>
+        <span style="color: #0F172A; font-weight: 600;">{{ vehicle.name|default:vehicle_class.name }}</span>
+    </div>
+
     <div class="cab-details-layout">
         
         <!-- Left Column: Details & Forms -->

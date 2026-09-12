@@ -15,18 +15,18 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <!-- Nord Velocity Executive Master Theme -->
-    <link rel="stylesheet" href="/static/admin/luxury_admin.css">
+    <link rel="stylesheet" href="/static/admin/luxury_admin.css?v=2.2">
 </head>
-<body class="admin-body" style="margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: row; width: 100vw; background: #F8FAFC;">
+<body class="admin-body">
 
     <!-- Unified Admin Sidebar -->
     {% include "admin/nav_sidebar.html" %}
 
     <!-- Admin Main Content -->
-    <main class="admin-main" style="flex: 1 1 auto; height: 100vh; overflow-y: auto !important; overflow-x: hidden !important; background: #F8FAFC; display: flex; flex-direction: column; min-width: 0;">
+    <main class="admin-main">
         <!-- Admin Top Header -->
-        <header class="admin-header" style="background: white; border-bottom: 1px solid #E2E8F0; padding: 0.85rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; flex-shrink: 0;">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <header class="admin-header">
+            <div class="admin-header-left">
                 <button type="button" class="admin-mobile-toggle" id="adminSidebarToggle" aria-label="Toggle Navigation" onclick="document.body.classList.toggle('admin-sidebar-open');">
                     <i class="ph-bold ph-list"></i>
                 </button>
@@ -36,7 +36,7 @@
                 </div>
             </div>
             
-            <div class="admin-user-nav" style="display: flex; align-items: center; gap: 1rem;">
+            <div class="admin-user-nav">
                 {% include "admin/notification_dropdown.html" %}
                 {% if request.user.is_authenticated %}
                 {% include "admin/user_dropdown.html" %}
@@ -46,7 +46,7 @@
         <div class="admin-sidebar-backdrop" onclick="document.body.classList.remove('admin-sidebar-open');"></div>
 
         {% if messages %}
-        <div style="padding: 1rem 2rem 0 2rem;">
+        <div class="admin-messages-container" style="padding: 1rem 1.5rem 0 1.5rem;">
             {% for msg in messages %}
             <div style="padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 500; background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; margin-bottom: 0.5rem;">
                 {{ msg }}
@@ -55,7 +55,7 @@
         </div>
         {% endif %}
 
-        <div style="padding: 2rem 2rem 5rem 2rem; flex: 1;">
+        <div class="admin-main-content-wrapper">
             {% block admin_content %}
             {% endblock %}
         </div>

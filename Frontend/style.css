@@ -5302,6 +5302,9 @@ body {
     padding: 1.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     align-self: start;
+    position: sticky;
+    top: 100px;
+    z-index: 10;
 }
 .filter-group {
     margin-bottom: 1.5rem;
@@ -5788,7 +5791,8 @@ body {
 /* Sidebar Fare Summary */
 .details-sidebar {
     position: sticky;
-    top: 2rem;
+    top: 100px;
+    z-index: 10;
 }
 .fare-summary-card {
     background: #FFFFFF;
@@ -9734,6 +9738,12 @@ body.mobile-nav-open {
     width: 100%;
     box-sizing: border-box;
     margin-bottom: 2.5rem;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.bento-dest-grid.bento-transitioning {
+    opacity: 0;
+    transform: translateY(6px);
 }
 
 .bento-tall {
@@ -9873,6 +9883,10 @@ body.mobile-nav-open {
     color: #FFFFFF;
 }
 
+.bento-nav-btn:active {
+    transform: scale(0.92);
+}
+
 .bento-dots {
     display: flex;
     gap: 0.5rem;
@@ -9885,13 +9899,19 @@ body.mobile-nav-open {
     border-radius: 50%;
     background-color: #CBD5E1;
     display: inline-block;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-dot:hover:not(.active) {
+    background-color: #94A3B8;
+    transform: scale(1.25);
 }
 
 .bento-dot.active {
     background-color: #007BFF;
-    width: 10px;
-    height: 10px;
+    width: 24px;
+    border-radius: 12px;
 }
 
 

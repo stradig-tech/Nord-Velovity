@@ -1,0 +1,532 @@
+
+=== PAGE 1 ===
+
+NORDVELOCITY
+Master Developer Blueprint & Request for Proposal
+Premium Chauffeur + Tours / Events / Experiences Platform
+Version
+1.0
+Owner
+NordVelocity
+Purpose
+Developer quotation, build specification, acceptance and handover
+Status
+Owner-controlled source of truth
+No deviation from this specification without written owner approval.
+
+=== PAGE 2 ===
+
+How to Use This Document
+\177 Send this document to shortlisted developers before requesting a final quotation.
+\177 Require a written response to Section 25, including architecture, assumptions, exclusions, milestone pricing, timelineand recurring costs.
+\177 Do not approve full development until one complete taxi transaction and one complete tour transaction work onstaging.
+\177 Use the acceptance criteria and handover sections before releasing final payment.
+1. Executive Summary
+NordVelocity is to be built as a premium, secure, scalable digital platform combining two clearly separated customerjourneys: (1) private chauffeur/transportation and (2) curated tours, events and experiences. The platform must beowner-controlled, mobile-first, SEO-ready, maintainable by future development teams, and designed to expand fromFinland into the wider Nordic region.
+This is not a theme-customization project. It is a business platform. The developer must design the architecture, datamodel, admin tools, security controls, booking workflows and handover process so that NordVelocity can operate withoutpermanent dependence on the original developer.
+2. Non-Negotiable Ownership and Control
+All critical assets must be created under accounts controlled by NordVelocity. The developer receives only the accessneeded to perform the work.
+NordVelocity must own and control:
+\177 Domain and DNS
+\177 Hosting/cloud account
+\177 Source-code repository and complete Git history
+\177 Production and staging environments
+\177 Databases and backups
+\177 Payment accounts and payout configuration
+\177 Mapping/API accounts and keys
+\177 Transactional email/SMS accounts
+\177 Analytics, tag manager and search-console properties
+\177 CDN/WAF/security accounts
+\177 All custom source code, design files and documentation
+\177 Licenses purchased specifically for NordVelocity, where license terms allow transfer/ownership
+No critical service may depend permanently on a developer\222s personal account. No hidden backdoors, undocumentedadministrator accounts, encrypted/obfuscated business logic, or vendor lock-in are acceptable. Developer access mustbe removable after handover.
+3. Project Architecture
+The system must be modular. Taxi/chauffeur, tours/experiences, bookings, payments, customers, content, SEO,notifications and reporting should be separate logical modules connected through documented interfaces.
+The architecture must support future replacement or extension of individual modules without rebuilding the entireplatform. Business rules must be configurable from the administration area wherever reasonably possible. Prices,vehicles, routes, tour dates, capacities, content and SEO must never require source-code edits for normal operations.
+Required environments:
+
+=== PAGE 3 ===
+
+\177 Local/development
+\177 Staging
+\177 Production
+Production changes must follow a controlled deployment process. Direct experimental changes on the live system areprohibited.
+4. Technology and Engineering Standards
+The developer must propose the technology stack and justify it in writing before implementation. The priority ismaintainability, security, performance and availability of skilled developers\227not novelty.
+Required engineering practices:
+\177 Git version control in a NordVelocity-owned repository
+\177 Protected main/production branch
+\177 Feature branches and reviewed merges
+\177 Environment variables/secrets management; no secrets committed to source control
+\177 Documented database schema and migrations
+\177 Documented APIs and third-party integrations
+\177 Reusable components and modular services
+\177 Server-side validation of security-sensitive and pricing logic
+\177 Structured error handling and logging
+\177 Automated tests for critical business logic
+\177 Dependency inventory with versions and licenses
+\177 Coding standards, linting/formatting and reproducible deployment
+\177 Architecture diagram and data-flow diagram
+\177 README/setup documentation sufficient for another qualified team to continue development
+5. World-Class Design Direction
+NordVelocity must feel like a premium Scandinavian travel and mobility brand\227not a conventional taxi website.
+Design principles:
+\177 Scandinavian minimalism: generous space, strong typography, restrained decoration
+\177 Premium, calm and trustworthy rather than flashy
+\177 Near-black, white/off-white and one controlled accent colour
+\177 Avoid excessive gold, gradients, glow effects, stock \223luxury\224 clich\351s and unnecessary animation
+\177 High-quality editorial imagery with consistent ratios
+\177 Clear visual hierarchy and short decision paths
+\177 WCAG-aware contrast, focus states, keyboard navigation and accessible forms
+\177 Responsive design created mobile-first, not desktop-first
+The developer/designer must provide a small design system containing typography, spacing scale, colours, buttons, formfields, cards, navigation, alerts, icons, imagery rules and responsive behaviour.
+Homepage hero: premium Nordic/Finnish travel landscape blended naturally with a black metallic luxury vehicle, with notaxi roof sign. The first decision must be two clear CTAs: \223Explore Tours\224 and \223Book a Chauffeur.\224 The headline mustrepresent year-round experiences, not only winter/Arctic tourism.
+
+=== PAGE 4 ===
+
+6. Information Architecture and Separate Customer Journeys
+The platform must preserve one NordVelocity brand while keeping the two commercial journeys distinct.
+Tour journey:
+Home \256 Tours \256 Destination/Experience Search \256 Tour Detail \256 Date/Guests \256 Checkout \256 Confirmation
+Chauffeur journey:
+Home \256 Chauffeur \256 Pickup/Destination/Service \256 Quote \256 Vehicle \256 Checkout \256 Confirmation
+Tour pages may contain a subtle secondary chauffeur cross-sell. Chauffeur pages may contain subtle tourrecommendations lower in the page or after booking. Cross-selling must never interrupt or confuse the primary bookingflow.
+7. Chauffeur / Taxi Platform Requirements
+Required booking capabilities:
+\177 Point-to-point journeys
+\177 Pickup and destination autocomplete
+\177 Route/distance calculation using an approved mapping provider
+\177 Distance-based pricing
+\177 Fixed-price routes and airport transfers
+\177 Hourly chauffeur service
+\177 Return journeys
+\177 Vehicle-specific pricing
+\177 Passenger and luggage capacity rules
+\177 Availability controls
+\177 Date/time-based rules
+\177 Location/zone-based rules
+\177 Optional surcharges/discount rules
+\177 Quote summary before payment
+\177 Online payment
+\177 Booking confirmation and status management
+Pricing must be server-side and configurable. The owner must be able to change base fares, kilometre rates, fixedroutes, hourly rates, vehicle pricing, surcharges and availability without code changes.
+Vehicle management must include name, class, photos, passenger capacity, luggage capacity, features, active/inactivestate and pricing configuration.
+The design must leave room for future driver assignment, corporate accounts, minivans, buses, live tracking andpartner/API integrations without requiring a complete rebuild.
+8. Tours / Experiences Platform Requirements
+The tour system must support 50\226100+ products immediately and substantially more later without redesign.
+Tour types include:
+\177 Winter experiences
+\177 Northern Lights experiences
+\177 Summer tours
+
+=== PAGE 5 ===
+
+\177 Festivals
+\177 Concert packages
+\177 Event packages
+\177 Private/VIP experiences
+\177 Multi-day packages
+\177 Future categories
+Each tour must be structured data, not a manually designed standalone page. The owner must be able to create,duplicate, edit, publish, unpublish and archive tours without coding.
+Tour fields should support, where relevant:
+\177 Title and short summary
+\177 Hero/gallery
+\177 Destination and coordinates/map
+\177 Season
+\177 Experience type
+\177 Travel style (private/group/VIP)
+\177 Duration
+\177 Dates and availability
+\177 Capacity
+\177 Adult/child/group pricing
+\177 Seasonal pricing
+\177 Deposit/partial-payment rules if used
+\177 Highlights
+\177 Full overview
+\177 Itinerary
+\177 Included/excluded items
+\177 Pickup/drop-off
+\177 Transportation
+\177 Accommodation
+\177 Event/concert ticket information
+\177 Meals
+\177 Meeting point
+\177 Cancellation/refund terms
+\177 FAQ
+\177 Reviews
+\177 Related tours
+\177 SEO fields
+Empty optional fields must not create empty sections on the public page. One reusable premium tour template mustrender the data consistently.
+9. Tour Taxonomy and SEO Hierarchy
+
+=== PAGE 6 ===
+
+Tours must use scalable taxonomies.
+Destination hierarchy example:
+Finland \256 Helsinki / Rovaniemi / Levi / Turku / Tampere
+Future: Sweden and Norway
+Additional taxonomies:
+\177 Season: Winter, Spring, Summer, Autumn, Year-round
+\177 Experience type: Northern Lights, Festival, Concert, Nature, City, Family, Private, Event, Adventure
+\177 Travel style: Private, Small Group, Group, VIP
+\177 Duration bands
+Assigning a destination/category to a tour must automatically make that tour appear on the relevant destination/categorylanding pages.
+Conceptual SEO structure:
+\177 /tours/
+\177 /tours/destinations/rovaniemi/
+\177 /tours/experiences/northern-lights/
+\177 /tour/private-northern-lights-rovaniemi/
+\177 /chauffeur/
+\177 /chauffeur/airport-transfer/
+\177 /airport-transfer/helsinki-airport/
+Exact URL rules must be finalized before launch and kept stable. Filter/sort combinations must not generate uncontrolledindexable duplicate pages.
+10. Reusable Tour Detail Template
+Every tour must follow a consistent template:
+\177 Hero/gallery
+\177 Tour title
+\177 Destination
+\177 Duration
+\177 Starting price
+\177 Availability
+\177 Primary Book Now CTA
+\177 Overview
+\177 Highlights
+\177 Itinerary
+\177 Included/excluded
+\177 Transportation
+\177 Pickup/drop-off
+\177 Accommodation where applicable
+\177 Event ticket information where applicable
+\177 Meals where applicable
+
+=== PAGE 7 ===
+
+\177 Map
+\177 Cancellation terms
+\177 FAQ
+\177 Reviews
+\177 Related experiences
+\177 Final booking CTA
+The owner enters data; the system maintains the visual design automatically.
+11. Admin Dashboard and Owner Operations
+The owner must be able to perform routine business operations without a developer.
+Dashboard capabilities:
+\177 View upcoming taxi and tour bookings
+\177 Search/filter bookings
+\177 View payment status
+\177 Edit/cancel bookings subject to audit rules
+\177 Process or initiate refunds through the approved payment workflow
+\177 Add/edit/duplicate/archive tours
+\177 Manage dates, capacity and pricing
+\177 Manage destinations/categories
+\177 Add/edit vehicles and capacities
+\177 Change chauffeur pricing rules
+\177 Manage fixed routes
+\177 Manage coupons/promotions
+\177 Manage website pages, menus and policies
+\177 Create/edit/schedule blog posts
+\177 Edit SEO fields
+\177 Manage media and image alt text
+\177 View operational reports
+\177 Export appropriate booking/report data
+\177 Manage staff roles and permissions
+All material administrative actions should be logged with user, timestamp and action where practical.
+12. Blog and Content Management
+A full blogging/content system is required.
+Blog features:
+\177 Categories and tags
+\177 Authors
+\177 Featured images
+\177 Draft/review/publish workflow
+\177 Scheduled publishing
+
+=== PAGE 8 ===
+
+\177 Related articles
+\177 Related tours and chauffeur services
+\177 SEO title/meta/URL fields
+\177 Image alt text
+\177 Article structured data where appropriate
+\177 Internal linking support
+\177 Social preview fields
+Content should support destination guides, event/festival guides, seasonal travel content, chauffeur/travel advice andother useful editorial content. The blog is an SEO and authority engine, not a decorative news page.
+13. SEO Requirements
+SEO must be built into the data model and templates from day one.
+Editable SEO controls are required for homepage, tour hub, destination pages, experience categories, individual tours,chauffeur pages, strategic route/airport pages, blog posts and important static pages.
+Requirements:
+\177 One editable H1 per primary page
+\177 SEO title and meta description
+\177 Clean, stable slugs
+\177 Canonical controls
+\177 XML sitemap
+\177 Robots/indexation controls
+\177 Breadcrumbs
+\177 Appropriate structured data/schema
+\177 Image alt text
+\177 Open Graph/social preview
+\177 Internal linking
+\177 Proper heading hierarchy
+\177 Destination/category pages capable of unique editorial copy above/below dynamic listings
+\177 Redirect management
+\177 No indexing of staging, checkout, internal search or meaningless filter combinations
+\177 Search Console readiness
+SEO success must not be defined by a plugin score alone.
+14. Payments, Checkout and Financial Controls
+The payment architecture must be proposed and approved before development.
+Principles:
+\177 Use a reputable PCI-compliant payment provider such as Stripe
+\177 Raw card data must never be stored on NordVelocity servers
+\177 Support cards and relevant wallet methods where commercially appropriate
+\177 Payment state must be synchronized with booking state
+
+=== PAGE 9 ===
+
+\177 Prevent accidental duplicate charges
+\177 Handle failed/abandoned payments cleanly
+\177 Support full/partial refunds where business rules permit
+\177 Provide receipts/confirmation
+\177 Support coupons/promotions
+\177 Leave room for future invoice/bank transfer/gift card/payment methods
+Taxi and tour engines may have separate internal booking records if technically appropriate, but the customer-facingpayment experience, branding and communication must feel coherent.
+\223Book now, pay later\224 must not be implemented until the business meaning is explicitly defined: reservation withoutpayment, deposit/balance, or a third-party BNPL product.
+15. Notifications and Transactional Communication
+Required notification flows include:
+\177 Booking received
+\177 Payment received
+\177 Booking confirmed
+\177 Booking changed
+\177 Booking cancelled
+\177 Payment failed
+\177 Relevant pre-service reminder(s)
+\177 Admin alerts for important booking/payment events
+Email delivery must use a reliable transactional service rather than depending only on basic server mail. Templatesshould be branded and editable where practical. Communication logs should be retained according to theprivacy/retention policy. SMS may be added later through a documented provider integration.
+16. Analytics and Conversion Measurement
+Configure analytics so NordVelocity can measure business outcomes, not only page views.
+Track events such as:
+\177 Explore Tours CTA
+\177 Book Chauffeur CTA
+\177 Tour search/filter
+\177 Tour detail view
+\177 Tour booking started
+\177 Tour checkout started
+\177 Tour booking completed
+\177 Taxi quote started
+\177 Taxi quote generated
+\177 Vehicle selected
+\177 Taxi checkout started
+\177 Taxi booking completed
+\177 Contact/phone actions
+
+=== PAGE 10 ===
+
+Analytics, Search Console and tag-management properties must be owned by NordVelocity. Consent requirements mustbe respected. The implementation must avoid duplicate events.
+17. Security Architecture
+Security is a design requirement.
+Minimum controls:
+\177 HTTPS everywhere
+\177 Secure headers and modern TLS configuration
+\177 Multi-factor authentication for privileged accounts where supported
+\177 Role-based access and least privilege
+\177 Strong password policy
+\177 Protection against common web vulnerabilities (OWASP Top 10)
+\177 Server-side validation and authorization
+\177 CSRF protection
+\177 Secure session/cookie settings
+\177 Rate limiting for sensitive endpoints
+\177 Bot/spam protection appropriate to forms and authentication
+\177 Secrets stored outside source code
+\177 Restricted API keys
+\177 Encryption in transit and appropriate encryption at rest
+\177 Dependency/security update process
+\177 Centralized error/security logging
+\177 Audit logs for critical admin actions
+\177 WAF/CDN protection where appropriate
+\177 Regular vulnerability review
+\177 No production debug information exposed to customers
+A pre-launch security review is required. High/critical findings must be resolved before launch.
+18. Privacy, Data Governance and EU Readiness
+The system must be designed for EU privacy requirements.
+Technical capabilities should support:
+\177 Privacy notice and cookie/consent management
+\177 Data minimization
+\177 Configurable retention periods
+\177 Export/access requests
+\177 Deletion/anonymization workflows where legally appropriate
+\177 Consent logging where consent is relied upon
+\177 Separation of operational communications from optional marketing consent
+\177 Vendor/subprocessor inventory
+\177 Secure handling of customer personal data
+
+=== PAGE 11 ===
+
+Legal wording and regulatory interpretation must be confirmed by qualified legal/compliance professionals. Packagescombining transport, accommodation, event tickets or other travel services must be reviewed for applicable Finnish/EUpackage-travel obligations before sale.
+19. Performance and Reliability
+Performance is part of the premium experience.
+Requirements:
+\177 Responsive images and modern formats (WebP/AVIF where appropriate)
+\177 Lazy loading below the fold
+\177 CDN/caching strategy
+\177 Optimized fonts
+\177 Minimal unnecessary JavaScript
+\177 No unnecessary heavy animation
+\177 Database indexing and query optimization
+\177 Background jobs/queues for slow tasks where appropriate
+\177 Monitoring for uptime, errors and performance
+\177 Core Web Vitals testing on representative mobile devices
+\177 Load/performance testing of critical booking endpoints before launch
+The developer must define measurable performance targets after hosting/architecture selection rather than promising anarbitrary universal page-load number.
+20. Backup, Disaster Recovery and Business Continuity
+Required:
+\177 Automated database and file backups
+\177 Off-site backup copy
+\177 Documented retention policy
+\177 Encrypted backups where appropriate
+\177 Restore procedure
+\177 At least one verified restore test before handover
+\177 Recovery Point Objective (RPO) and Recovery Time Objective (RTO) proposed by developer and approved by owner
+\177 Rollback plan for deployments
+\177 Incident contact/escalation procedure
+A backup that has never been restored is not considered verified.
+21. Testing and Quality Assurance
+Before launch, the developer must complete and document:
+\177 Unit tests for critical business logic
+\177 Integration tests for booking/payment/map/email integrations
+\177 End-to-end tests for taxi and tour bookings
+\177 Mobile/tablet/desktop responsive testing
+\177 Browser testing
+
+=== PAGE 12 ===
+
+\177 Accessibility review
+\177 SEO technical review
+\177 Security review
+\177 Performance review
+\177 Backup/restore test
+\177 Payment success/failure/refund tests
+\177 Capacity/overbooking tests
+\177 Email delivery tests
+\177 Fixed-route and distance-pricing tests
+\177 Role/permission tests
+Minimum real-world chauffeur routes should include short, medium, long, fixed-price and return journeys. Tour testsshould include single/multiple guests, capacity reached, sold-out dates, pricing variations and cancellation/refund flows.
+22. Development and Approval Process
+Required delivery sequence:
+1. Discovery and requirements confirmation
+2. Proposed architecture and technology stack
+3. Data model and architecture diagrams
+4. Staging environment
+5. Design system and homepage mockup
+6. Working taxi prototype
+7. Working tour prototype
+8. Payment proof of concept
+9. Owner approval
+10. Reusable templates/components
+11. Full implementation
+12. Content/SEO structure
+13. QA/security/performance testing
+14. Owner acceptance testing
+15. Production launch
+16. Monitoring and warranty period
+17. Final documentation/training/handover
+Do not mass-produce pages before one complete taxi transaction and one complete tour transaction work correctly onstaging.
+23. Acceptance Criteria
+The project is not complete until NordVelocity can answer YES to the following:
+\177 Can a customer obtain an accurate taxi quote?
+\177 Do distance and fixed-route pricing work correctly?
+\177 Can vehicle capacity/pricing be managed without code?
+
+=== PAGE 13 ===
+
+\177 Can customers book/pay on mobile?
+\177 Can customers search/filter tours?
+\177 Does capacity prevent tour overbooking?
+\177 Can the owner create the 51st or 101st tour without developer assistance?
+\177 Does a new tour automatically appear in assigned destination/category listings?
+\177 Can SEO fields be edited without code?
+\177 Are blog posts fully manageable by the owner?
+\177 Are taxi and tour journeys distinct but visually one brand?
+\177 Are payment and notification flows working?
+\177 Are analytics events validated?
+\177 Has backup restore been demonstrated?
+\177 Are staging and safe deployment available?
+\177 Are all critical accounts/assets controlled by NordVelocity?
+\177 Can another qualified developer continue the project using the documentation?
+24. Documentation, Training and Final Handover
+Before final payment, deliver:
+\177 Complete source code and Git history
+\177 Database schema/migrations
+\177 Architecture and data-flow diagrams
+\177 Environment/configuration documentation
+\177 Deployment and rollback guide
+\177 Backup/restore guide
+\177 Security/operations guide
+\177 API/integration documentation
+\177 Dependency/license inventory
+\177 Admin user manual
+\177 Owner training session(s)
+\177 Video or step-by-step guides for common tasks
+\177 Instructions for adding/duplicating tours
+\177 Pricing/date/capacity management instructions
+\177 Vehicle and chauffeur-pricing instructions
+\177 Booking/refund management instructions
+\177 Blog/SEO instructions
+\177 Analytics access and event documentation
+\177 Credentials/account inventory (transferred securely, not placed in the public document)
+\177 Warranty/support terms
+\177 Developer access-removal checklist
+Final payment should be tied to successful acceptance testing and complete handover, not merely visual completion.
+
+=== PAGE 14 ===
+
+25. Developer Proposal / RFP Response Required
+Before hiring, ask the developer to respond in writing to each item below:
+1. Proposed architecture and technology stack, with reasons.
+2. Which parts will be custom-built versus third-party services/libraries.
+3. How taxi route calculation and pricing will work.
+4. How tour inventory, dates, capacity and pricing will work.
+5. How the owner will add the 51st/101st tour without coding.
+6. Payment architecture and refund handling.
+7. Security approach and how OWASP risks will be addressed.
+8. Hosting/cloud recommendation and estimated recurring infrastructure cost.
+9. Backup/disaster-recovery approach.
+10. SEO/taxonomy implementation.
+11. Analytics/conversion tracking approach.
+12. Accessibility and performance approach.
+13. Testing plan.
+14. Data migration/content-entry assumptions.
+15. Exact project deliverables.
+16. Estimated timeline by milestone.
+17. Fixed price or detailed cost range by milestone.
+18. Third-party recurring costs and licenses.
+19. Warranty period and what qualifies as a bug.
+20. Post-launch support rates/SLA.
+21. Examples of comparable booking/e-commerce/travel systems.
+22. Who will work on the project and their roles.
+23. Confirmation that all custom source code and project assets will be handed over to NordVelocity.
+24. Confirmation that no critical system will remain under the developer\222s personal account.
+25. Confirmation that another qualified developer can take over after handover.
+The proposal should identify assumptions, exclusions, risks and dependencies. A single lump-sum number withoutarchitecture, scope and assumptions is not sufficient.
+26. Recommended Commercial Milestones
+A suggested payment structure should be negotiated around verified deliverables, for example:
+\177 Milestone 1: discovery, architecture, UX direction
+\177 Milestone 2: working taxi prototype
+\177 Milestone 3: working tour prototype and admin workflow
+\177 Milestone 4: payment, notifications and core integrations
+\177 Milestone 5: full UI/content/SEO implementation
+\177 Milestone 6: QA, security, performance and owner acceptance
+\177 Milestone 7: launch, documentation, training and final handover
+
+=== PAGE 15 ===
+
+Keep a meaningful final retention until acceptance criteria, documentation and handover are complete. Exactpercentages should be negotiated in the contract.
+27. Final Objective
+NordVelocity must emerge as one premium Nordic mobility and travel brand with two specialized conversion journeys:
+PRIVATE CHAUFFEUR / TRANSPORTATION
+and
+CURATED TOURS / EVENTS / EXPERIENCES
+The customer should understand the choice immediately, complete a booking with minimal friction, trust the payment andservice process, and discover the other side of the business without confusion.
+The owner must be able to operate, grow and transfer the platform independently. The platform should be designed sofuture developers extend it\227not rebuild it.
+
+=== PAGE 16 ===
+
+Owner Note
+The accompanying DOCX contains the Bengali owner summary. The PDF is optimized as the developer-facing Englishmaster specification.

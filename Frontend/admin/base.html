@@ -19,7 +19,7 @@
 {% block extrastyle %}{% endblock %}
 
 <!-- Nord Velocity Executive Master Theme (Highest Priority) -->
-<link rel="stylesheet" href="/static/admin/luxury_admin.css">
+<link rel="stylesheet" href="/static/admin/luxury_admin.css?v=2.2">
 
 {% block extrahead %}{% endblock %}
 {% block responsive %}
@@ -30,8 +30,7 @@
 
 <body class="admin-body {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
   data-admin-utc-offset="{% now "Z" %}"
-  data-admin-server-timezone="{% get_current_timezone as time_zone %}{{ time_zone }}"
-  style="margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: row; width: 100vw; background: #F8FAFC;">
+  data-admin-server-timezone="{% get_current_timezone as time_zone %}{{ time_zone }}">
 <a href="#content-start" class="skip-to-content-link" style="position: absolute; left: -9999px;">{% translate 'Skip to main content' %}</a>
 
 {% if not is_popup %}
@@ -42,16 +41,21 @@
 {% endif %}
 
     <!-- Admin Main Content Area (On Right, identical to Dashboard) -->
-    <main class="admin-main" style="flex: 1; height: 100vh; overflow-y: auto !important; overflow-x: hidden !important; background: #F8FAFC; display: flex; flex-direction: column;">
+    <main class="admin-main">
         {% if not is_popup %}
         <!-- Sticky Top Header (Matches Executive Dashboard Exactly!) -->
-        <header class="admin-header" style="background: white; border-bottom: 1px solid #E2E8F0; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; flex-shrink: 0;">
-            <div class="admin-search" style="display: flex; align-items: center; gap: 0.5rem; background: #F1F5F9; border-radius: 999px; padding: 0.5rem 1rem; width: 320px;">
-                <i class="ph-bold ph-magnifying-glass" style="color: #64748B;"></i>
-                <input type="text" placeholder="Search bookings, tours, users..." style="border: none; background: transparent; outline: none; font-family: inherit; font-size: 0.9rem; width: 100%;" onkeydown="if(event.key==='Enter'){ window.location.href='/admin/bookings/booking/?q=' + encodeURIComponent(this.value); }">
+        <header class="admin-header">
+            <div class="admin-header-left">
+                <button type="button" class="admin-mobile-toggle" id="adminSidebarToggle" aria-label="Toggle Navigation" onclick="document.body.classList.toggle('admin-sidebar-open');">
+                    <i class="ph-bold ph-list"></i>
+                </button>
+                <div class="admin-search">
+                    <i class="ph-bold ph-magnifying-glass" style="color: #64748B;"></i>
+                    <input type="text" placeholder="Search..." onkeydown="if(event.key==='Enter'){ window.location.href='/admin/bookings/booking/?q=' + encodeURIComponent(this.value); }">
+                </div>
             </div>
             
-            <div class="admin-user-nav" style="display: flex; align-items: center; gap: 1.25rem;">
+            <div class="admin-user-nav">
                 {% include "admin/notification_dropdown.html" %}
 
                 {% if request.user.is_authenticated %}
@@ -59,12 +63,13 @@
                 {% endif %}
             </div>
         </header>
+        <div class="admin-sidebar-backdrop" onclick="document.body.classList.remove('admin-sidebar-open');"></div>
 
         <!-- Inline Breadcrumbs -->
         {% block nav-breadcrumbs %}
         {% block breadcrumbs %}
         {% if title %}
-        <nav aria-label="{% translate 'Breadcrumbs' %}" style="padding: 0.75rem 2rem; background: #F1F5F9; border-bottom: 1px solid #E2E8F0; font-size: 0.85rem; color: #64748B; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+        <nav class="admin-breadcrumbs" aria-label="{% translate 'Breadcrumbs' %}">
             <a href="{% url 'admin:index' %}" style="color: #64748B; text-decoration: none; font-weight: 600;"><i class="ph-bold ph-house"></i> Home</a>
             <span>&rsaquo;</span>
             <span style="color: #0F172A; font-weight: 700;">{{ title }}</span>
@@ -75,7 +80,7 @@
         {% endif %}
 
         <!-- Content Area with Generous Bottom Spacing -->
-        <div style="padding: 2rem 2rem 5rem 2rem; flex: 1;" id="content-start">
+        <div class="admin-main-content-wrapper" id="content-start">
             {% block messages %}
             {% if messages %}
             <div style="margin-bottom: 1.5rem;">

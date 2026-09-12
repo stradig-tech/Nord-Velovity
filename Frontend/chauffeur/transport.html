@@ -155,7 +155,7 @@
         <h2 class="section-title text-center">Our Executive Luxury Fleet</h2>
         <div class="vehicles-grid">
             {% for vc in vehicle_classes %}
-            <div class="vehicle-card" onclick="window.location.href='{% url 'chauffeur:list' %}?class={{ vc.id }}';" style="cursor: pointer;">
+            <a href="{% url 'chauffeur:list' %}?class={{ vc.slug }}" class="vehicle-card" style="text-decoration: none; color: inherit; display: block;">
                 <div class="vehicle-icon-wrapper">
                     {% if vc.image %}
                     <img src="{{ vc.image.url }}" alt="{{ vc.name }}" style="max-height: 48px; width: auto; object-fit: contain;">
@@ -165,7 +165,7 @@
                 </div>
                 <h4 class="vehicle-name">{{ vc.name }}</h4>
                 <p class="vehicle-count">{{ vc.vehicles.count }} Active {% if vc.vehicles.count == 1 %}Vehicle{% else %}Vehicles{% endif %}{% if vc.max_passengers %} &bull; Up to {{ vc.max_passengers }} Guests{% endif %}</p>
-            </div>
+            </a>
             {% empty %}
             <p class="text-center text-muted" style="grid-column: 1/-1;">Fleet vehicles are being prepared.</p>
             {% endfor %}

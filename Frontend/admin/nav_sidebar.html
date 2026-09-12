@@ -2,10 +2,13 @@
 <nav class="sticky admin-sidebar-nav" id="nav-sidebar" aria-label="{% translate 'Sidebar' %}">
     
     <!-- Brand Header -->
-    <div class="admin-brand" style="padding: 1.25rem 1rem; border-bottom: 1px solid #1E293B; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-        <a href="/admin/" style="display: flex; align-items: center; justify-content: center; text-decoration: none; width: 100%;" title="{{ site_settings.site_name|default:'Nord Velocity' }} Admin">
-            <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo-admin.png' %}{% endif %}" alt="{{ site_settings.site_name|default:'Nord Velocity' }}" style="height: 95px; width: auto; max-width: 180px; object-fit: contain; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5)); transition: transform 0.2s ease;">
+    <div class="admin-brand" style="padding: 1.25rem 1rem; border-bottom: 1px solid #1E293B; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; position: relative;">
+        <a href="/admin/" style="display: flex; align-items: center; justify-content: center; text-decoration: none; flex: 1;" title="{{ site_settings.site_name|default:'Nord Velocity' }} Admin">
+            <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo-admin.png' %}{% endif %}" alt="{{ site_settings.site_name|default:'Nord Velocity' }}" style="height: 80px; width: auto; max-width: 170px; object-fit: contain; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5)); transition: transform 0.2s ease;">
         </a>
+        <button type="button" class="admin-sidebar-close-btn" onclick="document.body.classList.remove('admin-sidebar-open');" aria-label="Close Navigation Sidebar" title="Close Menu">
+            <i class="ph-bold ph-x"></i>
+        </button>
     </div>
 
     <!-- Navigation Menu -->
@@ -81,9 +84,15 @@
                 </a>
             </li>
             <li>
-                <a href="/admin/chauffeur/vehicle/" class="nav-item {% if '/chauffeur/vehicle/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-car" style="font-size: 1.2rem; color: #EC4899;"></i> 
-                    <span>VIP Chauffeur Fleet</span>
+                <a href="/admin/chauffeur/vehicleclass/" class="nav-item {% if '/chauffeur/vehicleclass/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-shield-star" style="font-size: 1.2rem; color: #EC4899;"></i> 
+                    <span>Fleet Classes (Luxury Fleet)</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/chauffeur/vehicle/" class="nav-item {% if '/chauffeur/vehicle/' in request.path and not '/vehicleclass/' in request.path %}active{% endif %}">
+                    <i class="ph-bold ph-car" style="font-size: 1.2rem; color: #F43F5E;"></i> 
+                    <span>VIP Chauffeur Vehicles</span>
                 </a>
             </li>
             <li>

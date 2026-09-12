@@ -36,7 +36,7 @@ def vehicle_list_view(request):
     vehicle_classes = VehicleClass.objects.filter(is_active=True).order_by('sort_order')
 
     # Search Query Params
-    class_slug = request.GET.get('class')
+    class_param = request.GET.get('class', '').strip()
     pickup = request.GET.get('pickup', '').strip()
     drop = request.GET.get('drop', '').strip()
     date_str = request.GET.get('date', '').strip()
@@ -44,10 +44,26 @@ def vehicle_list_view(request):
     trip_type = request.GET.get('trip_type', 'oneway')
     return_date = request.GET.get('return_date', '').strip()
     return_time = request.GET.get('return_time', '').strip()
-    passengers = request.GET.get('passengers', '')
+    passengers = request.GET.get('passengers', '').strip()
 
-    if class_slug:
-        vehicles = vehicles.filter(vehicle_class__slug=class_slug)
+    selected_class_slug = None
+    if class_param:
+        if class_param.isdigit():
+            matched_vc = VehicleClass.objects.filter(id=int(class_param)).first()
+            if matched_vc:
+                vehicles = vehicles.filter(vehicle_class=matched_vc)
+                selected_class_slug = matched_vc.slug
+            else:
+                vehicles = vehicles.none()
+        else:
+            matched_vc = VehicleClass.objects.filter(slug__iexact=class_param).first()
+            if matched_vc:
+                vehicles = vehicles.filter(vehicle_class=matched_vc)
+                selected_class_slug = matched_vc.slug
+            else:
+                vehicles = vehicles.filter(vehicle_class__slug__iexact=class_param)
+                selected_class_slug = class_param
+
     if passengers and passengers.isdigit():
         vehicles = vehicles.filter(passenger_capacity__gte=int(passengers))
 
@@ -74,7 +90,7 @@ def vehicle_list_view(request):
     context = {
         'vehicles': vehicles,
         'vehicle_classes': vehicle_classes,
-        'selected_class': class_slug,
+        'selected_class': selected_class_slug or class_param,
         'pickup': pickup,
         'drop': drop,
         'date': date_str,
