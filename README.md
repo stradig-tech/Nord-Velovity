@@ -1,8 +1,11 @@
 # 🌌 Nord Velocity
 
 > **Next-Generation Luxury Arctic & Nordic Travel, Curated Tour Experiences & VIP Chauffeur Platform**  
-> *Engineered with Django 6, PostgreSQL 17, Vue 3 Micro-Widgets & Vanilla Luxury Design System.*
+> *Engineered with Django 6, PostgreSQL 17, Vue 3 Micro-Widgets & Vanilla Luxury Design System.*  
+> **Developed by [StradigTech](https://www.stradigtech.com)** (`www.stradigtech.com`)
 
+[![Developed by StradigTech](https://img.shields.io/badge/Developed%20by-StradigTech-0A66C2?style=for-the-badge&logo=rocket&logoColor=white)](https://www.stradigtech.com)
+[![Website](https://img.shields.io/badge/Website-stradigtech.com-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white)](https://www.stradigtech.com)
 [![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-6.1-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -30,7 +33,28 @@ Moving away from generic black/gold cliches, Nord Velocity's visual language is 
 
 ---
 
-## ⚡ 2. Core Platform Capabilities
+## 📸 2. Visual Showcase & Project Screenshots
+
+High-resolution screenshots and architectural previews of the platform are organized inside the [`Project Screenshots/`](Project%20Screenshots/) directory.
+
+| Showcase Module | Preview | Key Features Displayed |
+|---|---|---|
+| **Public Homepage & Hero** | ![Homepage](Project%20Screenshots/01_homepage_showcase.png) | Nordic minimalist hero, live destination search, bento grid showcases, luxury typography |
+| **Curated Tour Catalog & Filters** | ![Tour Catalog](Project%20Screenshots/02_tour_catalog_filters.png) | Dynamic category filtering, starting-from price display, interactive wishlist toggle |
+| **Tour Details & Booking Engine** | ![Tour Details](Project%20Screenshots/03_tour_details_pricing.png) | Interactive day-by-day itineraries, real-time pricing calculator, atomic capacity locks |
+| **VIP Chauffeur & Fleet Dispatch** | ![VIP Chauffeur](Project%20Screenshots/04_vip_chauffeur_booking.png) | Haversine distance matrix, vehicle tier selection (First Class, Business Class, Van) |
+| **Central Operations Calendar** | ![Operations Calendar](Project%20Screenshots/05_operations_calendar.png) | FullCalendar 6 interactive console, zero-reload capacity overrides, status blocking |
+| **Customer Portal & Order Details** | ![Customer Portal](Project%20Screenshots/06_customer_order_details.png) | Customer booking timeline, meeting logistics, live receipts, wishlist management |
+| **Executive Admin Console** | ![Admin Console](Project%20Screenshots/07_admin_console_dark.png) | Slate & Indigo dark dashboard, real-time revenue analytics, mobile drawer menu |
+| **Mobile Responsive Experience** | ![Mobile UI](Project%20Screenshots/08_mobile_responsive_ui.png) | Fluid mobile view, touch-optimized booking flows, and responsive off-canvas drawer |
+
+> [!TIP]
+> **Adding or Updating Screenshots:**  
+> Drop your screenshot files into the [`Project Screenshots/`](Project%20Screenshots/) folder using the filenames listed above. The relative Markdown image tags automatically render inline across GitHub, GitLab, and local viewers. See [`Project Screenshots/README.md`](Project%20Screenshots/README.md) for naming guidelines.
+
+---
+
+## ⚡ 3. Core Platform Capabilities
 
 ### 🏔️ A. Curated Tour & Experience Engine
 - **Dynamic Pricing Calculator**: Live calculations factoring in adults, children, seasonal multipliers, early-bird deadlines, and automatic volume discounts (e.g., 5% off for 4+ travelers).
@@ -64,7 +88,7 @@ Moving away from generic black/gold cliches, Nord Velocity's visual language is 
 
 ---
 
-## 🏗️ 3. System Architecture & Tech Stack
+## 🏗️ 4. System Architecture & Tech Stack
 
 ```
 Nord Velocity Ecosystem
@@ -105,10 +129,13 @@ Nord Velocity Ecosystem
 
 ---
 
-## 📁 4. Project Directory Structure
+## 📁 5. Project Directory Structure
 
 ```
 Nord Velocity/
+├── Project Screenshots/                    # Visual showcase, UI architecture & preview assets
+│   └── README.md                          # Screenshots index & naming convention guide
+│
 ├── Backend/                                # Django 6 Core Application
 │   ├── manage.py                           # Django management CLI
 │   ├── requirements.txt                    # Locked Python dependencies
@@ -155,7 +182,7 @@ Nord Velocity/
 
 ---
 
-## 🚀 5. Quickstart & Local Setup Guide
+## 🚀 6. Quickstart & Local Setup Guide
 
 ### Prerequisites
 - **Python 3.12+** or **3.13** installed.
@@ -229,7 +256,7 @@ The application will be accessible at:
 
 ---
 
-## 📊 6. Modular Django Applications Reference
+## 📊 7. Modular Django Applications Reference
 
 | Application | Domain & Key Responsibilities | Primary Models |
 |---|---|---|
@@ -247,7 +274,7 @@ The application will be accessible at:
 
 ---
 
-## 🧪 7. Automated Testing & Verification Suite
+## 🧪 8. Automated Testing & Verification Suite
 
 Nord Velocity includes an integrated automated verification script to validate URL routing, dynamic pricing calculations, admin hub endpoints, and live API state toggles.
 
@@ -265,7 +292,7 @@ python test_site_integrity.py
 
 ---
 
-## 📖 8. Administrative Operations Manuals
+## 📖 9. Administrative Operations Manuals
 
 A series of comprehensive, illustrated manuals are maintained in the repository for training operations staff and concierge dispatchers:
 - **`Nord_Velocity_Admin_Panel_Operations_Manual.pdf`**: Complete step-by-step operational guide covering:
@@ -283,7 +310,7 @@ python generate_step_by_step_manual.py
 
 ---
 
-## 🔒 9. Production Deployment & Security Checklist
+## 🔒 10. Production Deployment & Security Checklist
 
 When moving from staging to live production:
 
@@ -305,6 +332,26 @@ When moving from staging to live production:
 
 ---
 
-## 📄 10. Ownership & License
+## 👨‍💻 11. Development & Engineering Credits
 
-This software, design assets, and documentation are proprietary and confidential to **Nord Velocity**. All rights reserved. Unauthorized reproduction, distribution, or reverse engineering is strictly prohibited under applicable international copyright law.
+**Nord Velocity** is designed, architected, and developed by:
+
+### 🚀 **[StradigTech](https://www.stradigtech.com)**
+> *Engineering Next-Generation Digital Experiences & Enterprise Travel Platforms*
+
+- 🌐 **Website**: [www.stradigtech.com](https://www.stradigtech.com)
+- 💼 **Domain Expertise**:
+  - Enterprise Web & Mobile Platform Architecture
+  - High-Conversion OTA Travel, Tour Booking & VIP Chauffeur Systems
+  - Custom Full-Stack Django 6 & Vue.js Reactive Solutions
+  - High-Volume Relational Database Engineering (PostgreSQL 17)
+  - Multi-Gateway Payment Infrastructure (Stripe, PayPal, Offline SEPA/Cash)
+- ✉️ **Inquiries & Consultation**: Visit [www.stradigtech.com](https://www.stradigtech.com) for bespoke digital transformation and custom software engineering.
+
+---
+
+## 📄 12. Ownership & License
+
+- **Platform & Brand**: Proprietary and confidential to **Nord Velocity**. All rights reserved.
+- **Engineering & Implementation**: Developed by **[StradigTech](https://www.stradigtech.com)** (`www.stradigtech.com`).
+- Unauthorized reproduction, distribution, or reverse engineering is strictly prohibited under applicable international copyright law.
