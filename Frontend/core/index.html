@@ -19,9 +19,7 @@
             <video autoplay muted loop playsinline poster="/static/images/hero/Winter-landscape-19-2-scaled.jpg" style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; pointer-events: none;">
                 <source src="{{ site_settings.hero_video_file.url }}" type="video/mp4">
             </video>
-        {% elif site_settings.hero_video_url and site_settings.is_youtube_video %}
-            <iframe src="{{ site_settings.hero_video_embed_url }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen tabindex="-1" style="position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; transform: translate(-50%, -50%); pointer-events: none;"></iframe>
-        {% elif site_settings.hero_video_url %}
+        {% elif site_settings.hero_video_url and not site_settings.is_youtube_video %}
             <video autoplay muted loop playsinline poster="/static/images/hero/Winter-landscape-19-2-scaled.jpg" style="position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; pointer-events: none;">
                 <source src="{{ site_settings.hero_video_url }}" type="video/mp4">
             </video>
@@ -30,10 +28,10 @@
     <div class="hero-overlay"></div>
     
     <!-- Hero Container with Title and Subtitle -->
-    <div class="hero-container">
-        <div class="hero-content">
-            {% if site_settings.hero_title %}<h1 class="hero-title">{{ site_settings.hero_title }}</h1>{% endif %}
-            {% if site_settings.hero_subtitle %}<p class="hero-subtitle">{{ site_settings.hero_subtitle }}</p>{% endif %}
+    <div class="hero-container" style="text-align: center; margin-left: auto; margin-right: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin: 0 auto; max-width: 820px; width: 100%;">
+            {% if site_settings.hero_title %}<h1 class="hero-title" style="text-align: center; margin-left: auto; margin-right: auto;">{{ site_settings.hero_title }}</h1>{% endif %}
+            {% if site_settings.hero_subtitle %}<p class="hero-subtitle" style="text-align: center; margin-left: auto; margin-right: auto; max-width: 680px;">{{ site_settings.hero_subtitle }}</p>{% endif %}
         </div>
     </div>
 
@@ -55,17 +53,70 @@
                     </div>
                     <div class="input-details">
                         <span class="input-tag">Destination</span>
-                        <span class="input-label" id="locLabel">{% if nav_destinations %}{{ nav_destinations.first.name }}{% else %}Rovaniemi{% endif %} <i class="ph-bold ph-caret-down"></i></span>
-                        <span class="input-sub" id="locSub">{% if nav_destinations %}{{ nav_destinations.first.country.name|default:'Finland' }}{% else %}Finland{% endif %}</span>
+                        <span class="input-label" id="locLabel">Finland <i class="ph-bold ph-caret-down"></i></span>
+                        <span class="input-sub" id="locSub">All Active Destinations</span>
+                        <input type="hidden" name="country" id="heroCountryInput" value="finland">
+                        <input type="hidden" name="destination" id="heroDestInput" value="">
                     </div>
-                    <div id="locDropdown" class="booking-dropdown-menu" style="display: none;" onclick="event.stopPropagation();">
-                        <div class="dropdown-header-bar">Select Destination</div>
-                        {% for d in nav_destinations %}
-                        <div class="dropdown-option-row" onclick="selectBookingLocation('{{ d.name|escapejs }}', '{% if d.country %}{{ d.country.name|escapejs }}{% else %}Finland{% endif %}', event);">
-                            <div class="option-main-title">{{ d.name }}</div>
-                            <div class="option-sub-title">{{ d.country.name|default:'Finland' }}</div>
+                    <div id="locDropdown" class="booking-dropdown-menu loc-dropdown-enhanced" style="display: none; width: 340px; padding: 0;" onclick="event.stopPropagation();">
+                        <div class="dropdown-header-bar" style="padding: 0.75rem 0.85rem; border-bottom: 1px solid #F1F5F9; background: #FFFFFF; border-radius: 12px 12px 0 0;">
+                            <div style="position: relative; width: 100%;">
+                                <input type="text" id="destLiveSearch" placeholder="Search Finland, Norway, Denmark..." 
+                                       onkeyup="filterHeroDestinations(this.value)" 
+                                       onclick="event.stopPropagation();"
+                                       style="width: 100%; box-sizing: border-box; padding: 0.5rem 0.75rem 0.5rem 2rem; border-radius: 8px; border: 1.5px solid #E2E8F0; font-size: 0.85rem; outline: none; transition: border-color 0.2s;"
+                                       onfocus="this.style.borderColor='#4F46E5';" onblur="this.style.borderColor='#E2E8F0';">
+                                <i class="ph-bold ph-magnifying-glass" style="position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 0.9rem; pointer-events: none;"></i>
+                            </div>
                         </div>
-                        {% endfor %}
+                        <div class="dest-options-scrollable" id="destOptionsList" style="max-height: 290px; overflow-y: auto; padding: 0.35rem 0;">
+                            {% for c in countries %}
+                            <div class="dest-country-block" data-country-name="{{ c.name|lower }}" data-country-slug="{{ c.slug }}">
+                                <div class="dropdown-option-row country-option-row" 
+                                     onclick="selectBookingLocation('{{ c.name|escapejs }}', 'All Active Destinations ({{ c.destinations.all|length }})', '', '{{ c.slug }}', event);"
+                                     style="background: #F8FAFC; border-left: 3px solid #4F46E5; padding: 0.65rem 0.85rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <span style="font-size: 1.15rem;">
+                                            {% if c.slug == 'finland' %}🇫🇮{% elif c.slug == 'norway' %}🇳🇴{% elif c.slug == 'sweden' %}🇸🇪{% elif c.slug == 'denmark' %}🇩🇰{% elif c.slug == 'iceland' %}🇮🇸{% else %}🌍{% endif %}
+                                        </span>
+                                        <div>
+                                            <div class="option-main-title" style="font-weight: 800; color: #0F172A; font-size: 0.9rem;">
+                                                All {{ c.name }}
+                                            </div>
+                                            <div class="option-sub-title" style="font-size: 0.74rem; color: #64748B;">
+                                                {{ c.destinations.all|length }} Active Location{{ c.destinations.all|length|pluralize }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span style="font-size: 0.72rem; background: #EEF2FF; color: #4F46E5; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px;">
+                                        All Places
+                                    </span>
+                                </div>
+
+                                {% for d in c.destinations.all %}
+                                <div class="dropdown-option-row dest-item-row" 
+                                     data-dest-name="{{ d.name|lower }}" 
+                                     data-country-name="{{ c.name|lower }}"
+                                     onclick="selectBookingLocation('{{ d.name|escapejs }}', '{{ c.name|escapejs }}', '{{ d.slug }}', '{{ c.slug }}', event);"
+                                     style="padding: 0.55rem 0.85rem 0.55rem 2.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F8FAFC;">
+                                    <div>
+                                        <div class="option-main-title" style="font-weight: 600; font-size: 0.88rem; color: #1E293B;">{{ d.name }}</div>
+                                        <div class="option-sub-title" style="font-size: 0.74rem; color: #94A3B8;">{{ c.name }}</div>
+                                    </div>
+                                    {% if d.tour_count %}
+                                    <span style="font-size: 0.7rem; color: #10B981; font-weight: 700; background: #ECFDF5; padding: 0.15rem 0.5rem; border-radius: 999px;">
+                                        {{ d.tour_count }} Tour{{ d.tour_count|pluralize }}
+                                    </span>
+                                    {% else %}
+                                    <span style="font-size: 0.7rem; color: #64748B; font-weight: 500; background: #F1F5F9; padding: 0.15rem 0.45rem; border-radius: 999px;">
+                                        Active Place
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
 
@@ -107,13 +158,18 @@
                     </div>
                     <div class="input-details">
                         <span class="input-tag">Experience</span>
-                        <span class="input-label" id="catLabel">{% if nav_experiences %}{{ nav_experiences.first.name }}{% else %}Luxury Tour{% endif %} <i class="ph-bold ph-caret-down"></i></span>
+                        <span class="input-label" id="catLabel">All Experiences <i class="ph-bold ph-caret-down"></i></span>
                         <span class="input-sub" id="catSub">Category</span>
+                        <input type="hidden" name="category" id="heroCatInput" value="">
                     </div>
                     <div id="catDropdown" class="booking-dropdown-menu" style="display: none;" onclick="event.stopPropagation();">
                         <div class="dropdown-header-bar">Select Experience</div>
+                        <div class="dropdown-option-row" onclick="selectBookingCategory('All Experiences', '', event);">
+                            <div class="option-main-title">All Experiences</div>
+                            <div class="option-sub-title">Browse all luxury styles</div>
+                        </div>
                         {% for exp in nav_experiences %}
-                        <div class="dropdown-option-row" onclick="selectBookingCategory('{{ exp.name|escapejs }}', event);">
+                        <div class="dropdown-option-row" onclick="selectBookingCategory('{{ exp.name|escapejs }}', '{{ exp.slug }}', event);">
                             <div class="option-main-title">{{ exp.name }}</div>
                             <div class="option-sub-title">Curated Arctic Experience</div>
                         </div>
@@ -122,7 +178,7 @@
                 </div>
 
                 <!-- Search CTA Button -->
-                <button class="btn btn-primary search-btn" onclick="window.location.href='{% url 'tours:list' %}';">
+                <button class="btn btn-primary search-btn" type="button" onclick="executeHeroSearch();">
                     <i class="ph-bold ph-magnifying-glass"></i>
                     <span>Search</span>
                 </button>
@@ -200,23 +256,25 @@
                 {% if featured_tours %}
                     {% for tour in featured_tours %}
                     <div class="tour-card" data-category="{{ tour.category_tags }}">
-                        <div class="tour-img-box">
-                            {% if tour.media.first %}
-                                <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
-                            {% else %}
-                                <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
-                            {% endif %}
-                            <div class="badge-stack-right">
-                                {% if tour.is_featured %}<span class="tour-badge green-bg">Featured</span>{% endif %}
-                                <span class="tour-badge yellow-bg text-dark">{{ tour.travel_style.name|default:"Luxury Tour" }}</span>
+                        <a href="{% url 'tours:detail' tour.slug %}" style="display: block; text-decoration: none;">
+                            <div class="tour-img-box">
+                                {% if tour.media.first %}
+                                    <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
+                                {% else %}
+                                    <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
+                                {% endif %}
+                                <div class="badge-stack-right">
+                                    {% if tour.is_featured %}<span class="tour-badge green-bg">Featured</span>{% endif %}
+                                    <span class="tour-badge yellow-bg text-dark">{{ tour.travel_style.name|default:"Luxury Tour" }}</span>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                         <div class="tour-body">
                             <div class="tour-rating">
                                 <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
                                 <span class="rating-val">(5.0)</span>
                             </div>
-                            <h4 class="tour-title">{{ tour.title }}</h4>
+                            <h4 class="tour-title"><a href="{% url 'tours:detail' tour.slug %}" style="color: inherit; text-decoration: none;">{{ tour.title }}</a></h4>
                             <div class="tour-meta">
                                 <span class="meta-item"><i class="ph ph-map-pin"></i> {{ tour.destination.name }}, Finland</span>
                                 <span class="meta-item"><i class="ph ph-clock"></i> {{ tour.duration_text }}</span>
@@ -292,11 +350,26 @@
                            </p>
                        </div>
                    </div>
+                   {% empty %}
+                       {% if not finland %}
+                       <div class="bento-empty-state" style="grid-column: 1 / -1; padding: 3.5rem 1.5rem; text-align: center; background: #FFFFFF; border-radius: 20px; border: 1.5px dashed #CBD5E1; box-shadow: 0 4px 20px rgba(0,0,0,0.03); max-width: 600px; margin: 0 auto; width: 100%;">
+                           <div style="width: 56px; height: 56px; margin: 0 auto 1rem auto; background: #EEF2FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4F46E5; font-size: 1.65rem;">
+                               <i class="ph-bold ph-compass"></i>
+                           </div>
+                           <h3 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.4rem;">No Destinations Currently Available</h3>
+                           <p style="font-size: 0.9rem; color: #64748B; max-width: 440px; margin: 0 auto 1.25rem auto; line-height: 1.55;">
+                               There are no destinations published in this region yet. Explore our curated travel packages or check back soon as we expand our journeys.
+                           </p>
+                           <a href="{% url 'tours:list' %}" class="btn-outline-dark" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; font-size: 0.88rem; border-radius: 8px; font-weight: 600; text-decoration: none;">
+                               <i class="ph-bold ph-magnifying-glass"></i> Explore All Packages
+                           </a>
+                       </div>
+                       {% endif %}
                    {% endfor %}
 
                </div>
 
-              <div class="bento-nav">
+              <div class="bento-nav" {% if not finland and not other_countries %}style="display: none;"{% endif %}>
                   <button class="bento-nav-btn" id="bentoPrevBtn" type="button" aria-label="Previous destination"><i class="ph-bold ph-arrow-left"></i></button>
                   <div class="bento-dots" id="bentoDots">
                       <span class="bento-dot active" data-page="0"></span>
@@ -750,18 +823,27 @@ function toggleBookingDropdown(dropdownId, event) {
     }
 }
 
-function selectBookingLocation(name, country, event) {
+function selectBookingLocation(name, subText, destSlug, countrySlug, event) {
     if (event) {
         event.stopPropagation();
     }
     var label = document.getElementById('locLabel');
     var sub = document.getElementById('locSub');
     var dropdown = document.getElementById('locDropdown');
+    var countryInput = document.getElementById('heroCountryInput');
+    var destInput = document.getElementById('heroDestInput');
+
     if (label) {
         label.innerHTML = name + ' <i class="ph-bold ph-caret-down" style="font-size: 0.8rem; color: #64748B;"></i>';
     }
     if (sub) {
-        sub.textContent = country;
+        sub.textContent = subText || '';
+    }
+    if (countryInput) {
+        countryInput.value = countrySlug || '';
+    }
+    if (destInput) {
+        destInput.value = destSlug || '';
     }
     if (dropdown) {
         dropdown.style.display = 'none';
@@ -769,19 +851,71 @@ function selectBookingLocation(name, country, event) {
     }
 }
 
-function selectBookingCategory(name, event) {
+function filterHeroDestinations(query) {
+    query = (query || '').toLowerCase().trim();
+    var blocks = document.querySelectorAll('.dest-country-block');
+    blocks.forEach(function(block) {
+        var countryName = (block.getAttribute('data-country-name') || '').toLowerCase();
+        var countryMatch = countryName.includes(query);
+        var rows = block.querySelectorAll('.dest-item-row');
+        var hasMatchingChild = false;
+        
+        rows.forEach(function(row) {
+            var destName = (row.getAttribute('data-dest-name') || '').toLowerCase();
+            if (!query || countryMatch || destName.includes(query)) {
+                row.style.display = 'flex';
+                hasMatchingChild = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        var countryRow = block.querySelector('.country-option-row');
+        if (!query || countryMatch || hasMatchingChild) {
+            block.style.display = 'block';
+            if (countryRow) countryRow.style.display = 'flex';
+        } else {
+            block.style.display = 'none';
+        }
+    });
+}
+
+function selectBookingCategory(name, slug, event) {
     if (event) {
         event.stopPropagation();
     }
     var label = document.getElementById('catLabel');
     var dropdown = document.getElementById('catDropdown');
+    var catInput = document.getElementById('heroCatInput');
     if (label) {
         label.innerHTML = name + ' <i class="ph-bold ph-caret-down" style="font-size: 0.8rem; color: #64748B;"></i>';
+    }
+    if (catInput) {
+        catInput.value = slug || '';
     }
     if (dropdown) {
         dropdown.style.display = 'none';
         dropdown.classList.remove('show');
     }
+}
+
+function executeHeroSearch() {
+    var country = document.getElementById('heroCountryInput') ? document.getElementById('heroCountryInput').value.trim() : '';
+    var destination = document.getElementById('heroDestInput') ? document.getElementById('heroDestInput').value.trim() : '';
+    var cat = document.getElementById('heroCatInput') ? document.getElementById('heroCatInput').value.trim() : '';
+    var date = document.getElementById('heroDateInput') ? document.getElementById('heroDateInput').value.trim() : '';
+    
+    var params = [];
+    if (country) params.push('country=' + encodeURIComponent(country));
+    if (destination) params.push('destination=' + encodeURIComponent(destination));
+    if (cat) params.push('category=' + encodeURIComponent(cat));
+    if (date) params.push('date=' + encodeURIComponent(date));
+    
+    var searchUrl = "{% url 'tours:list' %}";
+    if (params.length > 0) {
+        searchUrl += '?' + params.join('&');
+    }
+    window.location.href = searchUrl;
 }
 
 // Global click-outside listener to close booking dropdowns
@@ -1048,128 +1182,48 @@ function initBentoDestinationCarousel() {
     var prevBtn = document.getElementById('bentoPrevBtn');
     var nextBtn = document.getElementById('bentoNextBtn');
     var dotsContainer = document.getElementById('bentoDots');
+    var bentoNav = document.querySelector('.bento-nav');
 
     if (!grid || !filtersContainer) return;
 
     var currentCategory = 'popular';
     var currentPage = 0;
 
-    var bentoCatalog = {
-        'popular': [
-            [
-                { tall: true, name: "Finland", badgeDot: "#3B82F6", url: "{% url 'tours:country_detail' 'finland' %}", image: "/media/countries/finland_15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg", desc: "Land of a thousand lakes, midnight sun, and magical northern lights." },
-                { tall: false, name: "Norway", badgeDot: "#EF4444", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/countries/norway_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "Dramatic fjords, majestic mountains, and arctic coastal expeditions." },
-                { tall: false, name: "Denmark", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/countries/denmark_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "Fairy-tale royal castles, coastal dunes, and cozy hygge culture." },
-                { tall: false, name: "Sweden", badgeDot: "#F59E0B", url: "{% url 'tours:country_detail' 'sweden' %}", image: "/media/countries/sweden_Pyha_Sunrise-550x358.jpg", desc: "Sophisticated Nordic design, vast royal forests, and arctic wonder." },
-                { tall: false, name: "Iceland", badgeDot: "#8B5CF6", url: "{% url 'tours:country_detail' 'iceland' %}", image: "/media/countries/iceland_Snowmobiling-Adventure-in-Levi5-550x358.jpg", desc: "Geothermal blue lagoons, thunderous waterfalls, and volcanic glaciers." }
-            ],
-            [
-                { tall: true, name: "Rovaniemi & Lapland", badgeDot: "#3B82F6", url: "/tours/?destination=rovaniemi", image: "/media/destinations/rovaniemi_31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg", desc: "Official hometown of Santa Claus, aurora glass igloos, and husky wilderness." },
-                { tall: false, name: "Tromsø & Fjords", badgeDot: "#EF4444", url: "/tours/?destination=tromso", image: "/media/destinations/tromso_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "Gateway to the high Arctic with whale watching and fjord rib safaris." },
-                { tall: false, name: "Copenhagen", badgeDot: "#10B981", url: "/tours/?destination=copenhagen", image: "/media/destinations/copenhagen_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "Iconic colorful Nyhavn harbor, Michelin gastronomy, and royal palaces." },
-                { tall: false, name: "Stockholm", badgeDot: "#F59E0B", url: "/tours/?destination=stockholm", image: "/media/destinations/stockholm_Pyha_Sunrise-550x358.jpg", desc: "Venice of the North across 14 islands with historic Gamla Stan." },
-                { tall: false, name: "Finnish Lakeland", badgeDot: "#06B6D4", url: "/tours/?destination=lakeland", image: "/media/destinations/lakeland_7111_13901216855_cca37b8607_b_800_600_nofilter.jpg", desc: "Crystal-clear labyrinth of freshwater lakes, pine villas, and private saunas." }
-            ],
-            [
-                { tall: true, name: "Levi Ski Resort", badgeDot: "#6366F1", url: "/tours/?destination=levi", image: "/media/destinations/levi_15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg", desc: "Premier Nordic ski resort with snowmobile trails and aurora domes." },
-                { tall: false, name: "Kiruna & Abisko", badgeDot: "#F59E0B", url: "/tours/?destination=kiruna-abisko", image: "/media/destinations/kiruna-abisko_31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg", desc: "Home to the world-famous Icehotel and microclimate aurora sky stations." },
-                { tall: false, name: "Turku Archipelago", badgeDot: "#10B981", url: "/tours/?destination=turku-archipelago", image: "/media/destinations/turku-archipelago_65535_54407223633_9fc6ebf472_c_800_600_nofilter.jpg", desc: "Over 20,000 pristine maritime islands, medieval castles, and coastal calm." },
-                { tall: false, name: "Oslo", badgeDot: "#EF4444", url: "/tours/?destination=oslo", image: "/media/destinations/oslo_Snowmobiling-Adventure-in-Levi5-550x358.jpg", desc: "Architectural masterpiece with Opera House, Munch Museum, and harbor fjord." },
-                { tall: false, name: "Inari & Saariselkä", badgeDot: "#3B82F6", url: "/tours/?destination=inari-saariselka", image: "/media/destinations/inari-saariselka_1-Northern-Lights-Snowmobile-Levi-550x358.jpg", desc: "Heart of indigenous Sámi culture, golden national parks, and wild fells." }
-            ]
-        ],
-        'north-islands': [
-            [
-                { tall: true, name: "Iceland", badgeDot: "#8B5CF6", url: "{% url 'tours:country_detail' 'iceland' %}", image: "/media/countries/iceland_Snowmobiling-Adventure-in-Levi5-550x358.jpg", desc: "Volcanic black sand beaches, geothermal hot springs, and glacier lagoons." },
-                { tall: false, name: "Lofoten Islands", badgeDot: "#EF4444", url: "/tours/?destination=tromso", image: "/media/destinations/tromso_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "Jagged mountain peaks rising directly from Arctic turquoise seas." },
-                { tall: false, name: "Faroe Islands", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/destinations/explore_1.jpg", desc: "Dramatic sea stacks, emerald turf-roof villages, and towering sea cliffs." },
-                { tall: false, name: "Svalbard", badgeDot: "#3B82F6", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/destinations/inari-saariselka_1-Northern-Lights-Snowmobile-Levi-550x358.jpg", desc: "The true High Arctic where glaciers calve into icy fjords under polar skies." },
-                { tall: false, name: "Greenland", badgeDot: "#06B6D4", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Massive ice sheet fjords, Inuit settlements, and midnight sun sailing." }
-            ],
-            [
-                { tall: true, name: "Åland Islands", badgeDot: "#3B82F6", url: "/tours/?destination=turku-archipelago", image: "/media/destinations/turku-archipelago_65535_54407223633_9fc6ebf472_c_800_600_nofilter.jpg", desc: "Autonomous archipelago of 6,700 islands with tranquil sailing waters." },
-                { tall: false, name: "Senja Island", badgeDot: "#EF4444", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/countries/norway_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "Norway's fairy-tale island with rugged coastlines and secret aurora coves." },
-                { tall: false, name: "Bornholm", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/countries/denmark_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "The sunshine Baltic jewel with round churches, white beaches, and gourmet smokehouses." },
-                { tall: false, name: "Westman Islands", badgeDot: "#8B5CF6", url: "{% url 'tours:country_detail' 'iceland' %}", image: "/media/destinations/offer_1.jpg", desc: "Puffin colonies, volcanic craters, and dramatic ocean panoramas." },
-                { tall: false, name: "Vesterålen", badgeDot: "#F59E0B", url: "/tours/?destination=tromso", image: "/media/destinations/explore_3.jpg", desc: "Whale safari capital of Scandinavia with midnight kayaking adventures." }
-            ]
-        ],
-        'northern-europe': [
-            [
-                { tall: true, name: "Norway", badgeDot: "#EF4444", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/countries/norway_Northern-Lights-by-minivan6-2-550x358.jpg", desc: "World-heritage fjords, Geiranger, Flam railway, and arctic expeditions." },
-                { tall: false, name: "Finland", badgeDot: "#3B82F6", url: "{% url 'tours:country_detail' 'finland' %}", image: "/media/countries/finland_15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg", desc: "Pristine nature, tranquil lake retreats, and modern Nordic architecture." },
-                { tall: false, name: "Sweden", badgeDot: "#F59E0B", url: "{% url 'tours:country_detail' 'sweden' %}", image: "/media/countries/sweden_Pyha_Sunrise-550x358.jpg", desc: "Lush southern beech forests, royal palaces, and vibrant culinary scenes." },
-                { tall: false, name: "Denmark", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/countries/denmark_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "Viking heritage, sleek Scandinavian design, and Michelin dining." },
-                { tall: false, name: "Estonia", badgeDot: "#06B6D4", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/helsinki_65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg", desc: "Fairy-tale cobblestone medieval Tallinn just a short ferry across from Helsinki." }
-            ],
-            [
-                { tall: true, name: "Finnish Lapland", badgeDot: "#3B82F6", url: "/tours/?destination=rovaniemi", image: "/media/destinations/rovaniemi_31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg", desc: "The winter wonderland of Santa Claus, snow hotels, and snowshoe expeditions." },
-                { tall: false, name: "Bergen & Fjords", badgeDot: "#EF4444", url: "{% url 'tours:country_detail' 'norway' %}", image: "/media/destinations/oslo_Snowmobiling-Adventure-in-Levi5-550x358.jpg", desc: "Hanseatic wooden wharf, apple blossom fjords, and mountain railways." },
-                { tall: false, name: "Gothenburg", badgeDot: "#F59E0B", url: "{% url 'tours:country_detail' 'sweden' %}", image: "/media/destinations/stockholm_Pyha_Sunrise-550x358.jpg", desc: "West coast seafood haven with granite islands and lively boulevards." },
-                { tall: false, name: "Aarhus", badgeDot: "#10B981", url: "{% url 'tours:country_detail' 'denmark' %}", image: "/media/destinations/copenhagen_1-Snowmobile-Reindeer-Husky-5-550x358.jpg", desc: "Danish cultural capital featuring the iconic rainbow ARoS art pavilion." },
-                { tall: false, name: "Riga & Jurmala", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Baltic Art Nouveau capital alongside pine-fringed golden white beaches." }
-            ]
-        ],
-        'western-europe': [
-            [
-                { tall: true, name: "Scottish Highlands", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Mystic lochs, Isle of Skye, ancient clan castles, and single malt distilleries." },
-                { tall: false, name: "Ireland", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_3.jpg", desc: "Cliffs of Moher, Ring of Kerry, emerald valleys, and authentic pubs." },
-                { tall: false, name: "Amsterdam", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_2.jpg", desc: "Historic canal ring, Van Gogh masterpiece museum, and tulip gardens." },
-                { tall: false, name: "French Alps", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_3.jpg", desc: "Chamonix Mont-Blanc, high alpine glaciers, and luxury chalet retreats." },
-                { tall: false, name: "Bavaria", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_4.jpg", desc: "Neuschwanstein fairytale castle, Bavarian Alps, and historic Munich." }
-            ],
-            [
-                { tall: true, name: "Swiss Alps", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/static/images/hero/Winter-landscape-19-2-scaled.jpg", desc: "Zermatt Matterhorn peaks, Glacier Express train, and crystal mountain lakes." },
-                { tall: false, name: "Bruges & Ghent", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Medieval canals, cobblestone squares, artisan chocolatiers, and gothic belfries." },
-                { tall: false, name: "Salzburg", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_1.jpg", desc: "Mozart's birthplace nestled under alpine fortresses and Austrian music halls." },
-                { tall: false, name: "Cotswolds", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Honey-stone English villages, Roman thermal baths, and manor gardens." },
-                { tall: false, name: "Provence", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_3.jpg", desc: "Lavender fields, hilltop vineyards, Roman aqueducts, and Mediterranean light." }
-            ]
-        ],
-        'eastern-europe': [
-            [
-                { tall: true, name: "Prague & Bohemia", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_2.jpg", desc: "City of a Hundred Spires, Charles Bridge, and majestic Prague Castle." },
-                { tall: false, name: "Krakow & Tatras", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Renaissance Rynek square, Wawel royal castle, and alpine mountain peaks." },
-                { tall: false, name: "Budapest", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_3.jpg", desc: "Grand Parliament on the Danube, Szechenyi thermal baths, and Buda Castle." },
-                { tall: false, name: "Lake Bled", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_4.jpg", desc: "Iconic island church amidst emerald waters backed by Julian Alpine summits." },
-                { tall: false, name: "Transylvania", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Carpathian mountain passes, fortified Saxon churches, and Bran Castle." }
-            ],
-            [
-                { tall: true, name: "Plitvice Lakes", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_3.jpg", desc: "16 cascading turquoise terraced lakes surrounded by ancient beech forest." },
-                { tall: false, name: "Tallinn Old Town", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/helsinki_65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg", desc: "Immaculately preserved Hanseatic ramparts, watchtowers, and hidden courtyards." },
-                { tall: false, name: "High Tatras", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_1.jpg", desc: "Pristine Slovakian alpine crests, glacial tarns, and cable car ascents." },
-                { tall: false, name: "Vilnius & Trakai", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Baroque church spires and the red-brick medieval island castle of Trakai." },
-                { tall: false, name: "Rila & Sofia", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_2.jpg", desc: "Frescoed Eastern Orthodox UNESCO monastery nestled in the Rila mountains." }
-            ]
-        ],
-        'southern-europe': [
-            [
-                { tall: true, name: "Italian Dolomites", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/static/images/citys/dest_rome.jpg", desc: "Spectacular limestone jagged peaks, alpine meadows, and luxury Cortina lodges." },
-                { tall: false, name: "Santorini", badgeDot: "#06B6D4", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_1.jpg", desc: "Whitewashed caldera cliffside villas, blue domes, and golden Aegean sunsets." },
-                { tall: false, name: "Andalusia", badgeDot: "#EF4444", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_2.jpg", desc: "Moorish Alhambra palaces, Seville flamenco plazas, and sun-soaked pueblos." },
-                { tall: false, name: "Dubrovnik", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_3.jpg", desc: "Pearl of the Adriatic encircled by towering stone walls and azure waters." },
-                { tall: false, name: "Algarve Coast", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_4.jpg", desc: "Golden sea arches, Benagil sea caves, and Atlantic cliffside trails." }
-            ],
-            [
-                { tall: true, name: "Amalfi Coast", badgeDot: "#3B82F6", url: "{% url 'tours:destination_list' %}", image: "/static/images/citys/dest_rome.jpg", desc: "Dramatic pastel cliff towns, lemon groves, and yacht-filled Mediterranean bays." },
-                { tall: false, name: "Mallorca", badgeDot: "#F59E0B", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_1.jpg", desc: "Tramuntana mountain drives, secluded pine coves, and Palma cathedral." },
-                { tall: false, name: "Crete & Chania", badgeDot: "#10B981", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_2.jpg", desc: "Venetian harbor lighthouses, pink sand Elafonisi beaches, and olive groves." },
-                { tall: false, name: "Kotor Bay", badgeDot: "#06B6D4", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/explore_3.jpg", desc: "The southern-most fjord of Europe with Venetian fortresses and emerald bays." },
-                { tall: false, name: "Madeira", badgeDot: "#8B5CF6", url: "{% url 'tours:destination_list' %}", image: "/media/destinations/offer_1.jpg", desc: "Subtropical floating garden of the Atlantic with levada walks and sea cliffs." }
-            ]
-        ]
-    };
+    // Completely dynamic catalog populated from Django database models (Country & Destination)
+    var bentoCatalog = {{ bento_catalog_json|safe }};
 
     function renderBentoGrid(category, page, animate) {
-        var pages = bentoCatalog[category] || bentoCatalog['popular'];
-        if (!pages || pages.length === 0) return;
+        var pages = bentoCatalog[category] || [];
+
+        // When NO data exists in backend for this category:
+        if (!pages || pages.length === 0 || (pages.length === 1 && pages[0].length === 0)) {
+            if (bentoNav) bentoNav.style.display = 'none';
+            grid.innerHTML = '<div class="bento-empty-state" style="grid-column: 1 / -1; padding: 3.5rem 1.5rem; text-align: center; background: #FFFFFF; border-radius: 20px; border: 1.5px dashed #CBD5E1; box-shadow: 0 4px 20px rgba(0,0,0,0.03); max-width: 600px; margin: 0 auto; width: 100%;">' +
+                '<div style="width: 56px; height: 56px; margin: 0 auto 1rem auto; background: #EEF2FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4F46E5; font-size: 1.65rem;">' +
+                '    <i class="ph-bold ph-compass"></i>' +
+                '</div>' +
+                '<h3 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.4rem;">No Destinations Currently Available</h3>' +
+                '<p style="font-size: 0.9rem; color: #64748B; max-width: 440px; margin: 0 auto 1.25rem auto; line-height: 1.55;">' +
+                '    There are no active destinations published in this region yet. Explore our curated travel packages or check back soon as we expand our journeys.' +
+                '</p>' +
+                '<a href="/tours/" class="btn-outline-dark" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; font-size: 0.88rem; border-radius: 8px; font-weight: 600; text-decoration: none;">' +
+                '    <i class="ph-bold ph-magnifying-glass"></i> Explore All Packages' +
+                '</a>' +
+            '</div>';
+            return;
+        }
+
+        // Show navigation arrows and dots only if there is more than 1 page
+        if (bentoNav) {
+            bentoNav.style.display = (pages.length > 1) ? 'flex' : 'none';
+        }
 
         if (page >= pages.length) page = 0;
         if (page < 0) page = pages.length - 1;
         currentPage = page;
 
         var items = pages[currentPage];
-        if (!items) return;
+        if (!items || items.length === 0) return;
 
         function applyHTML() {
             var html = '';
@@ -1234,7 +1288,8 @@ function initBentoDestinationCarousel() {
     if (prevBtn) {
         prevBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            var pages = bentoCatalog[currentCategory] || bentoCatalog['popular'];
+            var pages = bentoCatalog[currentCategory] || [];
+            if (!pages || pages.length <= 1) return;
             currentPage = (currentPage - 1 + pages.length) % pages.length;
             renderBentoGrid(currentCategory, currentPage, true);
         });
@@ -1244,7 +1299,8 @@ function initBentoDestinationCarousel() {
     if (nextBtn) {
         nextBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            var pages = bentoCatalog[currentCategory] || bentoCatalog['popular'];
+            var pages = bentoCatalog[currentCategory] || [];
+            if (!pages || pages.length <= 1) return;
             currentPage = (currentPage + 1) % pages.length;
             renderBentoGrid(currentCategory, currentPage, true);
         });
@@ -1263,7 +1319,7 @@ function initBentoDestinationCarousel() {
     }
 
     // Initialize dots for current category
-    var initialPages = bentoCatalog[currentCategory] || bentoCatalog['popular'];
+    var initialPages = bentoCatalog[currentCategory] || [];
     renderDots(initialPages.length, 0);
 }
 

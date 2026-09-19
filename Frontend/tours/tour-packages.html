@@ -33,3 +33,34 @@
     </div>
 </section>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+// Automatically and smoothly scroll up to the top of tour packages when filtering from down the page
+document.addEventListener('htmx:afterSettle', function(evt) {
+    if (evt.detail.target && (evt.detail.target.id === 'packagesLayout' || evt.detail.target.id === 'tourResultsContainer')) {
+        const layout = document.getElementById('packagesLayout') || document.getElementById('tourResultsContainer');
+        if (layout) {
+            const navOffset = 95; // Account for sticky navbar height
+            const targetY = layout.getBoundingClientRect().top + window.pageYOffset - navOffset;
+            
+            // If user is currently scrolled down below the top of the tour results
+            if (window.pageYOffset > targetY + 30) {
+                window.scrollTo({
+                    top: Math.max(0, targetY),
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        // Auto-close mobile filter sidebar on selection
+        const sidebar = document.getElementById('packagesSidebar');
+        if (sidebar && sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+            const toggleBtn = document.getElementById('mobileFilterToggleBtn');
+            if (toggleBtn) toggleBtn.classList.remove('active');
+        }
+    }
+});
+</script>
+{% endblock %}

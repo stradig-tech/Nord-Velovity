@@ -62,11 +62,24 @@ def booking_create_view(request, tour_slug):
         vehicle_type = None
 
         if departure_id:
-            departure = Departure.objects.filter(id=departure_id, tour=tour).first()
-        elif date_id:
+            if str(departure_id).startswith('date_'):
+                date_id = str(departure_id).replace('date_', '')
+                departure_id = None
+            else:
+                departure = Departure.objects.filter(id=departure_id, tour=tour).first()
+
+        if date_id and not departure:
             tour_date = TourDate.objects.filter(id=date_id, tour=tour).first()
             if tour_date:
                 departure = Departure.objects.filter(tour=tour, date=tour_date.start_date).first()
+                if not departure:
+                    default_time = getattr(tour_date, 'start_time', None) or '09:00'
+                    departure = Departure.objects.create(
+                        tour=tour,
+                        date=tour_date.start_date,
+                        time=default_time,
+                        status='OPEN'
+                    )
 
         if vehicle_type_id:
             vehicle_type = VehicleType.objects.filter(id=vehicle_type_id, is_active=True).first()

@@ -22,7 +22,7 @@ class SiteSetting(models.Model):
     # Homepage Hero Section (All optional)
     hero_title = models.CharField(max_length=250, blank=True, default="Discover the Untamed Beauty of the Nordics", help_text="Main heading in homepage hero banner (optional)")
     hero_subtitle = models.TextField(blank=True, default="Curated Arctic expeditions, glass igloo stays, and VIP chauffeur transfers across Finland and Scandinavia.", help_text="Supporting description below hero title (optional)")
-    hero_video_url = models.CharField(max_length=500, blank=True, default="https://www.youtube.com/watch?v=ScMzIvxBSi4", help_text="YouTube video URL or embed link (optional)")
+    hero_video_url = models.CharField(max_length=500, blank=True, default="", help_text="Direct video URL (.mp4) (optional)")
     hero_video_file = models.FileField(upload_to='site/videos/', blank=True, null=True, help_text="Optional: Upload local MP4 background video (bypasses YouTube player entirely)")
     hero_background_image = models.ImageField(upload_to='site/hero/', blank=True, null=True, help_text="Optional: High-resolution hero fallback background image")
     

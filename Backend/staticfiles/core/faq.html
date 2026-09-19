@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Frequently Asked Questions | {{ site_settings.site_name }}{% endblock %}
+
+{% block seo %}
+<meta name="description" content="Find answers to all frequently asked questions about booking Arctic tours, VIP chauffeur transfers, and luxury accommodations in Finland.">
+{% endblock %}
+
+{% block content %}
+<section class="faq-section" style="padding: 5rem 0; background-color: #F8FAFC;">
+    <div class="container" style="max-width: 860px; margin: 0 auto; padding: 0 1rem;">
+        <div style="text-align: center; margin-bottom: 3.5rem;">
+            <span style="color: #4F46E5; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.85rem;">Help & Knowledge Center</span>
+            <h1 style="font-size: 2.75rem; font-weight: 800; color: #0f172a; margin: 0.75rem 0 1rem 0;">Frequently Asked Questions</h1>
+            <p style="color: #64748b; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Everything you need to know about planning, booking, and experiencing your bespoke Nordic journey.</p>
+        </div>
+        
+        <div class="faq-list" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            {% if faqs %}
+                {% for faq in faqs %}
+                <details class="faq-card" style="border: 1px solid #E2E8F0; border-radius: 14px; background: white; padding: 1.5rem; transition: all 0.2s ease; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.02);" {% if forloop.first %}open{% endif %}>
+                    <summary style="font-size: 1.15rem; font-weight: 700; color: #0f172a; list-style: none; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+                        <span><span style="color: #4F46E5; margin-right: 0.5rem;">Q.</span> {{ faq.question }}</span>
+                    </summary>
+                    <div style="color: #475569; font-size: 1rem; line-height: 1.7; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #F1F5F9;">
+                        {{ faq.answer|linebreaks }}
+                    </div>
+                </details>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 3rem; background: white; border-radius: 14px;">
+                    <p style="color: #64748b;">No FAQs published yet. Please contact our support team.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Contact Banner -->
+        <div style="text-align: center; margin-top: 4rem; padding: 3rem 2rem; background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); border-radius: 20px; color: white; box-shadow: 0 10px 25px rgba(30, 27, 75, 0.15);">
+            <i class="ph-bold ph-headset" style="font-size: 2.5rem; color: #818CF8; margin-bottom: 1rem; display: inline-block;"></i>
+            <h3 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; color: white;">Have a Custom Itinerary in Mind?</h3>
+            <p style="color: #C7D2FE; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">Our Nordic travel designers and concierge team are available 7 days a week to curate your dream journey.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{% url 'contact' %}" class="btn btn-primary" style="padding: 0.85rem 2rem; font-weight: 700; border-radius: 10px;">Contact Concierge</a>
+                <a href="tel:{{ site_settings.contact_phone }}" class="btn btn-outline" style="padding: 0.85rem 2rem; font-weight: 700; border-radius: 10px; color: white; border-color: rgba(255,255,255,0.4); text-decoration: none;">Call: {{ site_settings.contact_phone }}</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

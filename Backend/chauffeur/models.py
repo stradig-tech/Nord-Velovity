@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 
 class VehicleClass(models.Model):
@@ -17,10 +18,44 @@ class Vehicle(models.Model):
     name = models.CharField(max_length=100) # e.g. Mercedes S-Class
     passenger_capacity = models.IntegerField()
     luggage_capacity = models.IntegerField()
-    features = models.JSONField(default=dict) # e.g. {"wifi": True, "water": True}
+    features = models.JSONField(default=dict, blank=True, help_text="Features list or JSON (e.g. Wi-Fi, Heated Seats)")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def features_list(self):
+        """Returns features as a clean list of string labels regardless of storage format (dict, list, string)."""
+        if isinstance(self.features, list):
+            return [str(item).strip() for item in self.features if str(item).strip()]
+        if isinstance(self.features, dict):
+            items = []
+            for k, v in self.features.items():
+                if v is True or v == "true" or v == 1:
+                    items.append(k.replace('_', ' ').title())
+                elif v:
+                    items.append(f"{k.replace('_', ' ').title()}: {v}")
+            return items
+        if isinstance(self.features, str):
+            return [f.strip() for f in self.features.replace('\n', ',').split(',') if f.strip()]
+        return []
+
+    def clean(self):
+        super().clean()
+        if isinstance(self.features, str):
+            data = self.features.strip()
+            if not data:
+                self.features = []
+            else:
+                try:
+                    import json
+                    self.features = json.loads(data)
+                except Exception:
+                    self.features = [item.strip() for item in data.replace('\n', ',').split(',') if item.strip()]
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.name} ({self.vehicle_class.name})"
@@ -61,30 +96,88 @@ class VehiclePhoto(models.Model):
         return f"Photo for {target}"
 
 class FixedRoute(models.Model):
-    name = models.CharField(max_length=150) # e.g. Helsinki Airport Transfer
+    """
+    Fixed Price Transfer — predefined fixed-price transfers between any two locations.
+    Supports airports, cities, hotels, resorts, attractions, and custom routes.
+    Airport is one possible transfer type, not a requirement.
+    """
+    name = models.CharField(max_length=200, help_text="e.g. Helsinki Airport → City Center, Levi Resort → Kittilä Airport")
     slug = models.SlugField(unique=True)
-    origin_name = models.CharField(max_length=200)
-    origin_lat = models.DecimalField(max_digits=9, decimal_places=6)
-    origin_lng = models.DecimalField(max_digits=9, decimal_places=6)
-    destination_name = models.CharField(max_length=200)
-    destination_lat = models.DecimalField(max_digits=9, decimal_places=6)
-    destination_lng = models.DecimalField(max_digits=9, decimal_places=6)
-    distance_km = models.DecimalField(max_digits=6, decimal_places=2)
-    estimated_duration_min = models.IntegerField()
-    
+
+    TRANSFER_TYPE_CHOICES = (
+        ('AIRPORT', 'Airport Transfer'),
+        ('CITY', 'City-to-City Transfer'),
+        ('HOTEL', 'Hotel Transfer'),
+        ('RESORT', 'Resort Transfer'),
+        ('ATTRACTION', 'Attraction Transfer'),
+        ('CUSTOM', 'Custom Transfer'),
+    )
+    transfer_type = models.CharField(
+        max_length=20, choices=TRANSFER_TYPE_CHOICES, default='AIRPORT',
+        help_text="Category of this fixed price transfer"
+    )
+
+    # Generic origin/destination (pickup → drop-off)
+    pickup_name = models.CharField(max_length=200, help_text="Pickup location name, e.g. Helsinki-Vantaa Airport, Hotel Kämp, Santa Claus Village")
+    pickup_lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, default=Decimal('0.000000'), help_text="Optional latitude (defaults to 0.0 if not geocoded)")
+    pickup_lng = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, default=Decimal('0.000000'), help_text="Optional longitude (defaults to 0.0 if not geocoded)")
+    dropoff_name = models.CharField(max_length=200, help_text="Drop-off location name")
+    dropoff_lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, default=Decimal('0.000000'), help_text="Optional latitude (defaults to 0.0 if not geocoded)")
+    dropoff_lng = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True, default=Decimal('0.000000'), help_text="Optional longitude (defaults to 0.0 if not geocoded)")
+
+    distance_km = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, default=Decimal('10.00'), help_text="Distance in km (defaults to 10.0 if not calculated)")
+    estimated_duration_min = models.IntegerField(null=True, blank=True, default=20, help_text="Duration in minutes (defaults to 20 if not calculated)")
+
     vehicle_class = models.ForeignKey(VehicleClass, on_delete=models.CASCADE, related_name='fixed_routes')
     fixed_price = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=3, default='EUR')
-    
+    currency = models.CharField(max_length=3, default='EUR', blank=True)
+
+    # Capacity
+    passenger_capacity = models.PositiveIntegerField(default=4, blank=True, help_text="Max passengers for this transfer route")
+    luggage_capacity = models.PositiveIntegerField(default=2, blank=True, help_text="Max luggage pieces for this transfer route")
+
     is_return_available = models.BooleanField(default=False)
     return_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    
+
+    description = models.TextField(blank=True, help_text="Customer-facing description of this transfer route")
+    notes = models.TextField(blank=True, help_text="Internal admin notes")
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['transfer_type', 'name']
+        verbose_name = "Fixed Price Transfer"
+        verbose_name_plural = "Fixed Price Transfers"
+
+    def clean(self):
+        super().clean()
+        if not self.currency:
+            self.currency = 'EUR'
+        if not self.passenger_capacity:
+            self.passenger_capacity = 4
+        if not self.luggage_capacity:
+            self.luggage_capacity = 2
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        if self.pickup_lat is None:
+            self.pickup_lat = Decimal('0.000000')
+        if self.pickup_lng is None:
+            self.pickup_lng = Decimal('0.000000')
+        if self.dropoff_lat is None:
+            self.dropoff_lat = Decimal('0.000000')
+        if self.dropoff_lng is None:
+            self.dropoff_lng = Decimal('0.000000')
+        if self.distance_km is None:
+            self.distance_km = Decimal('10.00')
+        if self.estimated_duration_min is None:
+            self.estimated_duration_min = 20
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.name} - {self.vehicle_class.name}"
+        return f"{self.pickup_name} -> {self.dropoff_name} ({self.vehicle_class.name})"
 
 class Zone(models.Model):
     name = models.CharField(max_length=150) # e.g. Helsinki City Center

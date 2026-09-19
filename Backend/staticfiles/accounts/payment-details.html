@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Details | Nord Velocity{% endblock %}
+
+{% block content %}
+<section class="dashboard">
+    <div class="container user-portal-grid">
+            <!-- Left Sidebar -->
+            {% include 'accounts/customer_sidebar.html' with active_tab='payment' %}
+            <!-- Main Content -->
+            <div class="dashboard-main-content" id="dashboardMainContent">
+                {% include 'accounts/partials/payment_details_partial.html' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

@@ -2,7 +2,11 @@ from django.contrib import admin
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils import timezone
-from .models import Booking, ChauffeurBooking, TourBooking, TourBookingGuest, BookingStatusLog, GuaranteedReattempt
+from .models import (
+    Booking, ChauffeurBooking, TourBooking, TourBookingGuest, BookingStatusLog,
+    GuaranteedReattempt, GuaranteePolicy, GuaranteeOutcome, GuaranteeAuditLog,
+    GuestInfo
+)
 from .services import BookingService
 from tours.models import Departure, DepartureCapacity
 
@@ -98,12 +102,36 @@ class BookingAdmin(admin.ModelAdmin):
         self.message_user(request, f"Created {created_count} Guaranteed Re-attempt record(s).")
 
 
+@admin.register(TourBooking)
+class TourBookingAdmin(admin.ModelAdmin):
+    list_display = ('booking', 'tour', 'departure', 'vehicle_type', 'adults', 'children', 'total_guests')
+    list_filter = ('tour', 'vehicle_type')
+    search_fields = ('booking__booking_ref', 'tour__title')
+    raw_id_fields = ('booking', 'departure', 'departure_capacity', 'tour_date')
+
+
 @admin.register(GuaranteedReattempt)
 class GuaranteedReattemptAdmin(admin.ModelAdmin):
     list_display = ('original_booking', 'reason', 'status_badge', 'original_departure', 'reattempt_departure', 'guests_count', 'created_at')
     list_filter = ('status', 'reason', 'created_at')
     search_fields = ('original_booking__booking_ref',)
+    raw_id_fields = ('original_booking', 'reattempt_booking', 'original_departure', 'reattempt_departure')
     actions = ['reserve_next_departure_seats', 'mark_declined']
+
+    def save_model(self, request, obj, form, change):
+        if not change and not obj.resolved_by:
+            obj.resolved_by = request.user
+        if not obj.original_departure_id and obj.original_booking_id:
+            if hasattr(obj.original_booking, 'tour_booking') and obj.original_booking.tour_booking.departure:
+                obj.original_departure = obj.original_booking.tour_booking.departure
+            elif hasattr(obj.original_booking, 'tour_booking') and obj.original_booking.tour_booking.tour:
+                obj.original_departure = obj.original_booking.tour_booking.tour.departures.first()
+        if not obj.guests_count:
+            if hasattr(obj.original_booking, 'tour_booking') and obj.original_booking.tour_booking.total_guests:
+                obj.guests_count = obj.original_booking.tour_booking.total_guests
+            else:
+                obj.guests_count = 1
+        super().save_model(request, obj, form, change)
 
     def status_badge(self, obj):
         colors = {
@@ -123,10 +151,13 @@ class GuaranteedReattemptAdmin(admin.ModelAdmin):
     @admin.action(description="🔒 Reserve seats on next available departure")
     def reserve_next_departure_seats(self, request, queryset):
         for ra in queryset.filter(status='ELIGIBLE'):
-            tour = ra.original_departure.tour
+            tour = ra.original_departure.tour if ra.original_departure else (ra.original_booking.tour_booking.tour if hasattr(ra.original_booking, 'tour_booking') else None)
+            if not tour:
+                continue
+            date_filter = ra.original_departure.date if ra.original_departure else timezone.now().date()
             next_dep = Departure.objects.filter(
                 tour=tour,
-                date__gt=ra.original_departure.date,
+                date__gt=date_filter,
                 status='OPEN'
             ).order_by('date', 'time').first()
 
@@ -156,4 +187,132 @@ class GuaranteedReattemptAdmin(admin.ModelAdmin):
 class TourBookingGuestAdmin(admin.ModelAdmin):
     list_display = ('tour_booking', 'full_name', 'guest_type')
     search_fields = ('full_name',)
+
+
+@admin.register(GuestInfo)
+class GuestInfoAdmin(admin.ModelAdmin):
+    list_display = ('tour_booking', 'full_name', 'guest_type', 'date_of_birth')
+    search_fields = ('full_name', 'passport_number')
+
+
+# =============================================================================
+# GUARANTEE SYSTEM ADMIN
+# =============================================================================
+
+@admin.register(GuaranteePolicy)
+class GuaranteePolicyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'guarantee_type_badge', 'max_reattempts', 'refund_eligible', 'refund_percentage', 'is_active')
+    list_filter = ('guarantee_type', 'refund_eligible', 'is_active')
+    search_fields = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
+    list_editable = ('is_active',)
+
+    fieldsets = (
+        (None, {'fields': ('name', 'slug', 'guarantee_type', 'is_active')}),
+        ('Re-attempt Rules', {
+            'fields': ('max_reattempts', 'reattempt_window_days'),
+            'description': 'Configure how many re-attempts are allowed and within what timeframe.'
+        }),
+        ('Refund Rules', {
+            'fields': ('refund_eligible', 'refund_percentage', 'refund_review_required'),
+            'description': 'Configure refund eligibility and approval workflow.'
+        }),
+        ('Customer-Facing Information', {
+            'fields': ('description', 'terms_and_conditions'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    def guarantee_type_badge(self, obj):
+        colors = {
+            'REATTEMPT_ONLY': ('#DBEAFE', '#2563EB'),
+            'REFUND_ONLY': ('#FEE2E2', '#DC2626'),
+            'REATTEMPT_THEN_REFUND': ('#D1FAE5', '#059669'),
+        }
+        bg, fg = colors.get(obj.guarantee_type, ('#F1F5F9', '#475569'))
+        return mark_safe(f'<span style="background:{bg}; color:{fg}; padding:3px 8px; border-radius:4px; font-weight:600; font-size:0.8rem;">{obj.get_guarantee_type_display()}</span>')
+    guarantee_type_badge.short_description = "Type"
+
+
+class GuaranteeAuditLogInline(admin.TabularInline):
+    model = GuaranteeAuditLog
+    extra = 0
+    readonly_fields = ('action', 'old_status', 'new_status', 'performed_by', 'reason', 'metadata', 'timestamp')
+    ordering = ['-timestamp']
+
+    def has_add_permission(self, request, obj=None):
+        return False  # Audit logs are immutable — only created programmatically
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(GuaranteeOutcome)
+class GuaranteeOutcomeAdmin(admin.ModelAdmin):
+    list_display = ('booking', 'tour', 'aurora_result_badge', 'status_badge', 'policy', 'reattempt_count', 'refund_status', 'created_at')
+    list_filter = ('status', 'aurora_result', 'refund_status', 'policy', 'created_at')
+    search_fields = ('booking__booking_ref', 'tour__title')
+    inlines = [GuaranteeAuditLogInline]
+    readonly_fields = ('created_at', 'updated_at')
+
+    fieldsets = (
+        ('Booking & Tour', {'fields': ('booking', 'tour', 'policy', 'departure', 'guests_count')}),
+        ('Experience Result', {
+            'fields': ('aurora_result', 'unsuccessful_reason', 'result_notes', 'result_recorded_at', 'result_recorded_by')
+        }),
+        ('Re-attempt Tracking', {
+            'fields': ('reattempt_count', 'reattempt_departure', 'reattempt_booking')
+        }),
+        ('Refund Tracking', {
+            'fields': ('refund_eligible', 'refund_status', 'refund_amount', 'refund', 'refund_reason')
+        }),
+        ('Lifecycle Status', {
+            'fields': ('status', 'resolved_by', 'resolved_at', 'admin_notes')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',),
+        }),
+    )
+
+    def aurora_result_badge(self, obj):
+        colors = {
+            'PENDING': ('#FEF3C7', '#D97706'),
+            'SUCCESSFUL': ('#D1FAE5', '#059669'),
+            'UNSUCCESSFUL': ('#FEE2E2', '#DC2626'),
+        }
+        bg, fg = colors.get(obj.aurora_result, ('#F1F5F9', '#475569'))
+        return mark_safe(f'<span style="background:{bg}; color:{fg}; padding:3px 8px; border-radius:4px; font-weight:600; font-size:0.8rem;">{obj.get_aurora_result_display()}</span>')
+    aurora_result_badge.short_description = "Result"
+
+    def status_badge(self, obj):
+        color_map = {
+            'TOUR_COMPLETED': '#D97706', 'AURORA_SUCCESSFUL': '#059669',
+            'AURORA_UNSUCCESSFUL': '#DC2626', 'REATTEMPT_ELIGIBLE': '#2563EB',
+            'REATTEMPT_SCHEDULED': '#7C3AED', 'REATTEMPT_COMPLETED': '#059669',
+            'REFUND_REVIEW': '#D97706', 'REFUND_APPROVED': '#2563EB',
+            'REFUND_PROCESSING': '#7C3AED', 'REFUNDED': '#059669',
+            'DECLINED': '#6B7280', 'CLOSED': '#475569',
+        }
+        color = color_map.get(obj.status, '#6B7280')
+        return mark_safe(
+            f'<span style="background:{color}15; color:{color}; border:1px solid {color}40; '
+            f'padding:2px 8px; border-radius:4px; font-weight:600; font-size:0.75rem;">'
+            f'{obj.get_status_display()}</span>'
+        )
+    status_badge.short_description = "Status"
+
+
+@admin.register(GuaranteeAuditLog)
+class GuaranteeAuditLogAdmin(admin.ModelAdmin):
+    list_display = ('timestamp', 'outcome', 'action', 'old_status', 'new_status', 'performed_by')
+    list_filter = ('action', 'timestamp')
+    search_fields = ('outcome__booking__booking_ref', 'reason')
+    readonly_fields = ('outcome', 'action', 'old_status', 'new_status', 'performed_by', 'reason', 'metadata', 'timestamp')
+
+    def has_add_permission(self, request):
+        return False  # Audit logs are immutable
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 

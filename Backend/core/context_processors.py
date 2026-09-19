@@ -40,6 +40,7 @@ def site_settings(request):
 
     promos_qs = MegaMenuPromo.objects.filter(is_active=True)
     nav_promos = {promo.menu_type: promo for promo in promos_qs}
+    default_nav_promo = nav_promos.get('TOUR') or nav_promos.get('DESTINATION')
 
     # Dynamic Global Frontend Blocks
     home_offers = HomeOfferCard.objects.filter(is_active=True).order_by('sort_order', 'id')[:4]
@@ -159,6 +160,7 @@ def site_settings(request):
         'nav_experiences': nav_experiences,
         'nav_company_items': nav_company_items,
         'nav_promos': nav_promos,
+        'default_nav_promo': default_nav_promo,
         'home_offers': home_offers,
         'partner_logos': partner_logos,
         'value_props': value_props,

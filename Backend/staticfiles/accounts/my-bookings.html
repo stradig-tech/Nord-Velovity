@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Bookings | Nord Velocity{% endblock %}
+
+{% block content %}
+<section class="dashboard">
+    <div class="container user-portal-grid">
+        <!-- Left Sidebar -->
+        {% include 'accounts/customer_sidebar.html' with active_tab='bookings' %}
+            
+            <!-- Main Content -->
+            <div class="dashboard-main-content" id="dashboardMainContent">
+                {% include 'accounts/partials/my_bookings_partial.html' %}
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

@@ -1,0 +1,264 @@
+{% extends 'admin/admin-base.html' %}
+{% load static %}
+
+{% block title %}Reservations Management | Nord Velocity Portal{% endblock %}
+
+{% block admin_content %}
+
+
+        <!-- Dashboard Content -->
+        <div class="admin-content-inner">            
+            <div class="admin-page-header">
+                <h2>Bookings</h2>
+                <button class="btn btn-purple" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;"><i class="ph-bold ph-plus"></i> Add New Package</button>
+            </div>
+            
+            <!-- Top Metrics Row -->
+            <div class="admin-bookings-metrics" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                
+                <!-- Booked Packages -->
+                <div class="admin-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <p style="font-size: 0.85rem; color: #64748b; margin: 0 0 0.25rem 0;">New Booked Packages</p>
+                            <h2 style="font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0;">54</h2>
+                        </div>
+                        <div style="width: 40px; height: 40px; background: #eef2ff; color: #4f46e5; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.25rem;">
+                            <i class="ph-fill ph-suitcase"></i>
+                        </div>
+                    </div>
+                    <div style="height: 2px; width: 100%; background: linear-gradient(90deg, #4f46e5 0%, #e2e8f0 100%);"></div>
+                    <p style="font-size: 0.75rem; color: #64748b; margin: 0;"><strong style="color: #4f46e5;">16 new packages booked</strong> today</p>
+                </div>
+                
+                <!-- Cancelled Packages -->
+                <div class="admin-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <p style="font-size: 0.85rem; color: #64748b; margin: 0 0 0.25rem 0;">Cancelled Packages</p>
+                            <h2 style="font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0;">12</h2>
+                        </div>
+                        <div style="width: 40px; height: 40px; background: #fee2e2; color: #ef4444; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.25rem;">
+                            <i class="ph-fill ph-x-circle"></i>
+                        </div>
+                    </div>
+                    <div style="height: 2px; width: 100%; background: linear-gradient(90deg, #ef4444 0%, #e2e8f0 100%);"></div>
+                    <p style="font-size: 0.75rem; color: #64748b; margin: 0;"><strong style="color: #ef4444;">2 canceled packages</strong> today</p>
+                </div>
+                
+                <!-- Departures -->
+                <div class="admin-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <p style="font-size: 0.85rem; color: #64748b; margin: 0 0 0.25rem 0;">Departures</p>
+                            <h2 style="font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0;">20</h2>
+                        </div>
+                        <div style="width: 40px; height: 40px; background: #ecfdf5; color: #10b981; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.25rem;">
+                            <i class="ph-fill ph-sign-out"></i>
+                        </div>
+                    </div>
+                    <div style="height: 2px; width: 100%; background: linear-gradient(90deg, #10b981 0%, #e2e8f0 100%);"></div>
+                    <p style="font-size: 0.75rem; color: #64748b; margin: 0;"><strong style="color: #10b981;">45 reservation</strong> upcoming</p>
+                </div>
+                
+                <!-- Returns -->
+                <div class="admin-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <p style="font-size: 0.85rem; color: #64748b; margin: 0 0 0.25rem 0;">Returns</p>
+                            <h2 style="font-size: 2.2rem; font-weight: 800; color: #0f172a; margin: 0;">28</h2>
+                        </div>
+                        <div style="width: 40px; height: 40px; background: #ffedd5; color: #f97316; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.25rem;">
+                            <i class="ph-fill ph-sign-in"></i>
+                        </div>
+                    </div>
+                    <div style="height: 2px; width: 100%; background: linear-gradient(90deg, #f97316 0%, #e2e8f0 100%);"></div>
+                    <p style="font-size: 0.75rem; color: #64748b; margin: 0;"><strong style="color: #f97316;">30 reservation</strong> returning</p>
+                </div>
+                
+            </div>
+            
+            <!-- Filters Row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div class="review-tabs">
+                    <button class="review-tab active" style="border: 1px solid #e2e8f0;">All Status</button>
+                    <button class="review-tab" style="border: 1px solid transparent;">Available</button>
+                    <button class="review-tab" style="border: 1px solid transparent;">Sold Out</button>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="admin-search" style="background: white;">
+                        <input type="text" placeholder="Search">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                    </div>
+                    <div style="display: flex; background: #e2e8f0; border-radius: 6px; padding: 2px;">
+                        <button style="background: #0f172a; color: white; border: none; width: 36px; height: 36px; border-radius: 4px; display: flex; justify-content: center; align-items: center; cursor: pointer;"><i class="ph-fill ph-squares-four"></i></button>
+                        <button style="background: transparent; color: #64748b; border: none; width: 36px; height: 36px; border-radius: 4px; display: flex; justify-content: center; align-items: center; cursor: pointer;"><i class="ph-bold ph-list"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Package Grid -->
+            <div class="admin-bookings-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
+                
+                <!-- Card 1 -->
+                <div class="admin-package-item">
+                    <div class="package-img">
+                        <img src="/static/images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg" alt="Lapland">
+                        <div class="pkg-rating"><i class="ph-fill ph-star"></i> 4.5</div>
+                        <button class="pkg-menu"><i class="ph-bold ph-dots-three-vertical"></i></button>
+                    </div>
+                    <div class="package-info">
+                        <h4>Lapland Northern Lights</h4>
+                        <div class="pkg-meta">
+                            <span><i class="ph-fill ph-map-pin"></i> Rovaniemi, Finland</span>
+                            <span><i class="ph-fill ph-airplane-tilt"></i> Flight & Snowmobile</span>
+                        </div>
+                        <div class="pkg-price"><strong>$1586</strong> /per package</div>
+                        <button class="btn btn-purple-light" style="width: 100%; display: block; margin-top: 1rem; text-align: center;">View detail</button>
+                    </div>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="admin-package-item">
+                    <div class="package-img">
+                        <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="Helsinki">
+                        <div class="pkg-rating"><i class="ph-fill ph-star"></i> 4.0</div>
+                        <button class="pkg-menu"><i class="ph-bold ph-dots-three-vertical"></i></button>
+                    </div>
+                    <div class="package-info">
+                        <h4>Helsinki City Tour</h4>
+                        <div class="pkg-meta">
+                            <span><i class="ph-fill ph-map-pin"></i> Helsinki, Finland</span>
+                            <span><i class="ph-fill ph-bus"></i> Luxury Bus</span>
+                        </div>
+                        <div class="pkg-price"><strong>$1025</strong> /per package</div>
+                        <button class="btn btn-purple-light" style="width: 100%; display: block; margin-top: 1rem; text-align: center;">View detail</button>
+                    </div>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="admin-package-item">
+                    <div class="package-img">
+                        <img src="/static/images/packages/7111_13901216855_cca37b8607_b_800_600_nofilter.jpg" alt="Lakeland">
+                        <div class="pkg-rating"><i class="ph-fill ph-star"></i> 4.2</div>
+                        <button class="pkg-menu"><i class="ph-bold ph-dots-three-vertical"></i></button>
+                    </div>
+                    <div class="package-info">
+                        <h4>Lakeland Summer Retreat</h4>
+                        <div class="pkg-meta">
+                            <span><i class="ph-fill ph-map-pin"></i> Lakeland, Finland</span>
+                            <span><i class="ph-fill ph-train"></i> Express Train</span>
+                        </div>
+                        <div class="pkg-price"><strong>$958</strong> /per package</div>
+                        <button class="btn btn-purple-light" style="width: 100%; display: block; margin-top: 1rem; text-align: center;">View detail</button>
+                    </div>
+                </div>
+                
+                <!-- Card 4 -->
+                <div class="admin-package-item">
+                    <div class="package-img">
+                        <img src="/static/images/packages/65535_54407223633_9fc6ebf472_c_800_600_nofilter.jpg" alt="Archipelago">
+                        <div class="pkg-rating"><i class="ph-fill ph-star"></i> 4.0</div>
+                        <button class="pkg-menu"><i class="ph-bold ph-dots-three-vertical"></i></button>
+                    </div>
+                    <div class="package-info">
+                        <h4>Archipelago Island Hopping</h4>
+                        <div class="pkg-meta">
+                            <span><i class="ph-fill ph-map-pin"></i> Turku, Finland</span>
+                            <span><i class="ph-fill ph-boat"></i> Private Ferry</span>
+                        </div>
+                        <div class="pkg-price"><strong>$1005</strong> /per package</div>
+                        <button class="btn btn-purple-light" style="width: 100%; display: block; margin-top: 1rem; text-align: center;">View detail</button>
+                    </div>
+                </div>
+                
+                <!-- Card 5 -->
+                <div class="admin-package-item">
+                    <div class="package-img">
+                        <img src="/static/images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg" alt="Lapland">
+                        <div class="pkg-rating"><i class="ph-fill ph-star"></i> 4.8</div>
+                        <button class="pkg-menu"><i class="ph-bold ph-dots-three-vertical"></i></button>
+                    </div>
+                    <div class="package-info">
+                        <h4>Premium Aurora Safari</h4>
+                        <div class="pkg-meta">
+                            <span><i class="ph-fill ph-map-pin"></i> Ivalo, Finland</span>
+                            <span><i class="ph-fill ph-airplane-tilt"></i> Flight & Husky</span>
+                        </div>
+                        <div class="pkg-price"><strong>$2150</strong> /per package</div>
+                        <button class="btn btn-purple-light" style="width: 100%; display: block; margin-top: 1rem; text-align: center;">View detail</button>
+                    </div>
+                </div>
+                
+                <!-- Card 6 -->
+                <div class="admin-package-item">
+                    <div class="package-img">
+                        <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="Helsinki">
+                        <div class="pkg-rating"><i class="ph-fill ph-star"></i> 4.6</div>
+                        <button class="pkg-menu"><i class="ph-bold ph-dots-three-vertical"></i></button>
+                    </div>
+                    <div class="package-info">
+                        <h4>Helsinki Art & Design</h4>
+                        <div class="pkg-meta">
+                            <span><i class="ph-fill ph-map-pin"></i> Helsinki, Finland</span>
+                            <span><i class="ph-fill ph-bus"></i> Luxury Bus</span>
+                        </div>
+                        <div class="pkg-price"><strong>$847</strong> /per package</div>
+                        <button class="btn btn-purple-light" style="width: 100%; display: block; margin-top: 1rem; text-align: center;">View detail</button>
+                    </div>
+                </div>
+                
+                <!-- Card 7 -->
+                <div class="admin-package-item">
+                    <div class="package-img">
+                        <img src="/static/images/packages/7111_13901216855_cca37b8607_b_800_600_nofilter.jpg" alt="Lakeland">
+                        <div class="pkg-rating"><i class="ph-fill ph-star"></i> 3.9</div>
+                        <button class="pkg-menu"><i class="ph-bold ph-dots-three-vertical"></i></button>
+                    </div>
+                    <div class="package-info">
+                        <h4>Koli National Park Hike</h4>
+                        <div class="pkg-meta">
+                            <span><i class="ph-fill ph-map-pin"></i> Joensuu, Finland</span>
+                            <span><i class="ph-fill ph-train"></i> Train & Minivan</span>
+                        </div>
+                        <div class="pkg-price"><strong>$995</strong> /per package</div>
+                        <button class="btn btn-purple-light" style="width: 100%; display: block; margin-top: 1rem; text-align: center;">View detail</button>
+                    </div>
+                </div>
+                
+                <!-- Card 8 -->
+                <div class="admin-package-item">
+                    <div class="package-img">
+                        <img src="/static/images/packages/65535_54407223633_9fc6ebf472_c_800_600_nofilter.jpg" alt="Archipelago">
+                        <div class="pkg-rating"><i class="ph-fill ph-star"></i> 4.9</div>
+                        <button class="pkg-menu"><i class="ph-bold ph-dots-three-vertical"></i></button>
+                    </div>
+                    <div class="package-info">
+                        <h4>Aland Islands Bike Tour</h4>
+                        <div class="pkg-meta">
+                            <span><i class="ph-fill ph-map-pin"></i> Mariehamn, Finland</span>
+                            <span><i class="ph-fill ph-boat"></i> Ferry & Bicycle</span>
+                        </div>
+                        <div class="pkg-price"><strong>$1650</strong> /per package</div>
+                        <button class="btn btn-purple-light" style="width: 100%; display: block; margin-top: 1rem; text-align: center;">View detail</button>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Footer Pagination -->
+            <div style="padding-top: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; color: #64748b;">Showing 1 to 8 of 20 entries</span>
+                
+                <div style="display: flex; gap: 0.25rem;">
+                    <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #94a3b8; cursor: pointer;">Prev</button>
+                    <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 4px;">1</button>
+                    <button style="background: #4f46e5; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: white; cursor: pointer; border-radius: 4px; font-weight: 600;">2</button>
+                    <span style="padding: 0.4rem 0.25rem; font-size: 0.8rem; color: #94a3b8;">..</span>
+                    <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 4px;">15</button>
+                    <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #0f172a; cursor: pointer; font-weight: 600;">Next</button>
+                </div>
+            </div>
+        </div>
+    
+{% endblock %}

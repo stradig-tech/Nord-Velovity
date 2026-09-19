@@ -17,6 +17,21 @@ import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Detect Frontend directory dynamically (case-insensitive & local/cPanel safe)
+FRONTEND_DIR = None
+for candidate in [
+    BASE_DIR / 'frontend',
+    BASE_DIR / 'Frontend',
+    BASE_DIR.parent / 'frontend',
+    BASE_DIR.parent / 'Frontend',
+]:
+    if candidate.exists():
+        FRONTEND_DIR = candidate
+        break
+
+if not FRONTEND_DIR:
+    FRONTEND_DIR = BASE_DIR / 'frontend'
+
 # Initialize environ
 env = environ.Env(
     DEBUG=(bool, False)
@@ -31,7 +46,22 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['*'] if DEBUG else ['yourproductiondomain.com']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
+    'dev-nordvelocity.stradigtech.com',
+    'dev.nordvelocity.stradigtech.com',
+    'localhost',
+    '127.0.0.1',
+    '*',
+])
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://dev-nordvelocity.stradigtech.com',
+    'http://dev-nordvelocity.stradigtech.com',
+    'https://dev.nordvelocity.stradigtech.com',
+    'http://dev.nordvelocity.stradigtech.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.CustomUser'
@@ -66,6 +96,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,7 +110,7 @@ ROOT_URLCONF = 'nordvelocity.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR.parent / 'Frontend'],
+        'DIRS': [FRONTEND_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -102,6 +133,11 @@ WSGI_APPLICATION = 'nordvelocity.wsgi.application'
 DATABASES = {
     'default': env.db('DATABASE_URL')
 }
+
+if 'mysql' in DATABASES['default'].get('ENGINE', ''):
+    DATABASES['default'].setdefault('OPTIONS', {})
+    DATABASES['default']['OPTIONS']['charset'] = 'utf8mb4'
+    DATABASES['default']['OPTIONS']['init_command'] = "SET sql_mode='STRICT_TRANS_TABLES', names='utf8mb4'"
 
 
 # Password validation
@@ -141,8 +177,18 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [ FRONTEND_DIR, ]
 
-STATICFILES_DIRS = [ BASE_DIR.parent / 'Frontend',]
+# Use WhiteNoise to serve static files reliably in production
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 
 MEDIA_URL = '/media/'

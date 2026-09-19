@@ -15,6 +15,7 @@ class CustomUser(AbstractUser):
     mfa_enabled = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
+    EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):

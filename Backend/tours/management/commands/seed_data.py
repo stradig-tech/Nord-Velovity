@@ -241,25 +241,25 @@ class Command(BaseCommand):
         PricingRule.objects.get_or_create(vehicle_class=vip_class, is_active=True, valid_from=now, defaults={'base_fare': Decimal('50.00'), 'per_km_rate': Decimal('5.00'), 'per_minute_rate': Decimal('1.00'), 'minimum_fare': Decimal('80.00'), 'hourly_rate': Decimal('150.00')})
         PricingRule.objects.get_or_create(vehicle_class=van_class, is_active=True, valid_from=now, defaults={'base_fare': Decimal('20.00'), 'per_km_rate': Decimal('3.00'), 'per_minute_rate': Decimal('0.60'), 'minimum_fare': Decimal('35.00'), 'hourly_rate': Decimal('80.00')})
 
-        self.stdout.write('  → Fixed Routes...')
+        self.stdout.write('  → Fixed Price Transfers...')
         FixedRoute.objects.get_or_create(slug='helsinki-airport-business', defaults={
-            'name': 'Helsinki Airport Transfer', 'vehicle_class': business,
-            'origin_name': 'Helsinki City Centre', 'origin_lat': Decimal('60.169856'), 'origin_lng': Decimal('24.938379'),
-            'destination_name': 'Helsinki-Vantaa Airport', 'destination_lat': Decimal('60.317222'), 'destination_lng': Decimal('24.963333'),
+            'name': 'Helsinki Airport Transfer', 'vehicle_class': business, 'transfer_type': 'AIRPORT',
+            'pickup_name': 'Helsinki City Centre', 'pickup_lat': Decimal('60.169856'), 'pickup_lng': Decimal('24.938379'),
+            'dropoff_name': 'Helsinki-Vantaa Airport', 'dropoff_lat': Decimal('60.317222'), 'dropoff_lng': Decimal('24.963333'),
             'distance_km': Decimal('22.50'), 'estimated_duration_min': 30, 'fixed_price': Decimal('55.00'),
             'is_return_available': True, 'return_price': Decimal('50.00')
         })
         FixedRoute.objects.get_or_create(slug='helsinki-airport-first', defaults={
-            'name': 'Helsinki Airport Transfer', 'vehicle_class': first_class,
-            'origin_name': 'Helsinki City Centre', 'origin_lat': Decimal('60.169856'), 'origin_lng': Decimal('24.938379'),
-            'destination_name': 'Helsinki-Vantaa Airport', 'destination_lat': Decimal('60.317222'), 'destination_lng': Decimal('24.963333'),
+            'name': 'Helsinki Airport Transfer', 'vehicle_class': first_class, 'transfer_type': 'AIRPORT',
+            'pickup_name': 'Helsinki City Centre', 'pickup_lat': Decimal('60.169856'), 'pickup_lng': Decimal('24.938379'),
+            'dropoff_name': 'Helsinki-Vantaa Airport', 'dropoff_lat': Decimal('60.317222'), 'dropoff_lng': Decimal('24.963333'),
             'distance_km': Decimal('22.50'), 'estimated_duration_min': 30, 'fixed_price': Decimal('85.00'),
             'is_return_available': True, 'return_price': Decimal('80.00')
         })
         FixedRoute.objects.get_or_create(slug='helsinki-airport-vip', defaults={
-            'name': 'Helsinki Airport Transfer', 'vehicle_class': vip_class,
-            'origin_name': 'Helsinki City Centre', 'origin_lat': Decimal('60.169856'), 'origin_lng': Decimal('24.938379'),
-            'destination_name': 'Helsinki-Vantaa Airport', 'destination_lat': Decimal('60.317222'), 'destination_lng': Decimal('24.963333'),
+            'name': 'Helsinki Airport Transfer', 'vehicle_class': vip_class, 'transfer_type': 'AIRPORT',
+            'pickup_name': 'Helsinki City Centre', 'pickup_lat': Decimal('60.169856'), 'pickup_lng': Decimal('24.938379'),
+            'dropoff_name': 'Helsinki-Vantaa Airport', 'dropoff_lat': Decimal('60.317222'), 'dropoff_lng': Decimal('24.963333'),
             'distance_km': Decimal('22.50'), 'estimated_duration_min': 30, 'fixed_price': Decimal('150.00'),
             'is_return_available': True, 'return_price': Decimal('140.00')
         })

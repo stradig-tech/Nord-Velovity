@@ -1,3 +1,5 @@
+import json
+from django import forms
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from .models import (
@@ -72,8 +74,80 @@ class VehicleClassAdmin(admin.ModelAdmin):
     vehicles_count.short_description = "Fleet Size"
 
 
+class VehicleAdminForm(forms.ModelForm):
+    features = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'rows': 3,
+            'placeholder': 'Wi-Fi, Heated Seats, Bottled Water, Panoramic Sunroof (or valid JSON)',
+            'style': 'width: 100%; max-width: 680px; font-family: inherit; font-size: 0.9rem; padding: 0.5rem 0.75rem; border: 1px solid #CBD5E1; border-radius: 6px;',
+            'id': 'id_features',
+        }),
+        help_text=mark_safe(
+            "<div style='margin-top: 6px; line-height: 1.6;'>"
+            "<span style='color: #64748B; font-size: 0.85rem;'>Enter features as comma-separated tags (e.g. <em>Wi-Fi, Heated Seats, Bottled Water</em>), one per line, or JSON.</span><br>"
+            "<div style='margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;'>"
+            "<strong style='font-size: 0.8rem; color: #334155;'>Quick Add:</strong> "
+            "<button type='button' onclick='addVehicleFeatureTag(\"Wi-Fi\")' style='padding: 3px 10px; font-size: 0.78rem; font-weight: 600; border: 1px solid #CBD5E1; border-radius: 14px; background: #F1F5F9; color: #1E293B; cursor: pointer; transition: all 0.15s;'>+ Wi-Fi</button>"
+            "<button type='button' onclick='addVehicleFeatureTag(\"Heated Seats\")' style='padding: 3px 10px; font-size: 0.78rem; font-weight: 600; border: 1px solid #CBD5E1; border-radius: 14px; background: #F1F5F9; color: #1E293B; cursor: pointer; transition: all 0.15s;'>+ Heated Seats</button>"
+            "<button type='button' onclick='addVehicleFeatureTag(\"Bottled Water\")' style='padding: 3px 10px; font-size: 0.78rem; font-weight: 600; border: 1px solid #CBD5E1; border-radius: 14px; background: #F1F5F9; color: #1E293B; cursor: pointer; transition: all 0.15s;'>+ Bottled Water</button>"
+            "<button type='button' onclick='addVehicleFeatureTag(\"Mobile Chargers\")' style='padding: 3px 10px; font-size: 0.78rem; font-weight: 600; border: 1px solid #CBD5E1; border-radius: 14px; background: #F1F5F9; color: #1E293B; cursor: pointer; transition: all 0.15s;'>+ Mobile Chargers</button>"
+            "<button type='button' onclick='addVehicleFeatureTag(\"Leather Interior\")' style='padding: 3px 10px; font-size: 0.78rem; font-weight: 600; border: 1px solid #CBD5E1; border-radius: 14px; background: #F1F5F9; color: #1E293B; cursor: pointer; transition: all 0.15s;'>+ Leather Interior</button>"
+            "<button type='button' onclick='addVehicleFeatureTag(\"Privacy Partition\")' style='padding: 3px 10px; font-size: 0.78rem; font-weight: 600; border: 1px solid #CBD5E1; border-radius: 14px; background: #F1F5F9; color: #1E293B; cursor: pointer; transition: all 0.15s;'>+ Privacy Partition</button>"
+            "<button type='button' onclick='addVehicleFeatureTag(\"Panoramic Sunroof\")' style='padding: 3px 10px; font-size: 0.78rem; font-weight: 600; border: 1px solid #CBD5E1; border-radius: 14px; background: #F1F5F9; color: #1E293B; cursor: pointer; transition: all 0.15s;'>+ Panoramic Sunroof</button>"
+            "<button type='button' onclick='addVehicleFeatureTag(\"Champagne Service\")' style='padding: 3px 10px; font-size: 0.78rem; font-weight: 600; border: 1px solid #CBD5E1; border-radius: 14px; background: #F1F5F9; color: #1E293B; cursor: pointer; transition: all 0.15s;'>+ Champagne Service</button>"
+            "</div>"
+            "<script>"
+            "function addVehicleFeatureTag(tag) {"
+            "    var el = document.getElementById('id_features');"
+            "    if (!el) return;"
+            "    var val = el.value.trim();"
+            "    if (!val) { el.value = tag; return; }"
+            "    var items = val.split(',').map(function(s){ return s.trim().toLowerCase(); });"
+            "    if (items.indexOf(tag.toLowerCase()) === -1) {"
+            "        el.value = val + (val.endsWith(',') ? ' ' : ', ') + tag;"
+            "    }"
+            "}"
+            "</script>"
+            "</div>"
+        )
+    )
+
+    class Meta:
+        model = Vehicle
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk and self.instance.features:
+            feats = self.instance.features
+            if isinstance(feats, list):
+                self.initial['features'] = ', '.join(str(x) for x in feats)
+            elif isinstance(feats, dict):
+                is_simple_bool = all(isinstance(v, bool) for v in feats.values())
+                if is_simple_bool:
+                    self.initial['features'] = ', '.join(k.replace('_', ' ').title() for k, v in feats.items() if v)
+                else:
+                    self.initial['features'] = json.dumps(feats, indent=2)
+
+    def clean_features(self):
+        val = self.cleaned_data.get('features', '')
+        if not val:
+            return []
+        val_str = str(val).strip()
+        if not val_str:
+            return []
+        try:
+            parsed = json.loads(val_str)
+            return parsed
+        except (ValueError, TypeError, json.JSONDecodeError):
+            items = [item.strip() for item in val_str.replace('\n', ',').split(',') if item.strip()]
+            return items
+
+
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
+    form = VehicleAdminForm
     list_display = ('name', 'vehicle_thumbnail', 'vehicle_class', 'passenger_capacity', 'is_active')
     list_filter = ('vehicle_class', 'is_active')
     search_fields = ('name',)
@@ -165,9 +239,33 @@ class PricingRuleAdmin(admin.ModelAdmin):
 
 @admin.register(FixedRoute)
 class FixedRouteAdmin(admin.ModelAdmin):
-    list_display = ('name', 'vehicle_class', 'fixed_price', 'is_active')
+    list_display = ('name', 'transfer_type_badge', 'pickup_name', 'dropoff_name', 'vehicle_class', 'fixed_price', 'passenger_capacity', 'is_active')
     prepopulated_fields = {'slug': ('name',)}
-    list_filter = ('is_active', 'vehicle_class')
+    list_filter = ('is_active', 'transfer_type', 'vehicle_class')
+    search_fields = ('name', 'pickup_name', 'dropoff_name')
+    list_editable = ('is_active',)
+
+    fieldsets = (
+        (None, {'fields': ('name', 'slug', 'transfer_type', 'description')}),
+        ('Pickup Location', {'fields': ('pickup_name', 'pickup_lat', 'pickup_lng')}),
+        ('Drop-off Location', {'fields': ('dropoff_name', 'dropoff_lat', 'dropoff_lng')}),
+        ('Route Details', {'fields': ('distance_km', 'estimated_duration_min', 'passenger_capacity', 'luggage_capacity')}),
+        ('Pricing', {'fields': ('vehicle_class', 'fixed_price', 'currency', 'is_return_available', 'return_price')}),
+        ('Status & Notes', {'fields': ('is_active', 'notes')}),
+    )
+
+    def transfer_type_badge(self, obj):
+        colors = {
+            'AIRPORT': ('#DBEAFE', '#2563EB'),
+            'CITY': ('#FEF3C7', '#D97706'),
+            'HOTEL': ('#E0E7FF', '#4F46E5'),
+            'RESORT': ('#D1FAE5', '#059669'),
+            'ATTRACTION': ('#FCE7F3', '#DB2777'),
+            'CUSTOM': ('#F1F5F9', '#475569'),
+        }
+        bg, fg = colors.get(obj.transfer_type, ('#F1F5F9', '#475569'))
+        return mark_safe(f'<span style="background:{bg}; color:{fg}; padding:3px 8px; border-radius:4px; font-weight:600; font-size:0.8rem;">{obj.get_transfer_type_display()}</span>')
+    transfer_type_badge.short_description = "Type"
 
 
 @admin.register(Zone)

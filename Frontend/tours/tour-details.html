@@ -23,21 +23,72 @@
             <!-- Gallery -->
             <div class="tour-gallery-grid{% if tour.media.count <= 1 %} gallery-single{% endif %}">
                 {% with media_items=tour.media.all media_count=tour.media.count %}
-                <div class="gallery-main" style="{% if media_items.first %}background-image: url('{{ media_items.first.file.url }}');{% elif tour.destination.hero_image %}background-image: url('{{ tour.destination.hero_image.url }}');{% else %}background: #1E293B;{% endif %}">
+                <div class="gallery-main" onclick="openTourGallery(0)" title="Click to view full photo" style="{% if media_items.first %}background-image: url('{{ media_items.first.file.url }}');{% elif tour.destination.hero_image %}background-image: url('{{ tour.destination.hero_image.url }}');{% else %}background: #1E293B;{% endif %}">
                     <span class="gallery-badge"><i class="ph-fill ph-map-pin"></i> {{ tour.destination.name }}</span>
                 </div>
                 {% if media_count > 1 %}
                 <div class="gallery-sub-col">
-                    <div class="gallery-sub" style="background-image: url('{{ media_items.1.file.url }}');"></div>
+                    <div class="gallery-sub" onclick="openTourGallery(1)" title="Click to view photo" style="background-image: url('{{ media_items.1.file.url }}');"></div>
                     {% if media_count > 2 %}
-                    <div class="gallery-sub" style="background-image: url('{{ media_items.2.file.url }}'); position: relative;">
-                        <button class="view-all-photos-btn"><i class="ph-bold ph-images"></i> {{ media_count }} Photos</button>
+                    <div class="gallery-sub" onclick="openTourGallery(2)" title="Click to view photo" style="background-image: url('{{ media_items.2.file.url }}'); position: relative;">
+                        <button type="button" class="view-all-photos-btn" onclick="openTourGallery(0, event);" title="View all {{ media_count }} photos"><i class="ph-bold ph-images"></i> {{ media_count }} Photos</button>
                     </div>
                     {% endif %}
                 </div>
                 {% endif %}
                 {% endwith %}
             </div>
+
+            <!-- Mobile Swipeable Tour Gallery Slider (Slideaway System for Mobile) -->
+            {% with media_items=tour.media.all media_count=tour.media.count %}
+            <div class="tour-mobile-slider" id="tourMobileSlider">
+                <!-- Top Floating Controls -->
+                <button type="button" class="mobile-slider-top-btn mobile-slider-back-btn" onclick="history.back()" aria-label="Go back" title="Back">
+                    <i class="ph-bold ph-arrow-left"></i>
+                </button>
+                <button type="button" class="mobile-slider-top-btn mobile-slider-wishlist-btn tour-wishlist-btn-hero {% if tour.id in user_wishlist_ids %}active is-wishlisted{% endif %}" onclick="toggleWishlist({{ tour.id }}, this, event)" data-wishlist-tour-id="{{ tour.id }}" aria-label="Save to Wishlist" title="Save to Wishlist">
+                    <i class="{% if tour.id in user_wishlist_ids %}ph-fill ph-heart{% else %}ph-bold ph-heart{% endif %}" style="{% if tour.id in user_wishlist_ids %}color: #EF4444;{% endif %}"></i>
+                </button>
+
+                <!-- Swipeable Image Track -->
+                <div class="mobile-slider-track" id="mobileSliderTrack">
+                    {% if media_items %}
+                        {% for item in media_items %}
+                            {% if item.file and item.media_type != 'VIDEO' %}
+                            <div class="mobile-slide" onclick="openTourGallery({{ forloop.counter0 }})" title="Tap to expand photo">
+                                <img src="{{ item.file.url }}" alt="{{ item.alt_text|default:tour.title }}" class="mobile-slide-img" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% elif tour.destination.hero_image %}
+                        <div class="mobile-slide" onclick="openTourGallery(0)" title="Tap to expand photo">
+                            <img src="{{ tour.destination.hero_image.url }}" alt="{{ tour.title }}" class="mobile-slide-img" loading="eager">
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Bottom Left: Destination Badge -->
+                <span class="mobile-slider-dest-badge">
+                    <i class="ph-fill ph-map-pin" style="color: #4F46E5;"></i> {{ tour.destination.name }}
+                </span>
+
+                <!-- Bottom Center: Pagination Dots -->
+                {% if media_count > 1 %}
+                <div class="mobile-slider-dots" id="mobileSliderDots">
+                    {% for item in media_items %}
+                        {% if item.file and item.media_type != 'VIDEO' %}
+                        <span class="mobile-slider-dot {% if forloop.first %}active{% endif %}" onclick="goToMobileSlide({{ forloop.counter0 }})" data-index="{{ forloop.counter0 }}"></span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Bottom Right: Total Photos Badge -->
+                <button type="button" class="mobile-slider-count-badge" onclick="openTourGallery(window.currentMobileSlideIndex || 0, event)" title="View all {{ media_count|default:1 }} photos">
+                    <i class="ph-bold ph-images"></i> <span>{{ media_count|default:1 }}</span>
+                </button>
+            </div>
+            {% endwith %}
             
             <!-- Header & Overview -->
             <div style="margin-top: 2rem; margin-bottom: 3rem;">
@@ -650,7 +701,7 @@
 
 
 <!-- Inquiry Modal Dialog -->
-<div id="tourInquiryModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
+<div id="inquiryModal" data-modal="tourInquiryModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
     <div style="background: white; border-radius: 20px; max-width: 480px; width: 100%; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative;">
         <button type="button" id="btnCloseInquiryModal" style="position: absolute; top: 1.25rem; right: 1.25rem; background: #F1F5F9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748B; font-size: 1.1rem; transition: background 0.2s;">
             <i class="ph-bold ph-x"></i>
@@ -713,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnBookNow = document.getElementById('btnBookNow');
     const btnOpenInquiry = document.getElementById('btnOpenInquiryModal');
-    const inquiryModal = document.getElementById('tourInquiryModal');
+    const inquiryModal = document.getElementById('inquiryModal') || document.getElementById('tourInquiryModal');
     const btnCloseInquiry = document.getElementById('btnCloseInquiryModal');
     const inquiryForm = document.getElementById('inquiryForm');
 
@@ -971,5 +1022,302 @@ window.toggleItinerary = function(header, event) {
         }
     }
 };
+</script>
+
+<!-- Fullscreen Tour Gallery Lightbox Modal -->
+<div id="tourGalleryModal" class="tour-gallery-modal" aria-hidden="true" role="dialog" aria-label="Tour Photo Gallery Lightbox">
+    <!-- Top Header Bar -->
+    <div class="gallery-modal-header">
+        <!-- Close Button (Left) -->
+        <button type="button" class="gallery-modal-btn gallery-close-btn" onclick="closeTourGallery()" aria-label="Close photo viewer" title="Close (Esc)">
+            <i class="ph-bold ph-x"></i>
+        </button>
+
+        <!-- Dynamic Counter (Center) -->
+        <div class="gallery-modal-counter" id="galleryModalCounter">
+            1 / 1
+        </div>
+
+        <!-- Grid View Toggle (Right) -->
+        <button type="button" class="gallery-modal-btn gallery-grid-btn" id="galleryGridToggleBtn" onclick="toggleTourGalleryGrid()" aria-label="Toggle all photos grid" title="Toggle photo grid">
+            <i class="ph-bold ph-squares-four" id="galleryGridToggleIcon"></i>
+        </button>
+    </div>
+
+    <!-- Main Lightbox Stage (Single Image View) -->
+    <div class="gallery-modal-stage" id="galleryModalStage">
+        <!-- Prev Button (Left) -->
+        <button type="button" class="gallery-nav-btn prev-btn" id="galleryPrevBtn" onclick="prevTourGalleryImage()" aria-label="Previous photo" title="Previous (Left Arrow)">
+            <i class="ph-bold ph-caret-left"></i>
+        </button>
+
+        <!-- Center Image Display -->
+        <div class="gallery-modal-img-container" id="galleryImgContainer">
+            <img id="galleryModalImage" class="gallery-modal-img" src="" alt="{{ tour.title }}">
+        </div>
+
+        <!-- Next Button (Right) -->
+        <button type="button" class="gallery-nav-btn next-btn" id="galleryNextBtn" onclick="nextTourGalleryImage()" aria-label="Next photo" title="Next (Right Arrow)">
+            <i class="ph-bold ph-caret-right"></i>
+        </button>
+    </div>
+
+    <!-- Grid View Container (Toggled via top-right grid button) -->
+    <div class="gallery-modal-grid-view" id="galleryModalGridView">
+        <div class="gallery-modal-grid-container" id="galleryModalGridContainer">
+            <!-- Dynamically populated thumbnails -->
+        </div>
+    </div>
+</div>
+
+<script>
+// Tour Gallery Lightbox Controller
+(function() {
+    const rawGalleryData = {% if gallery_images_json %}{{ gallery_images_json|safe }}{% else %}null{% endif %};
+    let tourGalleryImages = [];
+
+    if (rawGalleryData && Array.isArray(rawGalleryData) && rawGalleryData.length > 0) {
+        tourGalleryImages = rawGalleryData;
+    } else {
+        // Fallback: build from media items or destination hero image
+        {% for item in tour.media.all %}
+            {% if item.file and item.media_type != 'VIDEO' %}
+                tourGalleryImages.push({
+                    url: "{{ item.file.url }}",
+                    alt: "{{ item.alt_text|default:tour.title|escapejs }}"
+                });
+            {% endif %}
+        {% endfor %}
+        {% if not tour.media.all and tour.destination.hero_image %}
+            tourGalleryImages.push({
+                url: "{{ tour.destination.hero_image.url }}",
+                alt: "{{ tour.title|escapejs }}"
+            });
+        {% endif %}
+    }
+
+    let currentGalleryIndex = 0;
+    let isGridViewActive = false;
+
+    window.openTourGallery = function(index, event) {
+        if (event && event.stopPropagation) {
+            event.stopPropagation();
+        }
+        if (!tourGalleryImages || tourGalleryImages.length === 0) return;
+
+        currentGalleryIndex = Math.max(0, Math.min(typeof index === 'number' ? index : 0, tourGalleryImages.length - 1));
+        isGridViewActive = false;
+
+        const modal = document.getElementById('tourGalleryModal');
+        const gridView = document.getElementById('galleryModalGridView');
+        const stage = document.getElementById('galleryModalStage');
+        const gridIcon = document.getElementById('galleryGridToggleIcon');
+
+        if (modal) {
+            modal.classList.add('is-active');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        if (gridView) gridView.classList.remove('is-visible');
+        if (stage) stage.style.display = 'flex';
+        if (gridIcon) gridIcon.className = 'ph-bold ph-squares-four';
+
+        updateGalleryDisplay();
+        renderGalleryThumbnails();
+    };
+
+    window.closeTourGallery = function() {
+        const modal = document.getElementById('tourGalleryModal');
+        if (modal) {
+            modal.classList.remove('is-active');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+    };
+
+    window.nextTourGalleryImage = function() {
+        if (!tourGalleryImages || tourGalleryImages.length <= 1) return;
+        currentGalleryIndex = (currentGalleryIndex + 1) % tourGalleryImages.length;
+        updateGalleryDisplay();
+    };
+
+    window.prevTourGalleryImage = function() {
+        if (!tourGalleryImages || tourGalleryImages.length <= 1) return;
+        currentGalleryIndex = (currentGalleryIndex - 1 + tourGalleryImages.length) % tourGalleryImages.length;
+        updateGalleryDisplay();
+    };
+
+    window.toggleTourGalleryGrid = function() {
+        const gridView = document.getElementById('galleryModalGridView');
+        const stage = document.getElementById('galleryModalStage');
+        const gridIcon = document.getElementById('galleryGridToggleIcon');
+        if (!gridView || !stage) return;
+
+        isGridViewActive = !isGridViewActive;
+        if (isGridViewActive) {
+            stage.style.display = 'none';
+            gridView.classList.add('is-visible');
+            if (gridIcon) gridIcon.className = 'ph-bold ph-image';
+            renderGalleryThumbnails();
+        } else {
+            gridView.classList.remove('is-visible');
+            stage.style.display = 'flex';
+            if (gridIcon) gridIcon.className = 'ph-bold ph-squares-four';
+            updateGalleryDisplay();
+        }
+    };
+
+    window.selectGalleryImage = function(index) {
+        currentGalleryIndex = index;
+        isGridViewActive = false;
+        const gridView = document.getElementById('galleryModalGridView');
+        const stage = document.getElementById('galleryModalStage');
+        const gridIcon = document.getElementById('galleryGridToggleIcon');
+
+        if (gridView) gridView.classList.remove('is-visible');
+        if (stage) stage.style.display = 'flex';
+        if (gridIcon) gridIcon.className = 'ph-bold ph-squares-four';
+
+        updateGalleryDisplay();
+    };
+
+    function updateGalleryDisplay() {
+        if (!tourGalleryImages || tourGalleryImages.length === 0) return;
+        const currentItem = tourGalleryImages[currentGalleryIndex];
+        const imgElement = document.getElementById('galleryModalImage');
+        const counterElement = document.getElementById('galleryModalCounter');
+        const prevBtn = document.getElementById('galleryPrevBtn');
+        const nextBtn = document.getElementById('galleryNextBtn');
+
+        if (counterElement) {
+            counterElement.textContent = (currentGalleryIndex + 1) + ' / ' + tourGalleryImages.length;
+        }
+
+        if (imgElement && currentItem) {
+            imgElement.classList.add('fade-out');
+            setTimeout(function() {
+                imgElement.src = currentItem.url;
+                imgElement.alt = currentItem.alt || 'Tour photo';
+                imgElement.classList.remove('fade-out');
+            }, 120);
+        }
+
+        if (prevBtn && nextBtn) {
+            if (tourGalleryImages.length <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'inline-flex';
+                nextBtn.style.display = 'inline-flex';
+            }
+        }
+    }
+
+    function renderGalleryThumbnails() {
+        const container = document.getElementById('galleryModalGridContainer');
+        if (!container || !tourGalleryImages) return;
+        container.innerHTML = tourGalleryImages.map(function(item, idx) {
+            const isActive = idx === currentGalleryIndex ? 'active-thumb' : '';
+            return '<div class="gallery-grid-thumb-card ' + isActive + '" onclick="selectGalleryImage(' + idx + ')">' +
+                '<img src="' + item.url + '" alt="' + (item.alt || '') + '" class="gallery-grid-thumb-img" loading="lazy">' +
+                '<span class="gallery-grid-thumb-number">' + (idx + 1) + '</span>' +
+            '</div>';
+        }).join('');
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('tourGalleryModal');
+        if (!modal || !modal.classList.contains('is-active')) return;
+
+        if (e.key === 'Escape') {
+            closeTourGallery();
+        } else if (e.key === 'ArrowRight') {
+            nextTourGalleryImage();
+        } else if (e.key === 'ArrowLeft') {
+            prevTourGalleryImage();
+        }
+    });
+
+    // Backdrop click to close (when clicking outside the center image)
+    const stage = document.getElementById('galleryModalStage');
+    if (stage) {
+        stage.addEventListener('click', function(e) {
+            if (e.target === stage || e.target.id === 'galleryImgContainer') {
+                closeTourGallery();
+            }
+        });
+    }
+
+    // Mobile touch swipe gestures
+    let touchStartX = 0;
+    let touchEndX = 0;
+    if (stage) {
+        stage.addEventListener('touchstart', function(e) {
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                touchStartX = e.changedTouches[0].screenX;
+            }
+        }, { passive: true });
+
+        stage.addEventListener('touchend', function(e) {
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                touchEndX = e.changedTouches[0].screenX;
+                const swipeThreshold = 50;
+                if (touchEndX < touchStartX - swipeThreshold) {
+                    nextTourGalleryImage();
+                } else if (touchEndX > touchStartX + swipeThreshold) {
+                    prevTourGalleryImage();
+                }
+            }
+        }, { passive: true });
+    }
+
+    // --- Mobile Slider Controller ---
+    window.currentMobileSlideIndex = 0;
+    const mobileSliderTrack = document.getElementById('mobileSliderTrack');
+
+    window.goToMobileSlide = function(index) {
+        if (!mobileSliderTrack) return;
+        const slideWidth = mobileSliderTrack.clientWidth;
+        mobileSliderTrack.scrollTo({
+            left: index * slideWidth,
+            behavior: 'smooth'
+        });
+        window.currentMobileSlideIndex = index;
+        updateMobileDots(index);
+    };
+
+    function updateMobileDots(activeIndex) {
+        const dots = document.querySelectorAll('.mobile-slider-dot');
+        dots.forEach(function(dot, idx) {
+            if (idx === activeIndex) {
+                dot.classList.add('active');
+                if (dot.scrollIntoView) {
+                    dot.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    if (mobileSliderTrack) {
+        let isScrollDebouncing;
+        mobileSliderTrack.addEventListener('scroll', function() {
+            clearTimeout(isScrollDebouncing);
+            isScrollDebouncing = setTimeout(function() {
+                const slideWidth = mobileSliderTrack.clientWidth;
+                if (slideWidth > 0) {
+                    const newIndex = Math.round(mobileSliderTrack.scrollLeft / slideWidth);
+                    if (newIndex !== window.currentMobileSlideIndex) {
+                        window.currentMobileSlideIndex = newIndex;
+                        updateMobileDots(newIndex);
+                    }
+                }
+            }, 30);
+        }, { passive: true });
+    }
+})();
 </script>
 {% endblock %}

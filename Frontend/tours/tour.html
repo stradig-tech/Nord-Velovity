@@ -16,22 +16,24 @@
         <div class="tours-grid">
             {% for tour in featured_tours %}
             <div class="tour-card">
-                <div class="tour-img-box">
-                    {% if tour.media.first %}
-                    <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
-                    {% else %}
-                    <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
-                    {% endif %}
-                    <div class="badge-stack-right">
-                        <span class="tour-badge yellow-bg text-dark">{{ tour.travel_style.name|default:'Private Tour' }}</span>
+                <a href="{% url 'tours:detail' tour.slug %}" style="display: block; text-decoration: none;">
+                    <div class="tour-img-box">
+                        {% if tour.media.first %}
+                        <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
+                        {% else %}
+                        <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" class="tour-img" style="object-fit: cover;">
+                        {% endif %}
+                        <div class="badge-stack-right">
+                            <span class="tour-badge yellow-bg text-dark">{{ tour.travel_style.name|default:'Private Tour' }}</span>
+                        </div>
                     </div>
-                </div>
+                </a>
                 <div class="tour-body">
                     <div class="tour-rating">
                         <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
                         <span class="rating-val">(5.0)</span>
                     </div>
-                    <h4 class="tour-title">{{ tour.title }}</h4>
+                    <h4 class="tour-title"><a href="{% url 'tours:detail' tour.slug %}" style="color: inherit; text-decoration: none;">{{ tour.title }}</a></h4>
                     <div class="tour-meta">
                         <span class="meta-item"><i class="ph ph-map-pin"></i> {{ tour.destination.name }}</span>
                         <span class="meta-item"><i class="ph ph-clock"></i> {{ tour.duration_text }}</span>
@@ -80,7 +82,7 @@
                         <div>
                             <span style="font-size: 1.25rem; font-weight: 700; color: #2563EB;">$350</span><span style="font-size: 0.85rem; color: #64748B;">/night</span>
                         </div>
-                        <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Book Room</button>
+                        <a href="{% url 'contact' %}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem; text-decoration: none;">Book Room</a>
                     </div>
                 </div>
             </div>
@@ -99,7 +101,7 @@
                         <div>
                             <span style="font-size: 1.25rem; font-weight: 700; color: #2563EB;">$420</span><span style="font-size: 0.85rem; color: #64748B;">/night</span>
                         </div>
-                        <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Book Room</button>
+                        <a href="{% url 'contact' %}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem; text-decoration: none;">Book Room</a>
                     </div>
                 </div>
             </div>
@@ -118,7 +120,7 @@
                         <div>
                             <span style="font-size: 1.25rem; font-weight: 700; color: #2563EB;">$280</span><span style="font-size: 0.85rem; color: #64748B;">/night</span>
                         </div>
-                        <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Book Room</button>
+                        <a href="{% url 'contact' %}" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem; text-decoration: none;">Book Room</a>
                     </div>
                 </div>
             </div>
@@ -143,7 +145,7 @@
                 <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Car Rental</h4>
                 <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1.5rem;">Explore at your own pace with our wide selection of rental vehicles.</p>
                 <div style="font-weight: 700; color: #2563EB; margin-bottom: 1.5rem;">From  / day</div>
-                <button class="btn btn-primary" style="width: 100%;">View Cars</button>
+                <a href="{% url 'chauffeur:hub' %}" class="btn btn-primary" style="width: 100%; text-decoration: none; display: inline-block; text-align: center;">View Cars</a>
             </div>
             
             <!-- Transport Card 2 -->
@@ -154,7 +156,7 @@
                 <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Airport Taxi</h4>
                 <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1.5rem;">Fast and reliable transfers to and from major airports.</p>
                 <div style="font-weight: 700; color: #2563EB; margin-bottom: 1.5rem;">Fixed Prices</div>
-                <button class="btn btn-primary" style="width: 100%;">Book Taxi</button>
+                <a href="{% url 'chauffeur:hub' %}" class="btn btn-primary" style="width: 100%; text-decoration: none; display: inline-block; text-align: center;">Book Taxi</a>
             </div>
             
             <!-- Transport Card 3 -->
@@ -165,7 +167,7 @@
                 <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Train Tickets</h4>
                 <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 1.5rem;">Scenic and comfortable railway journeys across Northern Europe.</p>
                 <div style="font-weight: 700; color: #2563EB; margin-bottom: 1.5rem;">Book in Advance</div>
-                <button class="btn btn-primary" style="width: 100%;">Search Routes</button>
+                <a href="{% url 'contact' %}" class="btn btn-primary" style="width: 100%; text-decoration: none; display: inline-block; text-align: center;">Search Routes</a>
             </div>
 
         </div>

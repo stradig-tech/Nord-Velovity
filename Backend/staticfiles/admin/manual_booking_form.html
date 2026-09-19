@@ -1,0 +1,208 @@
+{% extends "admin/base.html" %}
+{% load static i18n %}
+
+{% block title %}Create Manual / Agent Booking | {{ site_settings.site_name|default:"Nord Velocity" }} Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+
+  <!-- Header -->
+  <div style="margin-bottom: 2rem;">
+    <a href="/admin/bookings/booking/" style="display: inline-flex; align-items: center; gap: 0.35rem; color: #64748B; text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem;">
+      <i class="ph-bold ph-arrow-left"></i> Back to Bookings
+    </a>
+    <h1 style="font-size: 1.75rem; font-weight: 800; color: #0F172A; margin: 0;">Create Manual / Agent Booking</h1>
+    <p style="color: #64748B; font-size: 0.95rem; margin: 0.35rem 0 0 0;">
+      Book confirmed seats on behalf of walk-ins, phone callers, hotel concierges, or external OTA partner tickets.
+    </p>
+  </div>
+
+  <form method="POST" style="background: white; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04); padding: 2rem;">
+    {% csrf_token %}
+
+    <!-- Channel Source Section -->
+    <div style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: #0F172A; margin: 0 0 1rem 0; border-bottom: 1px solid #F1F5F9; padding-bottom: 0.5rem;">
+        1. Sales Channel & Attribution
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Channel Source *
+          </label>
+          <select name="source" required style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+            <option value="MANUAL">Manual (Phone / Direct Staff)</option>
+            <option value="HOTEL_AGENT">Hotel Concierge / Partner Agent</option>
+            <option value="GETYOURGUIDE">GetYourGuide (Voucher / Ticket)</option>
+            <option value="VIATOR">Viator / TripAdvisor (Voucher / Ticket)</option>
+            <option value="OTHER_OTA">Other External OTA</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            External Reference ID (Optional)
+          </label>
+          <input type="text" name="external_reference" placeholder="e.g. GYG-8374829 or Room 402" style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Tour & Departure Selection -->
+    <div style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: #0F172A; margin: 0 0 1rem 0; border-bottom: 1px solid #F1F5F9; padding-bottom: 0.5rem;">
+        2. Tour Package & Departure Slot
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Select Tour *
+          </label>
+          <select id="tourSelect" name="tour_id" required style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+            <option value="">-- Choose a Tour Package --</option>
+            {% for t in tours %}
+            <option value="{{ t.id }}" data-slug="{{ t.slug }}">{{ t.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Departure Slot (Date & Time) *
+          </label>
+          <select id="departureSelect" name="departure_id" required style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+            <option value="">-- Select tour first --</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Vehicle Category *
+          </label>
+          <select id="vehicleTypeSelect" name="vehicle_type_id" required style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+            {% for vt in vehicle_types %}
+            <option value="{{ vt.id }}">{{ vt.icon }} {{ vt.name }} ({{ vt.default_capacity }} Seats)</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Information -->
+    <div style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: #0F172A; margin: 0 0 1rem 0; border-bottom: 1px solid #F1F5F9; padding-bottom: 0.5rem;">
+        3. Primary Guest Information
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Lead Guest Full Name *
+          </label>
+          <input type="text" name="name" required placeholder="e.g. Erik Lindqvist" style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Email Address *
+          </label>
+          <input type="email" name="email" required placeholder="guest@example.com" style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Phone Number
+          </label>
+          <input type="text" name="phone" placeholder="+358 40 123 4567" style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Party Size & Notes -->
+    <div style="margin-bottom: 2.5rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: #0F172A; margin: 0 0 1rem 0; border-bottom: 1px solid #F1F5F9; padding-bottom: 0.5rem;">
+        4. Party Size & Details
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Adults *
+          </label>
+          <input type="number" name="adults" min="1" max="60" value="2" required style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Children
+          </label>
+          <input type="number" name="children" min="0" max="30" value="0" style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+        </div>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+          Special Notes & Concierge Requests
+        </label>
+        <textarea name="customer_notes" rows="3" placeholder="Dietary restrictions, pickup requirements, hotel room number..." style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;"></textarea>
+      </div>
+    </div>
+
+    <!-- Submit Section -->
+    <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center; border-top: 1px solid #E2E8F0; padding-top: 1.5rem;">
+      <a href="/admin/bookings/booking/" style="padding: 0.65rem 1.5rem; border-radius: 8px; border: 1px solid #CBD5E1; background: white; color: #475569; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+        Cancel
+      </a>
+      <button type="submit" style="padding: 0.65rem 2rem; border-radius: 8px; background: #0F172A; color: white; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);">
+        <i class="ph-bold ph-check"></i> Confirm & Lock Capacity
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  document.getElementById('tourSelect').addEventListener('change', function() {
+    const tourId = this.value;
+    const depSelect = document.getElementById('departureSelect');
+    depSelect.innerHTML = '<option value="">Loading departures...</option>';
+
+    if (!tourId) {
+      depSelect.innerHTML = '<option value="">-- Select tour first --</option>';
+      return;
+    }
+
+    fetch(`/admin/api/departures/calendar/?tour_id=${tourId}`)
+      .then(res => res.json())
+      .then(data => {
+        depSelect.innerHTML = '';
+        if (!data.events || data.events.length === 0) {
+          depSelect.innerHTML = '<option value="">No open departures available</option>';
+          return;
+        }
+        data.events.forEach(ev => {
+          const opt = document.createElement('option');
+          opt.value = ev.id;
+          opt.innerText = `${ev.date} @ ${ev.time} (${ev.total_sellable} seats sellable)`;
+          depSelect.appendChild(opt);
+        });
+      })
+      .catch(err => {
+        depSelect.innerHTML = '<option value="">Error loading departures</option>';
+      });
+  });
+
+  // Pre-select if passed in query string
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tourId = urlParams.get('tour_id');
+    const departureId = urlParams.get('departure_id');
+
+    if (tourId) {
+      const select = document.getElementById('tourSelect');
+      select.value = tourId;
+      select.dispatchEvent(new Event('change'));
+
+      setTimeout(() => {
+        if (departureId) {
+          document.getElementById('departureSelect').value = departureId;
+        }
+      }, 600);
+    }
+  });
+</script>
+{% endblock %}

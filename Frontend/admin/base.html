@@ -18,13 +18,13 @@
 <link rel="stylesheet" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
 {% block extrastyle %}{% endblock %}
 
-<!-- Nord Velocity Executive Master Theme (Highest Priority) -->
-<link rel="stylesheet" href="/static/admin/luxury_admin.css?v=2.2">
-
 {% block extrahead %}{% endblock %}
 {% block responsive %}
     <link rel="stylesheet" href="{% static "admin/css/responsive.css" %}">
 {% endblock %}
+
+<!-- Nord Velocity Executive Master Theme (Highest Priority - loaded last to override responsive.css) -->
+<link rel="stylesheet" href="/static/admin/luxury_admin.css?v=3.2">
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
 </head>
 
@@ -33,7 +33,7 @@
   data-admin-server-timezone="{% get_current_timezone as time_zone %}{{ time_zone }}">
 <a href="#content-start" class="skip-to-content-link" style="position: absolute; left: -9999px;">{% translate 'Skip to main content' %}</a>
 
-{% if not is_popup %}
+{% if not is_popup and request.user.is_authenticated %}
     <!-- Unified Left Sidebar (Spans 100% full height from top to bottom) -->
     {% block nav-sidebar %}
         {% include "admin/nav_sidebar.html" %}
@@ -41,8 +41,8 @@
 {% endif %}
 
     <!-- Admin Main Content Area (On Right, identical to Dashboard) -->
-    <main class="admin-main">
-        {% if not is_popup %}
+    <main class="admin-main{% if not request.user.is_authenticated %} admin-main-unauth{% endif %}">
+        {% if not is_popup and request.user.is_authenticated %}
         <!-- Sticky Top Header (Matches Executive Dashboard Exactly!) -->
         <header class="admin-header">
             <div class="admin-header-left">
@@ -111,5 +111,95 @@
             {% block footer %}<div id="footer"></div>{% endblock %}
         </div>
     </main>
+
+<script>
+// Prevent duplicate + Add button across Django 4.2 / 5.0 / 5.1 / 6.x
+document.addEventListener("DOMContentLoaded", function() {
+    var headerTools = document.querySelector(".titles-and-tools .object-tools");
+    var contentTools = document.querySelectorAll("#content-main > .object-tools, #content-main > ul.object-tools, #changelist > .object-tools, .changelist-form-container > .object-tools");
+    if (headerTools && contentTools.length > 0) {
+        contentTools.forEach(function(el) { el.remove(); });
+    }
+
+    // Interactive Mobile Filter System for Changelists
+    var changelistFilter = document.getElementById('changelist-filter');
+    var changelist = document.getElementById('changelist');
+    if (changelistFilter && changelist) {
+        // Count active filters (li.selected not 'All')
+        var activeFilters = changelistFilter.querySelectorAll('li.selected:not(:first-child)');
+        var activeCount = activeFilters.length;
+
+        var filterToggleBtn = document.createElement('button');
+        filterToggleBtn.type = 'button';
+        filterToggleBtn.className = 'admin-mobile-filter-btn';
+        filterToggleBtn.innerHTML = '<i class="ph-bold ph-funnel"></i> <span>Filters' + (activeCount > 0 ? ' (' + activeCount + ')' : '') + '</span>';
+
+        var filterBackdrop = document.createElement('div');
+        filterBackdrop.className = 'admin-filter-backdrop';
+        document.body.appendChild(filterBackdrop);
+
+        filterToggleBtn.addEventListener('click', function() {
+            document.body.classList.toggle('admin-filter-open');
+        });
+        filterBackdrop.addEventListener('click', function() {
+            document.body.classList.remove('admin-filter-open');
+        });
+
+        // Add close button inside filter header if not exists
+        var filterHeader = changelistFilter.querySelector('h2');
+        if (filterHeader && !changelistFilter.querySelector('.filter-close-btn')) {
+            var closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.className = 'filter-close-btn';
+            closeBtn.innerHTML = '<i class="ph-bold ph-x"></i>';
+            closeBtn.setAttribute('aria-label', 'Close Filters');
+            closeBtn.addEventListener('click', function() {
+                document.body.classList.remove('admin-filter-open');
+            });
+            filterHeader.appendChild(closeBtn);
+        }
+
+        // Move filterToggleBtn ABOVE next to + Add button (object-tools / titles-and-tools)
+        var objectTools = document.querySelector('.titles-and-tools .object-tools') || document.querySelector('.object-tools');
+        var titlesAndTools = document.querySelector('.titles-and-tools');
+        
+        if (objectTools) {
+            var filterLi = document.createElement('li');
+            filterLi.className = 'admin-filter-tool-li';
+            filterLi.appendChild(filterToggleBtn);
+            objectTools.appendChild(filterLi);
+        } else if (titlesAndTools) {
+            titlesAndTools.appendChild(filterToggleBtn);
+        } else {
+            var targetContainer = changelist.querySelector('.changelist-form-container') || changelist;
+            targetContainer.insertBefore(filterToggleBtn, targetContainer.firstChild);
+        }
+    }
+
+    // Ensure .actions on mobile has select cleanly ordered before Run button
+    var actionsContainer = document.querySelector('.actions');
+    if (actionsContainer) {
+        var actionLabel = actionsContainer.querySelector('label');
+        var actionBtn = actionsContainer.querySelector('button[name="index"], button.button');
+        if (actionLabel && actionBtn && actionBtn.compareDocumentPosition(actionLabel) & Node.DOCUMENT_POSITION_FOLLOWING) {
+            // Already ordered
+        } else if (actionLabel && actionBtn) {
+            actionsContainer.insertBefore(actionLabel, actionBtn);
+        }
+    }
+
+    // Add mobile swipe hint for changelist tables and tabular inlines
+    var tables = document.querySelectorAll('.results table, #result_list, .inline-group .tabular table');
+    tables.forEach(function(tbl) {
+        var wrapper = tbl.closest('.results') || tbl.closest('.tabular') || tbl.parentElement;
+        if (wrapper && !wrapper.parentElement.querySelector('.admin-table-swipe-hint') && !wrapper.querySelector('.admin-table-swipe-hint')) {
+            var swipeHint = document.createElement('div');
+            swipeHint.className = 'admin-table-swipe-hint';
+            swipeHint.innerHTML = '<i class="ph-bold ph-arrows-left-right"></i> <span>Swipe horizontally to view all columns</span>';
+            wrapper.parentNode.insertBefore(swipeHint, wrapper);
+        }
+    });
+});
+</script>
 </body>
 </html>

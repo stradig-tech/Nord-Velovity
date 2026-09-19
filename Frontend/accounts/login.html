@@ -33,7 +33,7 @@
             <div style="margin-bottom: 2rem;">
                 <div style="margin-bottom: 1rem;">
                     <a href="{% url 'home' %}">
-                        <img src="/static/images/brand/logo%20bg-transparent.png" alt="Nord Velocity" style="height: 50px; width: auto; object-fit: contain;">
+                        <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo bg-transparent.png' %}{% endif %}" alt="Nord Velocity" style="height: 50px; width: auto; object-fit: contain;">
                     </a>
                 </div>
                 <h1 style="font-size: 1.75rem; font-weight: 800; color: #0F172A; margin: 0 0 0.5rem 0;">Welcome back!</h1>
@@ -69,27 +69,11 @@
                         <input type="checkbox" id="keep-signed-in" style="width: 16px; height: 16px; border-radius: 4px; border: 1px solid #CBD5E1;">
                         <label for="keep-signed-in" style="font-size: 0.85rem; color: #475569; cursor: pointer;">Keep me signed in</label>
                     </div>
-                    <a href="#" style="font-size: 0.85rem; color: #4F46E5; font-weight: 600; text-decoration: none;">Forgot Password?</a>
+                    <a href="{% url 'accounts:forgot_password' %}" style="font-size: 0.85rem; color: #4F46E5; font-weight: 600; text-decoration: none; transition: color 0.15s;" onmouseover="this.style.color='#3730A3';" onmouseout="this.style.color='#4F46E5';">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; font-size: 1rem; background: #4F46E5; color: #FFFFFF; transition: background 0.2s;" onmouseover="this.style.background='#4338CA';" onmouseout="this.style.background='#4F46E5';">Sign in</button>
             </form>
-            
-            <div class="auth-divider" style="margin: 1.5rem 0; text-align: center; position: relative;">
-                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #E2E8F0; z-index: 1;"></div>
-                <span style="position: relative; z-index: 2; background: white; padding: 0 1rem; color: #64748B; font-size: 0.85rem;">Or sign in with</span>
-            </div>
-            
-            <div class="social-auth" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <button type="button" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.75rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; font-weight: 600; color: #0F172A; cursor: pointer; font-size: 0.9rem;">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style="width: 20px; height: 20px;">
-                    Sign in with Google
-                </button>
-                <button type="button" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 0.75rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; font-weight: 600; color: #0F172A; cursor: pointer; font-size: 0.9rem;">
-                    <i class="ph-fill ph-facebook-logo" style="color: #1877F2; font-size: 1.2rem;"></i>
-                    Sign in with Facebook
-                </button>
-            </div>
             
             <div style="text-align: center; margin-top: 2rem; font-size: 0.75rem; color: #94A3B8;">
                 Copyrights &copy;2026 Nord Velocity. Build by Stradigtech.

@@ -67,6 +67,14 @@ def vehicle_list_view(request):
     if passengers and passengers.isdigit():
         vehicles = vehicles.filter(passenger_capacity__gte=int(passengers))
 
+    # Price range filtering
+    min_price = request.GET.get('min_price', '').strip()
+    max_price = request.GET.get('max_price', '').strip()
+    if min_price and min_price.replace('.', '', 1).isdigit():
+        vehicles = vehicles.filter(vehicle_class__pricing_rules__base_fare__gte=Decimal(min_price), vehicle_class__pricing_rules__is_active=True).distinct()
+    if max_price and max_price.replace('.', '', 1).isdigit():
+        vehicles = vehicles.filter(vehicle_class__pricing_rules__base_fare__lte=Decimal(max_price), vehicle_class__pricing_rules__is_active=True).distinct()
+
     is_roundtrip = trip_type == 'roundtrip'
 
     # Dynamic pricing calculations for each vehicle
@@ -101,6 +109,8 @@ def vehicle_list_view(request):
         'passengers': passengers,
         'fare_estimates': fare_estimates,
         'is_roundtrip': is_roundtrip,
+        'min_price': min_price,
+        'max_price': max_price,
     }
     return render(request, 'chauffeur/cab-list.html', context)
 

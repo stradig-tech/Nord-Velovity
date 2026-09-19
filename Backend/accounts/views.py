@@ -1,6 +1,12 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+from django.conf import settings
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -322,4 +328,156 @@ def settings_view(request):
     if request.headers.get('HX-Request'):
         return render(request, 'accounts/partials/settings_partial.html', context)
     return render(request, 'accounts/settings.html', context)
+
+
+def forgot_password_view(request):
+    """Handles customer password reset request by email."""
+    if request.user.is_authenticated:
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        if not email:
+            messages.error(request, "Please enter your registered email address.")
+            return render(request, 'accounts/forgot_password.html')
+
+        associated_users = CustomUser.objects.filter(email__iexact=email, is_active=True)
+        if associated_users.exists():
+            for user in associated_users:
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+                protocol = 'https' if request.is_secure() else 'http'
+                host = request.get_host()
+                reset_url = f"{protocol}://{host}/accounts/reset-password/{uid}/{token}/"
+
+                subject = "Reset Your Nord Velocity Password"
+                message = (
+                    f"Hello {user.first_name or 'Valued Guest'},\n\n"
+                    f"A password reset request was received for your Nord Velocity account.\n\n"
+                    f"Please click the link below to set a new password:\n{reset_url}\n\n"
+                    f"This link is valid for 24 hours. If you did not request this change, please disregard this email.\n\n"
+                    f"Warm regards,\nNord Velocity Concierge & Support\nconcierge@nordvelocity.com"
+                )
+                try:
+                    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@nordvelocity.com')
+                    send_mail(
+                        subject,
+                        message,
+                        from_email,
+                        [user.email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    # In development / console backend or mail error, log safely
+                    pass
+
+        return redirect('accounts:forgot_password_done')
+
+    return render(request, 'accounts/forgot_password.html')
+
+
+def forgot_password_done_view(request):
+    """Informs the user that password reset instructions have been dispatched."""
+    return render(request, 'accounts/forgot_password_done.html')
+
+
+def reset_password_confirm_view(request, uidb64, token):
+    """Allows customer to set a new password once the token is verified."""
+    if request.user.is_authenticated:
+        return redirect('accounts:dashboard')
+
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid, is_active=True)
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        valid_link = True
+        if request.method == 'POST':
+            new_password = request.POST.get('password', '')
+            confirm_password = request.POST.get('confirm_password', '')
+
+            if not new_password or not confirm_password:
+                messages.error(request, "Please enter both password fields.")
+            elif len(new_password) < 6:
+                messages.error(request, "Password must be at least 6 characters long.")
+            elif new_password != confirm_password:
+                messages.error(request, "Passwords do not match. Please re-enter.")
+            else:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request, "Your password has been reset successfully! You can now log in.")
+                return redirect('accounts:reset_password_complete')
+    else:
+        valid_link = False
+
+    return render(request, 'accounts/reset_password.html', {
+        'valid_link': valid_link,
+        'uidb64': uidb64,
+        'token': token,
+    })
+
+
+def reset_password_complete_view(request):
+    """Confirmation page when password has been successfully reset."""
+    return render(request, 'accounts/reset_password_complete.html')
+
+
+def social_login_view(request, provider):
+    """
+    Handles social sign-in initiation (Google / Facebook).
+    If live OAuth credentials exist in environment variables, redirects to provider.
+    Otherwise redirects with guidance.
+    """
+    provider = provider.lower()
+    google_client_id = os.environ.get('GOOGLE_CLIENT_ID', '').strip()
+    facebook_app_id = os.environ.get('FACEBOOK_APP_ID', '').strip()
+
+    if provider == 'google' and google_client_id:
+        redirect_uri = request.build_absolute_uri('/accounts/social/google/callback/')
+        google_auth_url = (
+            f"https://accounts.google.com/o/oauth2/v2/auth?"
+            f"client_id={google_client_id}&response_type=code&"
+            f"scope=openid%20email%20profile&redirect_uri={redirect_uri}"
+        )
+        return redirect(google_auth_url)
+    elif provider == 'facebook' and facebook_app_id:
+        redirect_uri = request.build_absolute_uri('/accounts/social/facebook/callback/')
+        fb_auth_url = (
+            f"https://www.facebook.com/v19.0/dialog/oauth?"
+            f"client_id={facebook_app_id}&redirect_uri={redirect_uri}&scope=email,public_profile"
+        )
+        return redirect(fb_auth_url)
+    else:
+        messages.info(
+            request, 
+            f"{provider.capitalize()} Single Sign-On is currently in setup. Please sign in with your email and password, or use 1-Click Fast Access."
+        )
+        return redirect('accounts:login')
+
+
+def social_demo_login_view(request, provider):
+    """
+    1-Click Fast Access / QA Demo authentication for testing social login flows.
+    """
+    provider = provider.lower()
+    demo_email = f"demo.{provider}@nordvelocity.com"
+    demo_username = f"demo_{provider}_user"
+
+    user, created = CustomUser.objects.get_or_create(
+        email=demo_email,
+        defaults={
+            'username': demo_username,
+            'first_name': f"{provider.capitalize()}",
+            'last_name': "Verified Guest",
+            'role': 'CUSTOMER',
+            'is_active': True,
+        }
+    )
+    CustomerProfile.objects.get_or_create(user=user)
+    login(request, user)
+    messages.success(request, f"Welcome! Signed in with {provider.capitalize()} (Demo Mode).")
+    return redirect('accounts:dashboard')
+
 

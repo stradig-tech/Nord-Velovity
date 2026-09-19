@@ -1,0 +1,120 @@
+{% load static %}
+<div class="form-card htmx-fade-in" style="padding: 0;">
+    <div class="bookings-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <h3 class="form-card-title" style="margin: 0; font-size: 1.4rem; font-weight: 800; color: #0f172a;">My Bookings</h3>
+        <div class="bookings-tabs" style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'accounts:my_bookings' %}" 
+               hx-get="{% url 'accounts:my_bookings' %}"
+               hx-target="#dashboardMainContent"
+               hx-swap="innerHTML transition:true"
+               hx-push-url="true"
+               hx-indicator="#htmx-indicator"
+               class="booking-tab-btn {% if not selected_status %}active{% endif %}" 
+               style="text-decoration: none; padding: 0.45rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.88rem; transition: all 0.2s; {% if not selected_status %}background: #4F46E5; color: white;{% else %}background: #F1F5F9; color: #475569;{% endif %}">
+                All
+            </a>
+            <a href="{% url 'accounts:my_bookings' %}?status=confirmed" 
+               hx-get="{% url 'accounts:my_bookings' %}?status=confirmed"
+               hx-target="#dashboardMainContent"
+               hx-swap="innerHTML transition:true"
+               hx-push-url="true"
+               hx-indicator="#htmx-indicator"
+               class="booking-tab-btn {% if selected_status == 'confirmed' %}active{% endif %}" 
+               style="text-decoration: none; padding: 0.45rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.88rem; transition: all 0.2s; {% if selected_status == 'confirmed' %}background: #4F46E5; color: white;{% else %}background: #F1F5F9; color: #475569;{% endif %}">
+                Confirmed
+            </a>
+            <a href="{% url 'accounts:my_bookings' %}?status=completed" 
+               hx-get="{% url 'accounts:my_bookings' %}?status=completed"
+               hx-target="#dashboardMainContent"
+               hx-swap="innerHTML transition:true"
+               hx-push-url="true"
+               hx-indicator="#htmx-indicator"
+               class="booking-tab-btn {% if selected_status == 'completed' %}active{% endif %}" 
+               style="text-decoration: none; padding: 0.45rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.88rem; transition: all 0.2s; {% if selected_status == 'completed' %}background: #4F46E5; color: white;{% else %}background: #F1F5F9; color: #475569;{% endif %}">
+                Completed
+            </a>
+        </div>
+    </div>
+    
+    <div class="bookings-list" style="padding: 1.5rem 2rem;">
+        {% for b in bookings %}
+        <div class="booking-list-card">
+            <!-- Left Column: Tour / Vehicle Thumbnail -->
+            <div class="booking-img-wrapper">
+                {% if b.tour_booking and b.tour_booking.tour.media.first %}
+                    <img src="{{ b.tour_booking.tour.media.first.file.url }}" alt="{{ b.tour_booking.tour.title }}">
+                {% elif b.tour_booking and b.tour_booking.tour.destination.hero_image %}
+                    <img src="{{ b.tour_booking.tour.destination.hero_image.url }}" alt="{{ b.tour_booking.tour.title }}">
+                {% elif b.chauffeur_booking and b.chauffeur_booking.vehicle.photos.first %}
+                    <img src="{{ b.chauffeur_booking.vehicle.photos.first.image_file.url }}" alt="{{ b.chauffeur_booking.vehicle.name }}">
+                {% else %}
+                    <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="Nord Velocity Booking">
+                {% endif %}
+            </div>
+            
+            <!-- Middle Column: Booking Details -->
+            <div class="booking-details">
+                <div>
+                    <h4 class="booking-title">
+                        {% if b.tour_booking and b.tour_booking.tour %}
+                            <a href="{% url 'tours:detail' b.tour_booking.tour.slug %}">
+                                {{ b.tour_booking.tour.title }}
+                            </a>
+                        {% elif b.chauffeur_booking and b.chauffeur_booking.vehicle %}
+                            Chauffeur: {{ b.chauffeur_booking.vehicle.vehicle_class.name }} ({{ b.chauffeur_booking.vehicle.name }})
+                        {% else %}
+                            Nordic Reservation
+                        {% endif %}
+                    </h4>
+                    <p class="booking-id">
+                        Booking ID: <strong style="color: #0F172A; font-family: monospace;">#{{ b.booking_ref }}</strong> &bull; Total: <strong style="color: #0F172A; font-size: 0.95rem;">€{{ b.total_amount }}</strong>
+                    </p>
+                </div>
+                
+                <div class="booking-meta-info">
+                    <span style="display: inline-flex; align-items: center; gap: 0.35rem;"><i class="ph-bold ph-calendar" style="color: #4F46E5;"></i> {{ b.created_at|date:"M d, Y" }}</span>
+                    <span style="display: inline-flex; align-items: center; gap: 0.35rem;"><i class="ph-bold ph-credit-card" style="color: #10B981;"></i> {{ b.get_payment_method_display }} ({{ b.get_payment_status_display }})</span>
+                </div>
+            </div>
+            
+            <!-- Right Column: Dedicated Status & Actions -->
+            <div class="booking-right-col">
+                <span class="booking-status-badge {% if b.status == 'CONFIRMED' %}confirmed{% elif b.status == 'COMPLETED' %}completed{% else %}pending{% endif %}">
+                    <span style="width: 6px; height: 6px; border-radius: 50%; display: inline-block; {% if b.status == 'CONFIRMED' %}background: #16A34A;{% elif b.status == 'COMPLETED' %}background: #4F46E5;{% else %}background: #D97706;{% endif %}"></span>
+                    {{ b.get_status_display }}
+                </span>
+                
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <a href="{% url 'accounts:booking_order_detail' b.booking_ref %}" 
+                       hx-get="{% url 'accounts:booking_order_detail' b.booking_ref %}" 
+                       hx-target="#dashboardMainContent" 
+                       hx-swap="innerHTML transition:true" 
+                       hx-push-url="true" 
+                       style="font-size: 0.8rem; font-weight: 700; color: #4F46E5; text-decoration: none; padding: 0.32rem 0.75rem; border-radius: 6px; background: #EEF2FF; border: 1px solid #C7D2FE; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.35rem;" 
+                       onmouseover="this.style.background='#4F46E5'; this.style.color='#FFFFFF'; this.style.borderColor='#4F46E5';" 
+                       onmouseout="this.style.background='#EEF2FF'; this.style.color='#4F46E5'; this.style.borderColor='#C7D2FE';">
+                        <i class="ph-bold ph-receipt"></i> <span>View Order Details</span>
+                    </a>
+                    <span class="booking-type-tag">
+                        {{ b.get_booking_type_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 4rem 2rem; background: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1;">
+            <i class="ph-bold ph-calendar-x" style="font-size: 3rem; color: #94A3B8; margin-bottom: 1rem;"></i>
+            <h4 style="font-size: 1.15rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">No Bookings Found</h4>
+            <p style="color: #64748B; font-size: 0.9rem; max-width: 400px; margin: 0 auto 1.5rem auto;">You don't have any bookings matching this status filter yet.</p>
+            <a href="{% url 'tours:list' %}" class="btn" style="background: #4F46E5; color: white; padding: 0.6rem 1.4rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">Browse Tours</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if is_htmx %}
+<!-- OOB Sidebar Swap for Active Tab Sync -->
+<div id="customerSidebarNav" hx-swap-oob="outerHTML">
+    {% include 'accounts/partials/sidebar_nav_partial.html' with active_tab='bookings' %}
+</div>
+{% endif %}

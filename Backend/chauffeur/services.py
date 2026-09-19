@@ -136,7 +136,8 @@ class ChauffeurPricingService:
         is_return: bool = False
     ) -> Dict[str, Any]:
         """
-        Calculates flat-rate pricing for predefined transfer routes.
+        Calculates flat-rate pricing for predefined fixed price transfer routes.
+        Supports all transfer types: airport, city, hotel, resort, attraction, custom.
         """
         price = fixed_route.fixed_price
         if is_return and fixed_route.return_price:
@@ -144,10 +145,16 @@ class ChauffeurPricingService:
 
         return {
             'route_name': fixed_route.name,
+            'transfer_type': fixed_route.transfer_type,
+            'pickup_name': fixed_route.pickup_name,
+            'dropoff_name': fixed_route.dropoff_name,
             'vehicle_class': fixed_route.vehicle_class.name,
             'currency': fixed_route.currency,
             'distance_km': float(fixed_route.distance_km),
             'estimated_duration_min': fixed_route.estimated_duration_min,
+            'passenger_capacity': fixed_route.passenger_capacity,
+            'luggage_capacity': fixed_route.luggage_capacity,
             'is_return': is_return,
             'final_fare': price
         }
+

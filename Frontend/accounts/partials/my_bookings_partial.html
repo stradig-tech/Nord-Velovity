@@ -1,6 +1,6 @@
 {% load static %}
 <div class="form-card htmx-fade-in" style="padding: 0;">
-    <div class="bookings-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div class="bookings-header">
         <h3 class="form-card-title" style="margin: 0; font-size: 1.4rem; font-weight: 800; color: #0f172a;">My Bookings</h3>
         <div class="bookings-tabs" style="display: flex; gap: 0.5rem;">
             <a href="{% url 'accounts:my_bookings' %}" 
@@ -36,7 +36,7 @@
         </div>
     </div>
     
-    <div class="bookings-list" style="padding: 1.5rem 2rem;">
+    <div class="bookings-list">
         {% for b in bookings %}
         <div class="booking-list-card">
             <!-- Left Column: Tour / Vehicle Thumbnail -->
@@ -79,26 +79,24 @@
             
             <!-- Right Column: Dedicated Status & Actions -->
             <div class="booking-right-col">
-                <span class="booking-status-badge {% if b.status == 'CONFIRMED' %}confirmed{% elif b.status == 'COMPLETED' %}completed{% else %}pending{% endif %}">
-                    <span style="width: 6px; height: 6px; border-radius: 50%; display: inline-block; {% if b.status == 'CONFIRMED' %}background: #16A34A;{% elif b.status == 'COMPLETED' %}background: #4F46E5;{% else %}background: #D97706;{% endif %}"></span>
-                    {{ b.get_status_display }}
-                </span>
-                
-                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                    <a href="{% url 'accounts:booking_order_detail' b.booking_ref %}" 
-                       hx-get="{% url 'accounts:booking_order_detail' b.booking_ref %}" 
-                       hx-target="#dashboardMainContent" 
-                       hx-swap="innerHTML transition:true" 
-                       hx-push-url="true" 
-                       style="font-size: 0.8rem; font-weight: 700; color: #4F46E5; text-decoration: none; padding: 0.32rem 0.75rem; border-radius: 6px; background: #EEF2FF; border: 1px solid #C7D2FE; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.35rem;" 
-                       onmouseover="this.style.background='#4F46E5'; this.style.color='#FFFFFF'; this.style.borderColor='#4F46E5';" 
-                       onmouseout="this.style.background='#EEF2FF'; this.style.color='#4F46E5'; this.style.borderColor='#C7D2FE';">
-                        <i class="ph-bold ph-receipt"></i> <span>View Order Details</span>
-                    </a>
+                <div class="booking-badges-row">
+                    <span class="booking-status-badge {% if b.status == 'CONFIRMED' %}confirmed{% elif b.status == 'COMPLETED' %}completed{% else %}pending{% endif %}">
+                        <span style="width: 6px; height: 6px; border-radius: 50%; display: inline-block; {% if b.status == 'CONFIRMED' %}background: #16A34A;{% elif b.status == 'COMPLETED' %}background: #4F46E5;{% else %}background: #D97706;{% endif %}"></span>
+                        {{ b.get_status_display }}
+                    </span>
                     <span class="booking-type-tag">
                         {{ b.get_booking_type_display }}
                     </span>
                 </div>
+                
+                <a href="{% url 'accounts:booking_order_detail' b.booking_ref %}" 
+                   hx-get="{% url 'accounts:booking_order_detail' b.booking_ref %}" 
+                   hx-target="#dashboardMainContent" 
+                   hx-swap="innerHTML transition:true" 
+                   hx-push-url="true" 
+                   class="btn-order-details">
+                    <i class="ph-bold ph-receipt"></i> <span>View Order Details</span>
+                </a>
             </div>
         </div>
         {% empty %}

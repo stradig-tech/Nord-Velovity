@@ -5,6 +5,9 @@ class ToursConfig(AppConfig):
     name = 'tours'
 
     def ready(self):
+        import sys
+        if any(cmd in sys.argv for cmd in ['collectstatic', 'makemigrations', 'compilemessages', 'showmigrations']):
+            return
         try:
             from .models import Country, Destination
             flag_map = {

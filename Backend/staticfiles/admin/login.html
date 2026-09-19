@@ -1,0 +1,519 @@
+{% load static i18n %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Nord Velocity Executive Portal</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% if site_settings.favicon %}{{ site_settings.favicon.url }}{% else %}{% static 'images/brand/logo bg-transparent.png' %}{% endif %}">
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --primary-light: #EEF2FF;
+            --dark: #0F172A;
+            --dark-surface: #1E293B;
+            --slate-500: #64748B;
+            --slate-400: #94A3B8;
+            --slate-200: #E2E8F0;
+            --slate-100: #F1F5F9;
+            --slate-50: #F8FAFC;
+            --danger: #EF4444;
+            --danger-bg: #FEF2F2;
+            --danger-border: #FCA5A5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at 50% 10%, #1E293B 0%, #0F172A 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+            color: #0F172A;
+        }
+
+        /* Ambient Glow Highlights */
+        .ambient-glow-1 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.22) 0%, rgba(15, 23, 42, 0) 70%);
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+            bottom: -100px;
+            right: 15%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Main Container */
+        .portal-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Card Styling */
+        .login-card {
+            width: 100%;
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 2.75rem 2.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Brand Header */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .brand-logo-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .brand-logo {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.85rem;
+            border-radius: 9999px;
+            background: #EEF2FF;
+            color: #4F46E5;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .security-badge i {
+            font-size: 0.95rem;
+        }
+
+        .portal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.4rem;
+        }
+
+        .portal-subtitle {
+            font-size: 0.88rem;
+            color: #64748B;
+            line-height: 1.45;
+        }
+
+        /* Alerts & Errors */
+        .alert-error {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.9rem 1rem;
+            border-radius: 12px;
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            color: #991B1B;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .alert-error i {
+            font-size: 1.25rem;
+            color: var(--danger);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            font-size: 1.2rem;
+            color: #94A3B8;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 48px;
+            padding: 0 1rem 0 2.85rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: #0F172A;
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            background: #FFFFFF;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+        }
+
+        .form-control:focus + .input-icon,
+        .input-group:focus-within .input-icon {
+            color: var(--primary);
+        }
+
+        .form-control::placeholder {
+            color: #94A3B8;
+            font-size: 0.9rem;
+        }
+
+        /* Password Toggle Button */
+        .btn-toggle-pw {
+            position: absolute;
+            right: 0.75rem;
+            background: transparent;
+            border: none;
+            color: #94A3B8;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .btn-toggle-pw:hover {
+            color: #1E293B;
+            background: rgba(148, 163, 184, 0.15);
+        }
+
+        /* Extras Row */
+        .form-extras {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1.25rem 0 1.75rem 0;
+            font-size: 0.85rem;
+        }
+
+        .checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #475569;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.85rem;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            accent-color: var(--primary);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.38);
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #4338CA 0%, #312E81 100%);
+            box-shadow: 0 6px 20px 0 rgba(79, 70, 229, 0.48);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px 0 rgba(79, 70, 229, 0.35);
+        }
+
+        .btn-submit i {
+            font-size: 1.15rem;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-submit:hover i {
+            transform: translateX(3px);
+        }
+
+        /* Card Divider / Footer */
+        .card-footer {
+            margin-top: 1.75rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #F1F5F9;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: #64748B;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            transform: translateX(-2px);
+        }
+
+        /* Exterior Footer */
+        .portal-outer-footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: #94A3B8;
+            font-size: 0.78rem;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+            .login-card {
+                padding: 2rem 1.5rem;
+                border-radius: 16px;
+            }
+            .portal-title {
+                font-size: 1.35rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Lighting -->
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <div class="portal-wrapper">
+        <div class="login-card">
+            
+            <!-- Brand Header -->
+            <div class="brand-header">
+                <div class="brand-logo-wrap">
+                    <img src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'images/brand/logo bg-transparent.png' %}{% endif %}" alt="Nord Velocity" class="brand-logo">
+                </div>
+                <div>
+                    <span class="security-badge"><i class="ph-bold ph-shield-check"></i> Management Portal</span>
+                </div>
+                <h1 class="portal-title">Nord Velocity Admin</h1>
+                <p class="portal-subtitle">Sign in with your administrator credentials to access fleet, tours, and bookings.</p>
+            </div>
+
+            <!-- Error Notifications -->
+            {% if form.errors and not form.non_field_errors %}
+            <div class="alert-error" role="alert">
+                <i class="ph-bold ph-warning-circle"></i>
+                <div>Please enter a valid email address and password. Note that fields may be case-sensitive.</div>
+            </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="alert-error" role="alert">
+                <i class="ph-bold ph-warning-circle"></i>
+                <div>
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Login Form -->
+            <form action="{{ app_path }}" method="post" id="adminLoginForm">
+                {% csrf_token %}
+                
+                <!-- Email / Username -->
+                <div class="form-group">
+                    <label for="id_username" class="form-label">Email Address</label>
+                    <div class="input-group">
+                        <i class="ph-bold ph-envelope input-icon"></i>
+                        <input type="text" 
+                               name="username" 
+                               id="id_username" 
+                               class="form-control" 
+                               placeholder="admin@nordvelocity.com" 
+                               value="{{ form.username.value|default:'' }}" 
+                               autocomplete="username" 
+                               required 
+                               autofocus>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="id_password" class="form-label">Password</label>
+                    </div>
+                    <div class="input-group">
+                        <i class="ph-bold ph-lock-key input-icon"></i>
+                        <input type="password" 
+                               name="password" 
+                               id="id_password" 
+                               class="form-control" 
+                               placeholder="••••••••••••" 
+                               autocomplete="current-password" 
+                               required>
+                        <button type="button" class="btn-toggle-pw" id="togglePasswordBtn" aria-label="Toggle password visibility">
+                            <i class="ph-bold ph-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden next input -->
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <!-- Helper Options -->
+                <div class="form-extras">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember" checked>
+                        <span>Remember this device</span>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <span>Sign In to Admin Portal</span>
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- Card Footer -->
+            <div class="card-footer">
+                <a href="/" class="back-link">
+                    <i class="ph-bold ph-arrow-left"></i>
+                    <span>Return to Public Website</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Exterior Security & Copyright Footer -->
+        <div class="portal-outer-footer">
+            <p>🔒 256-bit TLS Encrypted Management Gateway</p>
+            <p>&copy; {% now "Y" %} Nord Velocity Oy. All rights reserved. Authorized access only.</p>
+        </div>
+    </div>
+
+    <!-- Password Visibility Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            const pwInput = document.getElementById('id_password');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (toggleBtn && pwInput && toggleIcon) {
+                toggleBtn.addEventListener('click', function() {
+                    if (pwInput.type === 'password') {
+                        pwInput.type = 'text';
+                        toggleIcon.className = 'ph-bold ph-eye-slash';
+                        toggleBtn.setAttribute('aria-label', 'Hide password');
+                    } else {
+                        pwInput.type = 'password';
+                        toggleIcon.className = 'ph-bold ph-eye';
+                        toggleBtn.setAttribute('aria-label', 'Show password');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

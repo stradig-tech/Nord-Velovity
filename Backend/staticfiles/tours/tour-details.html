@@ -1,0 +1,975 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ tour.title }} | Nord Velocity Luxury Tours{% endblock %}
+
+{% block seo %}
+<meta name="description" content="{{ tour.short_summary|default:tour.overview|truncatewords:25 }}">
+<meta property="og:title" content="{{ tour.title }}">
+<meta property="og:description" content="{{ tour.short_summary|default:tour.overview|truncatewords:25 }}">
+{% if tour.banner_image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ tour.banner_image.url }}">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Main Layout -->
+<section class="container" style="padding-top: 3rem; padding-bottom: 5rem;">
+    <div class="tour-details-layout">
+        
+        <!-- Left Column: Main Content -->
+        <main class="tour-details-main">
+            
+            <!-- Gallery -->
+            <div class="tour-gallery-grid{% if tour.media.count <= 1 %} gallery-single{% endif %}">
+                {% with media_items=tour.media.all media_count=tour.media.count %}
+                <div class="gallery-main" style="{% if media_items.first %}background-image: url('{{ media_items.first.file.url }}');{% elif tour.destination.hero_image %}background-image: url('{{ tour.destination.hero_image.url }}');{% else %}background: #1E293B;{% endif %}">
+                    <span class="gallery-badge"><i class="ph-fill ph-map-pin"></i> {{ tour.destination.name }}</span>
+                </div>
+                {% if media_count > 1 %}
+                <div class="gallery-sub-col">
+                    <div class="gallery-sub" style="background-image: url('{{ media_items.1.file.url }}');"></div>
+                    {% if media_count > 2 %}
+                    <div class="gallery-sub" style="background-image: url('{{ media_items.2.file.url }}'); position: relative;">
+                        <button class="view-all-photos-btn"><i class="ph-bold ph-images"></i> {{ media_count }} Photos</button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+            
+            <!-- Header & Overview -->
+            <div style="margin-top: 2rem; margin-bottom: 3rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <h1 style="font-size: 2.3rem; font-weight: 800; color: #0F172A; margin: 0;">{{ tour.title }}</h1>
+                    </div>
+                    
+                    <button type="button" class="tour-wishlist-btn-hero {% if tour.id in user_wishlist_ids %}active is-wishlisted{% endif %}" onclick="toggleWishlist({{ tour.id }}, this, event)" data-wishlist-tour-id="{{ tour.id }}" title="{% if tour.id in user_wishlist_ids %}Remove from Wishlist{% else %}Save to Wishlist{% endif %}" aria-label="Toggle Wishlist">
+                        <i class="{% if tour.id in user_wishlist_ids %}ph-fill ph-heart{% else %}ph-bold ph-heart{% endif %}" style="{% if tour.id in user_wishlist_ids %}color: #EF4444;{% endif %}"></i>
+                        <span class="wishlist-btn-text">{% if tour.id in user_wishlist_ids %}Saved to Wishlist{% else %}Save to Wishlist{% endif %}</span>
+                    </button>
+                </div>
+
+                <p style="font-size: 0.95rem; color: #64748B; margin-bottom: 1.5rem;">
+                    <i class="ph-fill ph-star" style="color: #F59E0B;"></i> <span style="font-weight: 700; color: #0F172A;">5.0</span> ({{ reviews.count|default:"24" }} reviews) &bull; 
+                    <i class="ph-fill ph-map-pin" style="color: #4F46E5;"></i> {{ tour.destination.name }}, {{ tour.destination.country.name }}
+                </p>
+                
+                <h3 class="section-heading">Overview</h3>
+                <div style="font-size: 1rem; color: #475569; line-height: 1.7;">
+                    {{ tour.overview|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Quick Stats Grid (Aesthetic Mobile-Friendly Boxes) -->
+            <div class="quick-stats-grid tour-quick-facts-grid" style="margin-bottom: 2.5rem;">
+                <div class="tour-fact-card">
+                    <div class="fact-icon-wrapper fact-icon-duration">
+                        <i class="ph-bold ph-clock"></i>
+                    </div>
+                    <div class="fact-content">
+                        <span class="fact-label">Duration</span>
+                        <span class="fact-value">{{ tour.duration_text }}</span>
+                    </div>
+                </div>
+                <div class="tour-fact-card">
+                    <div class="fact-icon-wrapper fact-icon-style">
+                        <i class="ph-bold ph-users-three"></i>
+                    </div>
+                    <div class="fact-content">
+                        <span class="fact-label">Travel Style</span>
+                        <span class="fact-value">{{ tour.travel_style.name|default:"Luxury" }}</span>
+                    </div>
+                </div>
+                <div class="tour-fact-card">
+                    <div class="fact-icon-wrapper fact-icon-dest">
+                        <i class="ph-bold ph-map-pin"></i>
+                    </div>
+                    <div class="fact-content">
+                        <span class="fact-label">Destination</span>
+                        <span class="fact-value">{{ tour.destination.name }}</span>
+                    </div>
+                </div>
+                <div class="tour-fact-card">
+                    <div class="fact-icon-wrapper fact-icon-lang">
+                        <i class="ph-bold ph-translate"></i>
+                    </div>
+                    <div class="fact-content">
+                        <span class="fact-label">Languages</span>
+                        <span class="fact-value">English, Finnish</span>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="border-top: 1px solid #E2E8F0; margin: 3rem 0;">
+            
+            <!-- Tour Highlights -->
+            {% if tour.highlights.all %}
+            <div style="margin-bottom: 3rem;">
+                <h3 class="section-heading">Experience Highlights</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                    {% for hl in tour.highlights.all %}
+                    <div style="display: flex; align-items: center; gap: 0.75rem; background: #F8FAFC; padding: 1rem; border-radius: 12px; border: 1px solid #E2E8F0;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+                            <i class="ph-bold {% if hl.icon %}{{ hl.icon }}{% else %}ph-sparkle{% endif %}"></i>
+                        </div>
+                        <span style="font-weight: 700; color: #0F172A; font-size: 0.92rem;">{{ hl.text }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- What's Included & What's Excluded -->
+            {% if tour.inclusions.all %}
+            <div style="margin-bottom: 3rem;">
+                <h3 class="section-heading">What's Included & Excluded</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <h4 style="font-size: 0.95rem; font-weight: 800; color: #16A34A; text-transform: uppercase; margin-bottom: 0.75rem;">Included in Package</h4>
+                        <ul class="inclusions-list text-success" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem;">
+                            {% for inc in tour.inclusions.all %}
+                            {% if inc.is_included %}
+                            <li style="font-size: 0.92rem; color: #334155; display: flex; align-items: center; gap: 0.5rem; list-style: none;">
+                                <i class="ph-bold ph-check-circle" style="color: #16A34A; font-size: 1.1rem; flex-shrink: 0;"></i>
+                                <span>{{ inc.text }}</span>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 style="font-size: 0.95rem; font-weight: 800; color: #DC2626; text-transform: uppercase; margin-bottom: 0.75rem;">Not Included</h4>
+                        <ul class="inclusions-list text-danger" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem;">
+                            {% for inc in tour.inclusions.all %}
+                            {% if not inc.is_included %}
+                            <li style="font-size: 0.92rem; color: #64748B; display: flex; align-items: center; gap: 0.5rem; list-style: none;">
+                                <i class="ph-bold ph-x-circle" style="color: #DC2626; font-size: 1.1rem; flex-shrink: 0;"></i>
+                                <span>{{ inc.text }}</span>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Optional Add-ons & Extras -->
+            {% if tour.extra_services.all %}
+            <div style="margin-bottom: 3rem; background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 16px; padding: 1.75rem;">
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: #581C87; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="ph-bold ph-plus-circle" style="color: #9333EA;"></i> Optional Trip Enhancements & Add-ons
+                </h3>
+                <p style="font-size: 0.88rem; color: #7E22CE; margin-bottom: 1.25rem;">
+                    Customize your journey with these optional concierge extras available during checkout.
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    {% for extra in tour.extra_services.all %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; padding: 0.85rem 1.25rem; border-radius: 10px; border: 1px solid #E9D5FF;">
+                        <div>
+                            <strong style="color: #0F172A; font-size: 0.95rem; display: block;">{{ extra.name }}</strong>
+                            {% if extra.description %}
+                            <span style="font-size: 0.82rem; color: #64748B; display: block; margin-top: 0.15rem;">{{ extra.description }}</span>
+                            {% endif %}
+                        </div>
+                        <span style="font-size: 1rem; font-weight: 800; color: #7E22CE; background: #F3E8FF; padding: 0.35rem 0.75rem; border-radius: 8px;">
+                            +&euro;{{ extra.price|floatformat:0 }} <small style="font-size: 0.75rem; font-weight: 600;">{{ extra.get_price_type_display }}</small>
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Dynamic Itinerary -->
+            {% if tour.itinerary.all %}
+            <div style="margin-bottom: 3rem;">
+                <h3 class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
+                    Day-by-Day Itinerary
+                </h3>
+                <div class="itinerary-accordion">
+                    {% for day in tour.itinerary.all %}
+                    <div class="accordion-item {% if forloop.first %}open{% endif %}" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 0.75rem; overflow: hidden;">
+                        <div class="accordion-header" onclick="toggleItinerary(this, event);" style="background: #F8FAFC; padding: 1.15rem 1.5rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+                            <span style="font-weight: 700; font-size: 1rem; color: #0F172A;">
+                                <span style="color: #4F46E5; margin-right: 0.5rem; font-weight: 800;">Day {{ day.day_number }}:</span> {{ day.title }}
+                            </span>
+                            <div class="itinerary-arrow-btn">
+                                <i class="ph-bold {% if forloop.first %}ph-caret-up{% else %}ph-caret-down{% endif %}"></i>
+                            </div>
+                        </div>
+                        <div class="accordion-body" style="padding: 1.5rem; background: #FFFFFF; font-size: 0.95rem; color: #475569; line-height: 1.65; {% if not forloop.first %}display: none;{% endif %}">
+                            <p style="margin: 0 0 1rem 0;">{{ day.description }}</p>
+                            {% if day.image %}
+                            <img src="{{ day.image.url }}" alt="{{ day.title }}" style="width: 100%; max-height: 280px; object-fit: cover; border-radius: 10px; margin-top: 0.5rem;">
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Route Map -->
+            <div style="margin-bottom: 3rem;">
+                <h3 class="section-heading">Destination & Route</h3>
+                <div style="border-radius: 14px; overflow: hidden; border: 1px solid #E2E8F0; height: 320px;">
+                    <iframe width="100%" height="100%" style="border:0;" loading="lazy" allowfullscreen src="https://www.google.com/maps?q={{ tour.destination.name }},{{ tour.destination.country.name|default:'Finland' }}&output=embed"></iframe>
+                </div>
+            </div>
+            
+            <!-- FAQ Accordion -->
+            <div style="margin-bottom: 3rem;">
+                <h3 class="section-heading">Frequently Asked Questions</h3>
+                <div class="faq-accordion">
+                    {% if tour.faqs.exists %}
+                        {% for faq in tour.faqs.all %}
+                        <details class="accordion-item" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 0.75rem; background: #FFF; padding: 0.5rem 1.25rem;" {% if forloop.first %}open{% endif %}>
+                            <summary style="padding: 0.85rem 0; font-weight: 600; font-size: 1.05rem; cursor: pointer; color: #0F172A; display: flex; justify-content: space-between; align-items: center;">
+                                <span>{{ faq.question }}</span>
+                            </summary>
+                            <div style="padding-bottom: 1rem; color: #64748B; font-size: 0.95rem; line-height: 1.6;">
+                                {{ faq.answer }}
+                            </div>
+                        </details>
+                        {% endfor %}
+                    {% else %}
+                        {% for faq in faqs %}
+                        <details class="accordion-item" style="border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 0.75rem; background: #FFF; padding: 0.5rem 1.25rem;" {% if forloop.first %}open{% endif %}>
+                            <summary style="padding: 0.85rem 0; font-weight: 600; font-size: 1.05rem; cursor: pointer; color: #0F172A; display: flex; justify-content: space-between; align-items: center;">
+                                <span>{{ faq.question }}</span>
+                            </summary>
+                            <div style="padding-bottom: 1rem; color: #64748B; font-size: 0.95rem; line-height: 1.6;">
+                                {{ faq.answer }}
+                            </div>
+                        </details>
+                        {% empty %}
+                        <p class="text-muted">No questions available for this tour package.</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Reviews -->
+            <div style="margin-bottom: 2rem;">
+                <h3 class="section-heading">Tour Reviews</h3>
+                <div style="display: flex; gap: 3rem; align-items: flex-start; margin-bottom: 2.5rem; flex-wrap: wrap;">
+                    
+                    <!-- Rating Summary -->
+                    <div style="text-align: center; min-width: 150px;">
+                        <h2 style="font-size: 3.5rem; font-weight: 700; color: #0F172A; line-height: 1;">5.0</h2>
+                        <div style="color: #F59E0B; font-size: 1.2rem; margin-bottom: 0.5rem;">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #64748B;">Based on verified traveler feedback</p>
+                    </div>
+                    
+                    <!-- Rating Bars -->
+                    <div class="review-bars" style="flex: 1; min-width: 250px;">
+                        <div class="bar-row">
+                            <span>5</span> <i class="ph-fill ph-star" style="color: #F59E0B; font-size: 0.8rem; margin: 0 8px;"></i>
+                            <div class="bar-track"><div class="bar-fill" style="width: 95%;"></div></div>
+                            <span class="bar-count">98%</span>
+                        </div>
+                        <div class="bar-row">
+                            <span>4</span> <i class="ph-fill ph-star" style="color: #F59E0B; font-size: 0.8rem; margin: 0 8px;"></i>
+                            <div class="bar-track"><div class="bar-fill" style="width: 5%;"></div></div>
+                            <span class="bar-count">2%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dynamic Customer Reviews -->
+                {% for r in reviews %}
+                <div class="review-comment" style="border-top: 1px solid #E2E8F0; padding-top: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <div style="display: flex; gap: 0.85rem; align-items: center;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem;">
+                                {{ r.customer.first_name|first|default:r.customer.email|first|upper }}
+                            </div>
+                            <div>
+                                <h4 style="font-size: 0.98rem; font-weight: 700; color: #0F172A; margin-bottom: 0.15rem;">{{ r.customer.get_full_name|default:r.customer.email }}</h4>
+                                <p style="font-size: 0.8rem; color: #94A3B8; margin: 0;">{{ r.created_at|date:"F d, Y" }}</p>
+                            </div>
+                        </div>
+                        <div style="color: #F59E0B;">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= r.rating %}
+                                    <i class="ph-fill ph-star"></i>
+                                {% else %}
+                                    <i class="ph ph-star" style="color: #CBD5E1;"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p style="font-size: 0.95rem; color: #475569; line-height: 1.6; margin-bottom: 0.5rem;">{{ r.comment }}</p>
+                </div>
+                {% empty %}
+                <div class="review-comment" style="border-top: 1px solid #E2E8F0; padding-top: 1.5rem; text-align: center; color: #64748B;">
+                    <p style="font-size: 0.95rem; margin: 0;">No traveler reviews submitted yet for this departure. Verified guests can submit reviews after completing their tour.</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+        </main>
+        
+        <!-- Right Column: Sticky Sidebar -->
+        <aside class="tour-details-sidebar">
+            <!-- Interactive Booking & Availability Card -->
+            <div id="tourBookingWidget" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.06);">
+                
+                <!-- Price & Rating Header -->
+                <div style="margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid #F1F5F9;">
+                    <!-- Row 1: Big Total Price & Availability Badge -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.45rem; flex-wrap: nowrap;">
+                        <div style="display: flex; align-items: baseline; gap: 0.35rem; white-space: nowrap; flex-shrink: 0;">
+                            <span id="sidebarTotalPrice" style="font-size: 1.85rem; font-weight: 900; color: #0F172A; line-height: 1; letter-spacing: -0.5px;">€{{ base_price }}</span>
+                            <span id="sidebarPriceUnit" style="font-size: 0.88rem; color: #64748B; font-weight: 600; white-space: nowrap;">/ total</span>
+                        </div>
+                        <span id="spotsBadge" style="font-size: 0.76rem; font-weight: 700; color: #065F46; background: #D1FAE5; padding: 0.28rem 0.65rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; flex-shrink: 0; line-height: 1;">
+                            <i class="ph-fill ph-check-circle" style="font-size: 0.82rem;"></i> Available
+                        </span>
+                    </div>
+                    
+                    <!-- Row 2: Starting Per Adult Price & Star Rating -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.84rem; flex-wrap: nowrap;">
+                        <span style="color: #64748B; white-space: nowrap;">From <strong style="color: #0F172A; font-weight: 700;">€{{ base_price }}</strong> per adult</span>
+                        <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0;">
+                            <i class="ph-fill ph-star" style="color: #F59E0B; font-size: 0.88rem;"></i>
+                            <span style="font-weight: 800; color: #0F172A;">5.0</span>
+                            <span style="color: #64748B;">({{ reviews.count|default:"24" }})</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. Check Availability & Departure Slot -->
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="tourDepartureSelect" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem; font-weight: 700; color: #1E293B; margin-bottom: 0.5rem;">
+                        <span><i class="ph-bold ph-calendar-check" style="color: #4F46E5; margin-right: 0.35rem;"></i> Select Departure Slot</span>
+                        <span style="font-size: 0.75rem; font-weight: 600; color: #4F46E5;">Date & Time</span>
+                    </label>
+                    <div style="position: relative;">
+                        <select id="tourDepartureSelect" style="width: 100%; padding: 0.8rem 2.2rem 0.8rem 0.9rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; font-weight: 600; color: #0F172A; background: #F8FAFC; cursor: pointer; appearance: none; -webkit-appearance: none;">
+                            {% for dep in available_departures %}
+                            <option value="{{ dep.id }}" data-is-departure="1" {% if forloop.first %}selected{% endif %}>
+                                {{ dep.date|date:"D, d M Y" }} @ {{ dep.time|time:"H:i" }}
+                            </option>
+                            {% empty %}
+                            {% for d in available_dates %}
+                            <option value="{{ d.id }}" data-is-departure="0" data-spots="{{ d.available_spots }}" {% if forloop.first %}selected{% endif %}>
+                                {{ d.start_date|date:"D, d M Y" }} &bull; ({{ d.available_spots }} spots left)
+                            </option>
+                            {% empty %}
+                            <option value="" disabled selected>Contact concierge for departure dates</option>
+                            {% endfor %}
+                            {% endfor %}
+                        </select>
+                        <i class="ph-bold ph-caret-down" style="position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%); color: #64748B; pointer-events: none;"></i>
+                    </div>
+                </div>
+
+                <!-- 2. Transportation & Group Category (Private Car, Micro, Group Bus) -->
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: flex; align-items: center; justify-content: space-between; font-size: 0.88rem; font-weight: 700; color: #1E293B; margin-bottom: 0.5rem;">
+                        <span><i class="ph-bold ph-van" style="color: #4F46E5; margin-right: 0.35rem;"></i> Vehicle & Group Option</span>
+                        <span style="font-size: 0.72rem; color: #64748B; font-weight: 600;">Small/Big Family & Group</span>
+                    </label>
+                    <div class="vehicle-option-grid" id="vehicleOptionGrid">
+                        {% for vt in vehicle_types %}
+                        <div class="vehicle-option-card" 
+                             data-vt-id="{{ vt.id }}" 
+                             data-vt-slug="{{ vt.slug }}"
+                             data-capacity="{{ vt.default_capacity }}"
+                             style="border: 2px solid {% if vt.slug == 'micro' %}#4F46E5{% else %}#E2E8F0{% endif %}; 
+                                    background: {% if vt.slug == 'micro' %}#EEF2FF{% else %}#FFFFFF{% endif %}; 
+                                    border-radius: 10px; padding: 0.65rem 0.4rem; text-align: center; cursor: pointer; transition: all 0.2s;">
+                            <div style="font-size: 1.4rem; line-height: 1; margin-bottom: 0.25rem;">{{ vt.icon|default:'🚗' }}</div>
+                            <div style="font-size: 0.78rem; font-weight: 800; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ vt.name }}</div>
+                            <div style="font-size: 0.68rem; color: #64748B; font-weight: 600; margin-top: 1px;">
+                                {% if vt.slug == 'private-car' %}1-4 seats
+                                {% elif vt.slug == 'micro' %}5-12 seats
+                                {% elif vt.slug == 'group-bus' %}13-54 seats
+                                {% else %}{{ vt.default_capacity }} seats{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 2. Guest Counters (Book Now Options) -->
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <!-- Adults -->
+                    <div style="flex: 1; background: #F8FAFC; padding: 0.75rem 0.85rem; border-radius: 10px; border: 1px solid #E2E8F0;">
+                        <div style="font-size: 0.78rem; font-weight: 600; color: #64748B; margin-bottom: 0.35rem;">Adults (€{{ base_price }})</div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <button type="button" id="btnDecAdults" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #CBD5E1; background: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #0F172A; transition: all 0.2s;">-</button>
+                            <span id="adultCountDisplay" style="font-weight: 800; font-size: 1.15rem; color: #0F172A;">2</span>
+                            <button type="button" id="btnIncAdults" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #CBD5E1; background: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #0F172A; transition: all 0.2s;">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Children -->
+                    <div style="flex: 1; background: #F8FAFC; padding: 0.75rem 0.85rem; border-radius: 10px; border: 1px solid #E2E8F0;">
+                        <div style="font-size: 0.78rem; font-weight: 600; color: #64748B; margin-bottom: 0.35rem;">Children <span style="background: #EEF2FF; color: #4F46E5; font-size: 0.65rem; font-weight: 700; padding: 1px 4px; border-radius: 4px;">50% off</span></div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <button type="button" id="btnDecChildren" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #CBD5E1; background: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #0F172A; transition: all 0.2s;">-</button>
+                            <span id="childCountDisplay" style="font-weight: 800; font-size: 1.15rem; color: #0F172A;">0</span>
+                            <button type="button" id="btnIncChildren" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #CBD5E1; background: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #0F172A; transition: all 0.2s;">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group Discount Notice -->
+                <div id="groupDiscountBanner" style="display: none; background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.82rem; margin-bottom: 1rem; align-items: center; gap: 0.5rem;">
+                    <i class="ph-fill ph-tag"></i> <span id="groupDiscountText">Group discount applied</span>
+                </div>
+
+                <!-- Dynamic Price Breakdown Summary -->
+                <div style="background: #F8FAFC; border-radius: 10px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.85rem; border: 1px solid #E2E8F0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; color: #64748B;">
+                        <span>Subtotal (<span id="summaryGuestsCount">2 guests</span>)</span>
+                        <span id="summarySubtotal" style="font-weight: 700; color: #0F172A;">€0</span>
+                    </div>
+                    <div id="summaryDiscountRow" style="display: none; justify-content: space-between; margin-bottom: 0.35rem; color: #059669;">
+                        <span>Group Discount</span>
+                        <span id="summaryDiscount" style="font-weight: 700;">-€0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.05rem; color: #0F172A; border-top: 1px dashed #CBD5E1; padding-top: 0.5rem; margin-top: 0.35rem;">
+                        <span>Total Payable</span>
+                        <span id="summaryFinalTotal" style="color: #4F46E5;">€0</span>
+                    </div>
+                </div>
+
+                <!-- 3. CTAs: Book Now & Send Inquiry -->
+                <button type="button" id="btnBookNow" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.95rem; font-size: 1.05rem; font-weight: 800; border-radius: 10px; margin-bottom: 0.65rem; background: #4F46E5; border: none; color: white; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); transition: all 0.2s;">
+                    <i class="ph-bold ph-calendar-check" style="font-size: 1.2rem;"></i> Book Now
+                </button>
+                <button type="button" id="btnOpenInquiryModal" class="btn" style="width: 100%; justify-content: center; padding: 0.8rem; font-size: 0.95rem; font-weight: 700; border-radius: 10px; border: 1.5px solid #4F46E5; color: #4F46E5; background: transparent; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
+                    <i class="ph-bold ph-envelope-simple" style="font-size: 1.1rem;"></i> Send Inquiry
+                </button>
+            </div>
+
+            <!-- Need Help Box -->
+            <div style="background: #F4F4F5; border-radius: 16px; padding: 1.5rem; border: 1px solid #E2E8F0;">
+                <h3 style="font-size: 1.5rem; font-weight: 800; color: #0F172A; margin: 0 0 1.25rem 0; letter-spacing: -0.5px;">Need Help?</h3>
+                
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 0; border-bottom: 1px solid #E5E7EB;">
+                        <i class="ph-bold ph-phone-call" style="font-size: 1.3rem; color: #4F46E5;"></i>
+                        <span style="font-size: 0.95rem; color: #1E293B;">Call us: <strong>+31 123 456 789</strong></span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 0; border-bottom: 1px solid #E5E7EB;">
+                        <i class="ph-bold ph-alarm" style="font-size: 1.3rem; color: #4F46E5;"></i>
+                        <span style="font-size: 0.95rem; color: #1E293B;">Timing: <strong>10AM to 7PM</strong></span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 0; border-bottom: 1px solid #E5E7EB;">
+                        <i class="ph-bold ph-headset" style="font-size: 1.3rem; color: #4F46E5;"></i>
+                        <span style="font-size: 0.95rem; color: #0F172A; font-weight: 700; cursor: pointer;" onclick="document.getElementById('btnOpenInquiryModal').click();">Let Us Call You</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.85rem; padding-top: 0.85rem;">
+                        <i class="ph-bold ph-calendar-check" style="font-size: 1.3rem; color: #4F46E5;"></i>
+                        <span style="font-size: 0.95rem; color: #0F172A; font-weight: 700; cursor: pointer;" onclick="document.getElementById('btnBookNow').click();">Book Appointments</span>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        
+    </div><!-- Recommended Packages Layout -->
+<section style="background: #F8FAFC; padding: 5rem 0;">
+    <div class="container">
+        <h2 class="section-title text-center" style="margin-bottom: 3rem;">Recommended Packages</h2>
+        <div class="tours-grid packages-grid">
+            {% if related_tours %}
+                {% for r_tour in related_tours %}
+                <div class="tour-card">
+                    <div class="tour-img-box">
+                        {% if r_tour.media.first %}
+                        <img src="{{ r_tour.media.first.file.url }}" alt="{{ r_tour.title }}" class="tour-img" style="object-fit: cover;">
+                        {% else %}
+                        <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="{{ r_tour.title }}" class="tour-img" style="object-fit: cover;">
+                        {% endif %}
+                        <div class="badge-stack-right">
+                            <span class="tour-badge red-bg">Featured</span>
+                        </div>
+                    </div>
+                    <div class="tour-body">
+                        <div class="tour-rating">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                            <span class="rating-val">(5.0)</span>
+                        </div>
+                        <h4 class="tour-title">{{ r_tour.title }}</h4>
+                        <div class="tour-meta">
+                            <span class="meta-item"><i class="ph ph-map-pin"></i> {{ r_tour.destination.name }}</span>
+                            <span class="meta-item"><i class="ph ph-clock"></i> {{ r_tour.duration_text }}</span>
+                        </div>
+                        
+                        <div class="tour-footer">
+                            <div class="tour-price-box">
+                                <span class="price-label">Starting From</span>
+                                <div class="price-display">
+                                    {% with pricing=r_tour.pricing.first %}
+                                    <span class="price-main">€{{ pricing.sale_price|default:pricing.price|default:"199" }}</span>
+                                    {% endwith %}
+                                    <span class="price-sub">/per person</span>
+                                </div>
+                                <div class="hotel-flight-tag">Hotel/Flight Included <i class="ph-bold ph-check"></i></div>
+                            </div>
+                            <div class="tour-footer-actions">
+                                <button type="button" class="tour-wishlist-btn {% if r_tour.id in user_wishlist_ids %}active is-wishlisted{% endif %}" onclick="toggleWishlist({{ r_tour.id }}, this, event)" data-wishlist-tour-id="{{ r_tour.id }}" title="{% if r_tour.id in user_wishlist_ids %}Remove from Wishlist{% else %}Save to Wishlist{% endif %}" aria-label="Toggle Wishlist">
+                                    <i class="{% if r_tour.id in user_wishlist_ids %}ph-fill ph-heart{% else %}ph-bold ph-heart{% endif %}" style="{% if r_tour.id in user_wishlist_ids %}color: #EF4444;{% endif %}"></i>
+                                </button>
+                                <a href="{% url 'tours:detail' r_tour.slug %}" class="btn btn-primary rounded-pill">View Tour</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Package 1 -->
+                <div class="tour-card">
+                    <div class="tour-img-box">
+                        <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="Helsinki City" class="tour-img" style="object-fit: cover;">
+                        <div class="badge-stack-right">
+                            <span class="tour-badge red-bg">Sale on!</span>
+                            <span class="tour-badge yellow-bg text-dark">Best seller</span>
+                        </div>
+                    </div>
+                    <div class="tour-body">
+                        <div class="tour-rating">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                            <span class="rating-val">(5.0)</span>
+                        </div>
+                        <h4 class="tour-title">Helsinki City & Suomenlinna Tour</h4>
+                        <div class="tour-meta">
+                            <span class="meta-item"><i class="ph ph-map-pin"></i> Helsinki, Finland</span>
+                            <span class="meta-item"><i class="ph ph-clock"></i> 7 Days</span>
+                        </div>
+                        
+                        <div class="tour-footer">
+                            <div class="tour-price-box">
+                                <span class="price-label">Starting From</span>
+                                <div class="price-display">
+                                    <span class="price-main">€299</span><span class="price-sub">/per person</span>
+                                </div>
+                                <div class="hotel-flight-tag">Hotel/Flight Included <i class="ph-bold ph-check"></i></div>
+                            </div>
+                            <div class="tour-footer-actions">
+                                <button type="button" class="tour-wishlist-btn" onclick="toggleWishlist(1, this, event)" data-wishlist-tour-id="1" title="Save to Wishlist" aria-label="Toggle Wishlist">
+                                    <i class="ph-bold ph-heart"></i>
+                                </button>
+                                <a href="{% url 'tours:list' %}" class="btn btn-primary rounded-pill">View Tour</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Package 2 -->
+                <div class="tour-card">
+                    <div class="tour-img-box">
+                        <img src="/static/images/packages/7111_13901216855_cca37b8607_b_800_600_nofilter.jpg" alt="Lakeland" class="tour-img" style="object-fit: cover;">
+                        <div class="badge-stack-right">
+                            <span class="tour-badge red-bg">15% off</span>
+                            <span class="tour-badge yellow-bg text-dark">Group tour</span>
+                        </div>
+                    </div>
+                    <div class="tour-body">
+                        <div class="tour-rating">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star-half"></i>
+                            <span class="rating-val">(4.8)</span>
+                        </div>
+                        <h4 class="tour-title">Finnish Lakeland Summer Retreat</h4>
+                        <div class="tour-meta">
+                            <span class="meta-item"><i class="ph ph-map-pin"></i> Lakeland, Finland</span>
+                            <span class="meta-item"><i class="ph ph-clock"></i> 5 Days</span>
+                        </div>
+                        
+                        <div class="tour-footer">
+                            <div class="tour-price-box">
+                                <span class="price-label">Starting From</span>
+                                <div class="price-display">
+                                    <span class="price-main">€389</span><span class="price-sub">/per person</span>
+                                </div>
+                                <div class="hotel-flight-tag">Hotel/Flight Included <i class="ph-bold ph-check"></i></div>
+                            </div>
+                            <div class="tour-footer-actions">
+                                <button type="button" class="tour-wishlist-btn" onclick="toggleWishlist(2, this, event)" data-wishlist-tour-id="2" title="Save to Wishlist" aria-label="Toggle Wishlist">
+                                    <i class="ph-bold ph-heart"></i>
+                                </button>
+                                <a href="{% url 'tours:list' %}" class="btn btn-primary rounded-pill">View Tour</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Package 3 -->
+                <div class="tour-card">
+                    <div class="tour-img-box">
+                        <img src="/static/images/citys/1-Snowmobile-Reindeer-Husky-5-550x358.jpg" alt="Rovaniemi" class="tour-img" style="object-fit: cover;">
+                        <div class="badge-stack-right">
+                            <span class="tour-badge red-bg">10% off</span>
+                            <span class="tour-badge yellow-bg text-dark">Best seller</span>
+                        </div>
+                    </div>
+                    <div class="tour-body">
+                        <div class="tour-rating">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star-half"></i>
+                            <span class="rating-val">(4.7)</span>
+                        </div>
+                        <h4 class="tour-title">Rovaniemi Santa Claus Village</h4>
+                        <div class="tour-meta">
+                            <span class="meta-item"><i class="ph ph-map-pin"></i> Rovaniemi, Finland</span>
+                            <span class="meta-item"><i class="ph ph-clock"></i> 4 Days</span>
+                        </div>
+                        
+                        <div class="tour-footer">
+                            <div class="tour-price-box">
+                                <span class="price-label">Starting From</span>
+                                <div class="price-display">
+                                    <span class="price-main">€450</span><span class="price-sub">/per person</span>
+                                </div>
+                                <div class="hotel-flight-tag">Hotel/Flight Included <i class="ph-bold ph-check"></i></div>
+                            </div>
+                            <div class="tour-footer-actions">
+                                <button type="button" class="tour-wishlist-btn" onclick="toggleWishlist(3, this, event)" data-wishlist-tour-id="3" title="Save to Wishlist" aria-label="Toggle Wishlist">
+                                    <i class="ph-bold ph-heart"></i>
+                                </button>
+                                <a href="{% url 'tours:list' %}" class="btn btn-primary rounded-pill">View Tour</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+
+<!-- Inquiry Modal Dialog -->
+<div id="inquiryModal" data-modal="tourInquiryModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
+    <div style="background: white; border-radius: 20px; max-width: 480px; width: 100%; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative;">
+        <button type="button" id="btnCloseInquiryModal" style="position: absolute; top: 1.25rem; right: 1.25rem; background: #F1F5F9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748B; font-size: 1.1rem; transition: background 0.2s;">
+            <i class="ph-bold ph-x"></i>
+        </button>
+
+        <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 0.4rem 0;">Inquire About This Tour</h3>
+        <p style="font-size: 0.88rem; color: #64748B; margin-bottom: 1.5rem;">Have questions about <strong>{{ tour.title }}</strong>? Our destination concierge is ready to assist you.</p>
+
+        <form id="inquiryForm">
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem;">Full Name *</label>
+                <input type="text" id="inquiryName" required placeholder="e.g. Sarah Jenkins" value="{{ request.user.get_full_name|default:'' }}" style="width: 100%; padding: 0.75rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem;">Email Address *</label>
+                <input type="email" id="inquiryEmail" required placeholder="e.g. sarah@example.com" value="{{ request.user.email|default:'' }}" style="width: 100%; padding: 0.75rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC;">
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem;">Phone (Optional)</label>
+                <input type="tel" id="inquiryPhone" placeholder="e.g. +31 123 456 789" style="width: 100%; padding: 0.75rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC;">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem;">Your Question or Request *</label>
+                <textarea id="inquiryMessage" rows="3" required placeholder="Ask about private group options, dates, or dietary requests..." style="width: 100%; padding: 0.75rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC; resize: vertical;"></textarea>
+            </div>
+
+            <button type="submit" id="btnSubmitInquiry" style="width: 100%; padding: 0.95rem; background: #4F46E5; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                <i class="ph-bold ph-paper-plane-tilt"></i> Send Inquiry
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tourId = {{ tour.id }};
+    const departureSelect = document.getElementById('tourDepartureSelect');
+    const displayTotalPrice = document.getElementById('sidebarTotalPrice');
+    const spotsBadge = document.getElementById('spotsBadge');
+    
+    const adultDisplay = document.getElementById('adultCountDisplay');
+    const childDisplay = document.getElementById('childCountDisplay');
+    const btnIncAdults = document.getElementById('btnIncAdults');
+    const btnDecAdults = document.getElementById('btnDecAdults');
+    const btnIncChildren = document.getElementById('btnIncChildren');
+    const btnDecChildren = document.getElementById('btnDecChildren');
+
+    const summaryGuestsCount = document.getElementById('summaryGuestsCount');
+    const summarySubtotal = document.getElementById('summarySubtotal');
+    const summaryDiscountRow = document.getElementById('summaryDiscountRow');
+    const summaryDiscount = document.getElementById('summaryDiscount');
+    const summaryFinalTotal = document.getElementById('summaryFinalTotal');
+    const groupDiscountBanner = document.getElementById('groupDiscountBanner');
+    const groupDiscountText = document.getElementById('groupDiscountText');
+
+    const btnBookNow = document.getElementById('btnBookNow');
+    const btnOpenInquiry = document.getElementById('btnOpenInquiryModal');
+    const inquiryModal = document.getElementById('inquiryModal') || document.getElementById('tourInquiryModal');
+    const btnCloseInquiry = document.getElementById('btnCloseInquiryModal');
+    const inquiryForm = document.getElementById('inquiryForm');
+
+    const vehicleCards = document.querySelectorAll('.vehicle-option-card');
+    let selectedVehicleTypeId = null;
+    let selectedVehicleCapacity = 12;
+
+    // Default vehicle selection (prefers Micro or first card)
+    vehicleCards.forEach(c => {
+        if (c.classList.contains('active') || c.getAttribute('data-vt-slug') === 'micro') {
+            selectedVehicleTypeId = c.getAttribute('data-vt-id');
+            selectedVehicleCapacity = parseInt(c.getAttribute('data-capacity')) || 12;
+            c.style.borderColor = '#4F46E5';
+            c.style.background = '#EEF2FF';
+        }
+        c.addEventListener('click', () => {
+            vehicleCards.forEach(other => {
+                other.style.borderColor = '#E2E8F0';
+                other.style.background = '#FFFFFF';
+                other.classList.remove('active');
+            });
+            c.classList.add('active');
+            c.style.borderColor = '#4F46E5';
+            c.style.background = '#EEF2FF';
+            selectedVehicleTypeId = c.getAttribute('data-vt-id');
+            selectedVehicleCapacity = parseInt(c.getAttribute('data-capacity')) || 12;
+            recalculatePrice();
+        });
+    });
+
+    if (!selectedVehicleTypeId && vehicleCards.length > 0) {
+        selectedVehicleTypeId = vehicleCards[0].getAttribute('data-vt-id');
+    }
+
+    let adults = 2;
+    let children = 0;
+
+    function updateSpotsBadge(sellable, isAvail) {
+        if (typeof sellable === 'number') {
+            if (sellable <= 0 || !isAvail) {
+                spotsBadge.style.background = '#FEE2E2';
+                spotsBadge.style.color = '#991B1B';
+                spotsBadge.innerHTML = '<i class="ph-fill ph-x-circle" style="font-size: 0.82rem;"></i> Sold Out';
+            } else if (sellable <= 4) {
+                spotsBadge.style.background = '#FEF3C7';
+                spotsBadge.style.color = '#92400E';
+                spotsBadge.innerHTML = `<i class="ph-fill ph-fire" style="font-size: 0.82rem;"></i> Only ${sellable} left`;
+            } else {
+                spotsBadge.style.background = '#D1FAE5';
+                spotsBadge.style.color = '#065F46';
+                spotsBadge.innerHTML = `<i class="ph-fill ph-check-circle" style="font-size: 0.82rem;"></i> ${sellable} spots available`;
+            }
+        }
+    }
+
+    async function recalculatePrice() {
+        const depOpt = departureSelect ? departureSelect.selectedOptions[0] : null;
+        let depQuery = '';
+        if (depOpt) {
+            const isDep = depOpt.getAttribute('data-is-departure') === '1';
+            if (isDep) {
+                depQuery = `&departure_id=${depOpt.value}`;
+            } else {
+                depQuery = `&date_id=${depOpt.value}`;
+            }
+        }
+        const vtQuery = selectedVehicleTypeId ? `&vehicle_type_id=${selectedVehicleTypeId}` : '';
+
+        try {
+            const res = await fetch(`/tours/api/${tourId}/calculate-price/?adults=${adults}&children=${children}${depQuery}${vtQuery}`);
+            const data = await res.json();
+            if (data.success && data.pricing) {
+                const p = data.pricing;
+                displayTotalPrice.textContent = `€${p.final_total}`;
+                summarySubtotal.textContent = `€${p.subtotal}`;
+                summaryFinalTotal.textContent = `€${p.final_total}`;
+
+                const totalGuests = p.total_guests || (adults + children);
+                summaryGuestsCount.textContent = `${totalGuests} guest${totalGuests > 1 ? 's' : ''}`;
+
+                if (p.discount_amount && parseFloat(p.discount_amount) > 0) {
+                    summaryDiscountRow.style.display = 'flex';
+                    summaryDiscount.textContent = `-€${p.discount_amount}`;
+                    if (groupDiscountBanner && groupDiscountText) {
+                        groupDiscountBanner.style.display = 'flex';
+                        groupDiscountText.textContent = `Group discount applied: -€${p.discount_amount} (${p.group_discount_percent}% off)`;
+                    }
+                } else {
+                    summaryDiscountRow.style.display = 'none';
+                    if (groupDiscountBanner) groupDiscountBanner.style.display = 'none';
+                }
+
+                if ('sellable_seats' in p) {
+                    updateSpotsBadge(p.sellable_seats, p.is_available);
+                }
+            }
+        } catch (err) {
+            console.error("Price recalculation error:", err);
+        }
+    }
+
+    if (btnIncAdults) {
+        btnIncAdults.addEventListener('click', () => {
+            adults++;
+            adultDisplay.textContent = adults;
+            recalculatePrice();
+        });
+    }
+
+    if (btnDecAdults) {
+        btnDecAdults.addEventListener('click', () => {
+            if (adults > 1) {
+                adults--;
+                adultDisplay.textContent = adults;
+                recalculatePrice();
+            }
+        });
+    }
+
+    if (btnIncChildren) {
+        btnIncChildren.addEventListener('click', () => {
+            children++;
+            childDisplay.textContent = children;
+            recalculatePrice();
+        });
+    }
+
+    if (btnDecChildren) {
+        btnDecChildren.addEventListener('click', () => {
+            if (children > 0) {
+                children--;
+                childDisplay.textContent = children;
+                recalculatePrice();
+            }
+        });
+    }
+
+    if (departureSelect) {
+        departureSelect.addEventListener('change', () => {
+            recalculatePrice();
+        });
+    }
+
+    if (btnBookNow) {
+        btnBookNow.addEventListener('click', () => {
+            const depOpt = departureSelect ? departureSelect.selectedOptions[0] : null;
+            if (!depOpt || !depOpt.value) {
+                alert("Please select a departure slot before proceeding.");
+                if (departureSelect) departureSelect.focus();
+                return;
+            }
+            const isDep = depOpt.getAttribute('data-is-departure') === '1';
+            let targetUrl = `{% url 'bookings:create' tour.slug %}?adults=${adults}&children=${children}`;
+            if (isDep) {
+                targetUrl += `&departure_id=${depOpt.value}`;
+            } else {
+                targetUrl += `&date_id=${depOpt.value}`;
+            }
+            if (selectedVehicleTypeId) {
+                targetUrl += `&vehicle_type_id=${selectedVehicleTypeId}`;
+            }
+            window.location.href = targetUrl;
+        });
+    }
+
+    recalculatePrice();
+
+    // Modal Events
+    if (btnOpenInquiry && inquiryModal) {
+        btnOpenInquiry.addEventListener('click', () => {
+            inquiryModal.style.display = 'flex';
+        });
+    }
+
+    if (btnCloseInquiry && inquiryModal) {
+        btnCloseInquiry.addEventListener('click', () => {
+            inquiryModal.style.display = 'none';
+        });
+    }
+
+    window.addEventListener('click', (e) => {
+        if (e.target === inquiryModal) {
+            inquiryModal.style.display = 'none';
+        }
+    });
+
+    if (inquiryForm) {
+        inquiryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('inquiryName').value.trim();
+            const email = document.getElementById('inquiryEmail').value.trim();
+            const phone = document.getElementById('inquiryPhone').value.trim();
+            const message = document.getElementById('inquiryMessage').value.trim();
+
+            const submitBtn = document.getElementById('btnSubmitInquiry');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const res = await fetch(`/tours/api/${tourId}/enquiry/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ name, email, phone, message })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message || 'Thank you! Your inquiry has been submitted. Our concierge will contact you shortly.');
+                    inquiryModal.style.display = 'none';
+                    inquiryForm.reset();
+                } else {
+                    alert(data.error || 'Could not submit inquiry. Please try again.');
+                }
+            } catch (err) {
+                alert('An error occurred. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="ph-bold ph-paper-plane-tilt"></i> Send Inquiry';
+            }
+        });
+    }
+
+    // Initial calculation
+    recalculatePrice();
+});
+
+// Day-by-Day Itinerary Accordion Toggle
+window.toggleItinerary = function(header, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    if (!header) return;
+    var item = header.closest('.accordion-item');
+    if (!item) return;
+    var body = item.querySelector('.accordion-body');
+    var icon = header.querySelector('i');
+    if (!body) return;
+
+    var isOpen = item.classList.contains('open');
+
+    if (isOpen) {
+        item.classList.remove('open');
+        body.style.display = 'none';
+        if (icon) {
+            icon.className = 'ph-bold ph-caret-down';
+        }
+    } else {
+        item.classList.add('open');
+        body.style.display = 'block';
+        if (icon) {
+            icon.className = 'ph-bold ph-caret-up';
+        }
+    }
+};
+</script>
+{% endblock %}

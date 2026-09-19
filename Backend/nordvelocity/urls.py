@@ -66,6 +66,7 @@ urlpatterns = [
     path('dashboard/', RedirectView.as_view(url='/accounts/dashboard/', permanent=False)),
     path('my-bookings/', RedirectView.as_view(url='/accounts/my-bookings/', permanent=False)),
     path('my-wishlist/', RedirectView.as_view(url='/accounts/my-wishlist/', permanent=False)),
+    path('forgot-password/', RedirectView.as_view(url='/accounts/forgot-password/', permanent=False)),
     path('destination/', RedirectView.as_view(url='/tours/destinations/', permanent=True)),
     path('destinations/', RedirectView.as_view(url='/tours/destinations/', permanent=True)),
     path('about/', about_view, name='about'),
@@ -76,13 +77,18 @@ urlpatterns = [
     path('', home_view, name='home'),
 ]
 
+from django.views.static import serve
+from django.urls import re_path
+
+# Ensure media uploads (hero images, destination photos) are always served on cPanel
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
+
 if settings.DEBUG:
     from django.conf.urls.static import static
-    from django.views.static import serve
-    from django.urls import re_path
 
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += [
         re_path(r'^(?:.*/)?images/(?P<path>.*)$', serve, {'document_root': settings.STATICFILES_DIRS[0] / 'images'}),
         re_path(r'^style\.css$', serve, {'document_root': settings.STATICFILES_DIRS[0], 'path': 'style.css'}),

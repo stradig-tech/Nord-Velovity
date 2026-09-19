@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ destination.name }} Tour Guide & Packages | Nord Velocity{% endblock %}
+
+{% block seo %}
+<meta name="description" content="Discover {{ destination.name }}, {{ destination.country.name }}. Explore top attractions, regional highlights, and curated travel packages.">
+<meta property="og:title" content="{{ destination.name }}, {{ destination.country.name }} | Nord Velocity Travel">
+{% endblock %}
+
+{% block content %}
+<!-- Destination Header -->
+<section class="page-header" style="position: relative; min-height: 440px; display: flex; align-items: center; justify-content: center; background-image: linear-gradient(rgba(15, 23, 42, 0.5), rgba(15, 23, 42, 0.75)), url('{% if destination.hero_image %}{{ destination.hero_image.url }}{% else %}{% static 'images/citys/1-Snowmobile-Reindeer-Husky-5-550x358.jpg' %}{% endif %}'); background-size: cover; background-position: center; color: white; text-align: center; padding: 4.5rem 1.5rem;">
+    <div style="position: relative; z-index: 2; max-width: 800px; margin: 0 auto;">
+        {% if destination.country %}
+        <a href="{% url 'tours:country_detail' destination.country.slug %}" style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); padding: 0.35rem 1.25rem; border-radius: 999px; font-weight: 700; font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1rem; color: #FFFFFF; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.3);">
+            <i class="ph-bold ph-globe"></i> {{ destination.country.name }}
+        </a>
+        {% endif %}
+        <h1 style="font-size: 3.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem; line-height: 1.2;">
+            {{ destination.name }}
+        </h1>
+        <p style="font-size: 1.15rem; color: #E2E8F0; line-height: 1.6; max-width: 650px; margin: 0 auto;">
+            {{ destination.description|truncatewords:30 }}
+        </p>
+    </div>
+</section>
+
+<!-- Breadcrumbs -->
+<div style="background: #FFFFFF; border-bottom: 1px solid #E2E8F0; padding: 0.85rem 2rem;">
+    <div class="container" style="max-width: 1240px; margin: 0 auto; font-size: 0.88rem; color: #64748B;">
+        <a href="{% url 'home' %}" style="color: #4F46E5; text-decoration: none; font-weight: 600;">Home</a>
+        <span style="margin: 0 0.5rem;">&rsaquo;</span>
+        <a href="{% url 'tours:destination_list' %}" style="color: #4F46E5; text-decoration: none; font-weight: 600;">Destinations</a>
+        {% if destination.country %}
+        <span style="margin: 0 0.5rem;">&rsaquo;</span>
+        <a href="{% url 'tours:country_detail' destination.country.slug %}" style="color: #4F46E5; text-decoration: none; font-weight: 600;">{{ destination.country.name }}</a>
+        {% endif %}
+        <span style="margin: 0 0.5rem;">&rsaquo;</span>
+        <span style="color: #0F172A; font-weight: 700;">{{ destination.name }}</span>
+    </div>
+</div>
+
+<!-- Main Destination Details & Tour Packages -->
+<section style="padding: 4rem 1.5rem; background-color: #F8FAFC;">
+    <div class="container" style="max-width: 1240px; margin: 0 auto;">
+        
+        <div class="destination-details-layout">
+            
+            <!-- Left Column: Destination Overview & Packages -->
+            <div>
+                <!-- About Section Card -->
+                <div style="background: white; border-radius: 20px; padding: 2.5rem; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 3rem;">
+                    <span style="color: #4F46E5; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">Destination Overview</span>
+                    <h2 style="font-size: 2.2rem; color: #0F172A; font-weight: 800; margin: 0.5rem 0 1.25rem 0;">
+                        About {{ destination.name }}
+                    </h2>
+                    <p style="color: #475569; line-height: 1.8; font-size: 1.05rem; margin-bottom: 2rem;">
+                        {{ destination.description }}
+                    </p>
+                    
+                    {% if destination.highlights %}
+                    <h3 style="font-size: 1.35rem; color: #0F172A; font-weight: 700; margin-bottom: 1.25rem;">
+                        Key Highlights & Top Sights
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem;">
+                        {% for item in destination.highlights.split %}
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 0.85rem 1.25rem; border-radius: 12px; display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="ph-fill ph-check-circle" style="color: #10B981; font-size: 1.25rem;"></i>
+                            <span style="font-weight: 600; color: #334155; font-size: 0.95rem;">{{ item|cut:"," }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Differwise Tour Packages in this Place -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.75rem;">
+                        <div>
+                            <span style="color: #4F46E5; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">Available Journeys</span>
+                            <h3 style="font-size: 2rem; font-weight: 800; color: #0F172A; margin: 0.25rem 0 0 0;">
+                                Tour Packages in {{ destination.name }}
+                            </h3>
+                        </div>
+                        <span style="font-weight: 700; color: #64748B; font-size: 0.95rem;">{{ tours.count }} Package{{ tours.count|pluralize }}</span>
+                    </div>
+
+                    {% if tours %}
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        {% for tour in tours %}
+                        <div class="dest-horizontal-card" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.06)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.03)';">
+                            
+                            <!-- Tour Image -->
+                            <div style="height: 100%; min-height: 200px; position: relative; background: #0F172A;">
+                                {% if tour.media.first %}
+                                <img src="{{ tour.media.first.file.url }}" alt="{{ tour.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                <img src="{% static 'images/packages/31337_54406107252_f4ca19b35f_c_800_600_nofilter.jpg' %}" alt="{{ tour.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% endif %}
+                                
+                                <span style="position: absolute; top: 0.85rem; left: 0.85rem; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); color: white; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;">
+                                    <i class="ph-bold ph-clock"></i> {{ tour.duration_text }}
+                                </span>
+                            </div>
+
+                            <!-- Tour Info -->
+                            <div style="padding: 1.75rem; display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <h4 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem; line-height: 1.3;">
+                                        <a href="{% url 'tours:detail' tour.slug %}" style="color: #0F172A; text-decoration: none;">{{ tour.title }}</a>
+                                    </h4>
+                                    <p style="color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+                                        {{ tour.short_summary|truncatewords:24 }}
+                                    </p>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 1rem;">
+                                    <div>
+                                        <span style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase; font-weight: 600; display: block;">Starting from</span>
+                                        <span style="font-size: 1.5rem; font-weight: 800; color: #0F172A;">€{{ tour.pricing.first.price|default:"900"|floatformat:0 }}</span>
+                                        <span style="font-size: 0.85rem; color: #64748B;">/person</span>
+                                    </div>
+                                    <a href="{% url 'tours:detail' tour.slug %}" style="background: #4F46E5; color: white; padding: 0.65rem 1.35rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#4338CA';" onmouseout="this.style.backgroundColor='#4F46E5';">
+                                        <span>Book Package</span>
+                                        <i class="ph-bold ph-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div style="background: white; border-radius: 16px; padding: 2.5rem; text-align: center; border: 1px solid #E2E8F0;">
+                        <i class="ph-bold ph-calendar-blank" style="font-size: 2.5rem; color: #94A3B8; margin-bottom: 0.75rem;"></i>
+                        <h4 style="font-size: 1.25rem; font-weight: 700; color: #0F172A; margin-bottom: 0.5rem;">Custom Private Itineraries Available</h4>
+                        <p style="color: #64748B; font-size: 0.95rem; max-width: 500px; margin: 0 auto 1.5rem auto;">We tailor bespoke luxury chauffeur journeys and arctic expeditions in {{ destination.name }}. Contact our concierge for a personalized quote.</p>
+                        <a href="{% url 'contact' %}" class="btn" style="background: #0F172A; color: white; font-weight: 700; padding: 0.7rem 1.5rem; border-radius: 10px; text-decoration: none;">Request Private Itinerary</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Column: Concierge Sidebar & Sibling Destinations -->
+            <div>
+                <!-- Trip Concierge Box -->
+                <div style="background: white; padding: 2rem; border-radius: 18px; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 2rem;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: #EEF2FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
+                        <i class="ph-bold ph-headset"></i>
+                    </div>
+                    <h4 style="font-size: 1.3rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem;">Plan Your {{ destination.name }} Trip</h4>
+                    <p style="color: #64748B; font-size: 0.92rem; line-height: 1.5; margin-bottom: 1.5rem;">
+                        Need private VIP chauffeur transfer, airport luxury pick-up, or custom schedule? Our Nordic concierge team is available 24/7.
+                    </p>
+                    <a href="{% url 'chauffeur:hub' %}" style="display: block; text-align: center; background: #0F172A; color: white; padding: 0.75rem; border-radius: 10px; font-weight: 700; text-decoration: none; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                        Book VIP Chauffeur
+                    </a>
+                    <a href="{% url 'contact' %}" style="display: block; text-align: center; border: 1.5px solid #CBD5E1; color: #475569; padding: 0.7rem; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 0.9rem;">
+                        Contact Travel Concierge
+                    </a>
+                </div>
+
+                <!-- Sibling Places in Same Country -->
+                {% if sibling_destinations %}
+                <div style="background: white; padding: 2rem; border-radius: 18px; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin-bottom: 1.25rem;">
+                        More Places in {{ destination.country.name }}
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        {% for sibling in sibling_destinations %}
+                        <a href="{% url 'tours:destination_detail' sibling.slug %}" style="display: flex; align-items: center; gap: 1rem; text-decoration: none; padding: 0.5rem; border-radius: 12px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#F8FAFC';" onmouseout="this.style.backgroundColor='transparent';">
+                            <div style="width: 56px; height: 56px; border-radius: 10px; overflow: hidden; background: #0F172A; flex-shrink: 0;">
+                                {% if sibling.hero_image %}
+                                <img src="{{ sibling.hero_image.url }}" alt="{{ sibling.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                <img src="{% static 'images/citys/1-Northern-Lights-Snowmobile-Levi-550x358.jpg' %}" alt="{{ sibling.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span style="font-weight: 700; color: #0F172A; font-size: 0.95rem; display: block;">{{ sibling.name }}</span>
+                                <span style="color: #64748B; font-size: 0.8rem;">{{ sibling.tours.count }} Package{{ sibling.tours.count|pluralize }}</span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% if destination.country %}
+                    <a href="{% url 'tours:country_detail' destination.country.slug %}" style="display: block; text-align: center; color: #4F46E5; font-weight: 700; font-size: 0.88rem; margin-top: 1.25rem; text-decoration: none;">
+                        View All {{ destination.country.name }} Places &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

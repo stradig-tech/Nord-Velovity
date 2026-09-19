@@ -11,7 +11,13 @@ def seed_vehicle_types(apps, schema_editor):
         {'name': 'Group Bus', 'slug': 'group-bus', 'default_capacity': 54, 'icon': '🚌', 'description': 'Designed for large groups. Full-size tour bus with 54 seats.', 'sort_order': 3},
     ]
     for vt in vehicle_types:
-        VehicleType.objects.get_or_create(slug=vt['slug'], defaults=vt)
+        try:
+            VehicleType.objects.get_or_create(slug=vt['slug'], defaults=vt)
+        except Exception:
+            vt_fallback = dict(vt)
+            fallback_icons = {'private-car': 'car', 'micro': 'van', 'group-bus': 'bus'}
+            vt_fallback['icon'] = fallback_icons.get(vt['slug'], 'car')
+            VehicleType.objects.get_or_create(slug=vt_fallback['slug'], defaults=vt_fallback)
 
 
 def reverse_seed(apps, schema_editor):

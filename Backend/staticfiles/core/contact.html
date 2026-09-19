@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Concierge | {{ site_settings.site_name }}{% endblock %}
+
+{% block seo %}
+<meta name="description" content="Connect with Nord Velocity's private travel designers and concierge team. Located in Helsinki, available worldwide.">
+{% endblock %}
+
+{% block content %}
+<section class="contact-hero" style="background-image: url('{% static 'images/hero/winter-aerial-nature2.jpg' %}');">
+    <div class="contact-hero-overlay"></div>
+    <div class="contact-hero-content">
+        <h1 class="contact-hero-title">Contact Concierge</h1>
+        <p class="contact-hero-breadcrumb"><a href="{% url 'home' %}">Home</a> <i class="ph-bold ph-caret-right"></i> Contact Us</p>
+    </div>
+</section>
+
+<!-- Info Cards Section -->
+<section class="contact-info-section">
+    <div class="container text-center">
+        <h2 class="contact-info-title">Plan Your Bespoke Nordic Journey<br>Our dedicated travel designers are at your service.</h2>
+        <div class="contact-info-grid">
+            <div class="info-card-box">
+                <div class="info-icon bg-primary text-white"><i class="ph-bold ph-map-pin"></i></div>
+                <h3 class="info-card-title">Headquarters</h3>
+                <p class="info-card-text">
+                    <span class="font-semibold text-dark">Address:</span><br>
+                    {{ site_settings.office_address }}<br>
+                    <span class="font-semibold text-dark">Hours:</span> {{ site_settings.operating_hours|default:"Mon - Sun: 08:00 - 20:00" }}
+                </p>
+            </div>
+            <div class="info-card-box">
+                <div class="info-icon bg-primary text-white"><i class="ph-bold ph-phone-call"></i></div>
+                <h3 class="info-card-title">Direct Inquiries</h3>
+                <p class="info-card-text">
+                    <span class="font-semibold text-dark">Tel:</span> <a href="tel:{{ site_settings.contact_phone }}" style="color: inherit;">{{ site_settings.contact_phone }}</a><br>
+                    {% if site_settings.emergency_phone %}
+                    <span class="font-semibold text-dark">24/7 VIP:</span> <a href="tel:{{ site_settings.emergency_phone }}" style="color: inherit;">{{ site_settings.emergency_phone }}</a><br>
+                    {% endif %}
+                    <span class="font-semibold text-dark">Email:</span> <a href="mailto:{{ site_settings.contact_email }}" style="color: inherit;">{{ site_settings.contact_email }}</a>
+                </p>
+            </div>
+            <div class="info-card-box">
+                <div class="info-icon bg-primary text-white"><i class="ph-bold ph-sparkle"></i></div>
+                <h3 class="info-card-title">Private Chauffeur</h3>
+                <p class="info-card-text">
+                    <span class="font-semibold text-dark">Fleet:</span> Mercedes S-Class & V-Class<br>
+                    Airport Transfers & VIP Charter<br>
+                    <a href="{% url 'chauffeur:hub' %}" style="color: #4F46E5; font-weight: 700; text-decoration: none;">Book VIP Chauffeur &rarr;</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="contact-form-section">
+    <div class="container">
+        <div class="contact-form-card">
+            <div class="contact-form-accent-bar"></div>
+            
+            <div class="contact-form-header text-center">
+                <div class="form-header-badge">
+                    <i class="ph-fill ph-paper-plane-tilt"></i>
+                    <span>Direct Concierge Channel</span>
+                </div>
+                <h2 class="form-section-title">Send Us an Inquiry</h2>
+                <p class="form-section-subtitle">
+                    Let our Nordic travel architects design your bespoke Arctic expedition, private villa retreat, or executive chauffeur service.
+                </p>
+            </div>
+
+            {% if messages %}
+            <div class="contact-form-messages">
+                {% for msg in messages %}
+                <div class="contact-alert contact-alert-{{ msg.tags|default:'info' }}">
+                    <i class="ph-fill ph-check-circle"></i>
+                    <span>{{ msg }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form class="contact-form" method="POST">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_name" class="form-label">
+                            Full Name <span class="required-mark">*</span>
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="ph-bold ph-user form-input-icon"></i>
+                            <input type="text" id="id_name" name="name" required class="form-control-modern" placeholder="e.g. John Doe">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_email" class="form-label">
+                            Email Address <span class="required-mark">*</span>
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="ph-bold ph-envelope-simple form-input-icon"></i>
+                            <input type="email" id="id_email" name="email" required class="form-control-modern" placeholder="example@email.com">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_phone" class="form-label">
+                            Phone Number
+                        </label>
+                        <div class="form-input-wrapper">
+                            <i class="ph-bold ph-phone form-input-icon"></i>
+                            <input type="tel" id="id_phone" name="phone" class="form-control-modern" placeholder="+358 40 123 4567">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_subject" class="form-label">
+                            Preferred Destination or Service <span class="required-mark">*</span>
+                        </label>
+                        <div class="form-input-wrapper select-wrapper-modern">
+                            <i class="ph-bold ph-compass form-input-icon"></i>
+                            <select id="id_subject" name="subject" class="form-control-modern form-select-modern">
+                                <option value="Lapland Northern Lights Tour">Lapland Northern Lights Tour</option>
+                                <option value="Rovaniemi Glass Igloo Package">Rovaniemi Glass Igloo Package</option>
+                                <option value="Finnish Lakeland Villa & Sauna Retreat">Finnish Lakeland Villa & Sauna Retreat</option>
+                                <option value="Levi Snowmobile & Husky Safari">Levi Snowmobile & Husky Safari</option>
+                                <option value="VIP Mercedes Chauffeur Transfer">VIP Mercedes Chauffeur Transfer</option>
+                                <option value="Custom Bespoke Itinerary">Custom Bespoke Itinerary</option>
+                            </select>
+                            <i class="ph-bold ph-caret-down select-caret-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_message" class="form-label">
+                        Your Travel Vision / Dates / Group Size <span class="required-mark">*</span>
+                    </label>
+                    <div class="form-input-wrapper textarea-wrapper-modern">
+                        <i class="ph-bold ph-chat-circle-dots form-input-icon textarea-icon"></i>
+                        <textarea id="id_message" name="message" required class="form-control-modern form-textarea-modern" rows="4" placeholder="Tell us about your desired travel dates, party size, and any special requests..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Reassurance Micro-Strip -->
+                <div class="form-reassurance-strip">
+                    <div class="reassurance-item">
+                        <i class="ph-fill ph-lightning"></i>
+                        <span>2-Hour Rapid Response</span>
+                    </div>
+                    <div class="reassurance-divider"></div>
+                    <div class="reassurance-item">
+                        <i class="ph-fill ph-shield-check"></i>
+                        <span>100% Confidential & Secure</span>
+                    </div>
+                    <div class="reassurance-divider"></div>
+                    <div class="reassurance-item">
+                        <i class="ph-fill ph-sparkle"></i>
+                        <span>Dedicated Nordic Specialist</span>
+                    </div>
+                </div>
+
+                <div class="form-action-center text-center">
+                    <button type="submit" class="contact-submit-btn">
+                        <span>Submit Inquiry</span>
+                        <i class="ph-bold ph-paper-plane-tilt"></i>
+                    </button>
+                    <p class="form-note">
+                        <i class="ph-fill ph-lock-simple"></i> Encrypted & secure. We value your absolute privacy.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="contact-map-section" style="margin-bottom: 0;">
+    <iframe src="{{ site_settings.google_maps_embed_url|default:'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15873.303964175371!2d24.9384!3d60.1699!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46920bc796210691%3A0xcd4ebd843f5561!2sHelsinki%2C%20Finland!5e0!3m2!1sen!2sus!4v1716301385413!5m2!1sen!2sus' }}" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+</section>
+{% endblock %}

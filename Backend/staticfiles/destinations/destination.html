@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Explore Nordic Countries & Tour Destinations | Nord Velocity{% endblock %}
+
+{% block seo %}
+<meta name="description" content="Discover Finland, Norway, Sweden, Denmark, and premier Nordic destinations. View authentic tour places and curated packages.">
+{% endblock %}
+
+{% block content %}
+<!-- Page Hero -->
+<section class="page-hero" style="background-image: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.75)), url('{% static 'images/hero/Winter-landscape-19-2-scaled.jpg' %}'); background-size: cover; background-position: center; padding: 120px 20px; text-align: center; color: white;">
+    <span style="display: inline-block; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); padding: 0.4rem 1.25rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.3);">
+        Nordic Destinations
+    </span>
+    <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -1px;">Inspiring Tour Places</h1>
+    <p style="font-size: 1.25rem; max-width: 650px; margin: 0 auto; color: #E2E8F0; line-height: 1.6;">
+        Choose a country to explore its tour places, regional wonders, and custom curated packages.
+    </p>
+</section>
+
+<!-- Countries Grid -->
+<section style="padding: 4rem 1.5rem; background: #FFFFFF;">
+    <div class="container" style="max-width: 1240px; margin: 0 auto;">
+        
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <span style="color: #4F46E5; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">Countries</span>
+            <h2 style="font-size: 2.4rem; font-weight: 800; color: #0F172A; margin-top: 0.5rem;">Explore by Country</h2>
+        </div>
+
+        <div class="dest-cards-grid">
+            {% for country in countries %}
+            <a href="{% url 'tours:country_detail' country.slug %}" style="display: block; position: relative; height: 320px; border-radius: 20px; overflow: hidden; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: transform 0.25s, box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 12px 25px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.08)';">
+                
+                {% if country.hero_image %}
+                <img src="{{ country.hero_image.url }}" alt="{{ country.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                <img src="{% static 'images/citys/15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg' %}" alt="{{ country.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% endif %}
+
+                <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.3) 60%, transparent 100%);"></div>
+
+                <div style="position: absolute; top: 1.25rem; left: 1.25rem; background: rgba(255,255,255,0.9); padding: 0.35rem 0.85rem; border-radius: 999px; font-weight: 700; font-size: 0.82rem; color: #0F172A;">
+                    <i class="ph-bold ph-globe"></i> {{ country.name }}
+                </div>
+
+                <div style="position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; color: white;">
+                    <h3 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.35rem;">{{ country.name }}</h3>
+                    <p style="font-size: 0.88rem; color: #CBD5E1; line-height: 1.4; margin-bottom: 0.75rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        {{ country.subtitle|default:country.description }}
+                    </p>
+                    <span style="color: #818CF8; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem;">
+                        <span>Explore {{ country.destinations.count }} Tour Places</span>
+                        <i class="ph-bold ph-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+<!-- All Tour Destinations / Places -->
+<section style="padding: 4rem 1.5rem; background: #F8FAFC; border-top: 1px solid #E2E8F0;">
+    <div class="container" style="max-width: 1240px; margin: 0 auto;">
+        
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <span style="color: #4F46E5; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">Destinations Directory</span>
+            <h2 style="font-size: 2.4rem; font-weight: 800; color: #0F172A; margin-top: 0.5rem;">All Nordic Tour Places</h2>
+            <p style="color: #64748B; font-size: 1.05rem; margin-top: 0.5rem;">Click any destination to view its regional highlights and tour packages.</p>
+        </div>
+
+        <div class="packages-grid">
+            {% for dest in destinations %}
+            <div style="background: white; border-radius: 18px; overflow: hidden; border: 1px solid #E2E8F0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); display: flex; flex-direction: column; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)';" onmouseout="this.style.transform='none';">
+                
+                <div style="height: 200px; position: relative; background: #0F172A;">
+                    {% if dest.hero_image %}
+                    <img src="{{ dest.hero_image.url }}" alt="{{ dest.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <img src="{% static 'images/citys/15-Kilometers-Self-Driving-Husky-Tour-in-Levi1-2-550x358.jpg' %}" alt="{{ dest.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% endif %}
+
+                    {% if dest.country %}
+                    <span style="position: absolute; top: 1rem; left: 1rem; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); color: white; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700;">
+                        {{ dest.country.name }}
+                    </span>
+                    {% endif %}
+
+                    <span style="position: absolute; bottom: 1rem; right: 1rem; background: #FFFFFF; color: #0F172A; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        {{ dest.tour_count }} Package{{ dest.tour_count|pluralize }}
+                    </span>
+                </div>
+
+                <div style="padding: 1.5rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 0.4rem;">
+                            {{ dest.name }}
+                        </h3>
+                        <p style="color: #64748B; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.25rem;">
+                            {{ dest.description|truncatewords:20 }}
+                        </p>
+                    </div>
+                    <a href="{% url 'tours:destination_detail' dest.slug %}" style="background: #4F46E5; color: white; font-weight: 700; font-size: 0.88rem; padding: 0.65rem 1rem; border-radius: 10px; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#4338CA';" onmouseout="this.style.backgroundColor='#4F46E5';">
+                        <span>Explore Place & Packages</span>
+                        <i class="ph-bold ph-arrow-right"></i>
+                    </a>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}

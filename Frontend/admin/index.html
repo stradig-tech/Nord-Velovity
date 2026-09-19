@@ -146,42 +146,49 @@
     <!-- Bottom 2 Columns: Recent Bookings & App Operations Directory -->
     <div class="admin-dashboard-bottom-grid" style="margin-top: 2rem;">
         
-        <!-- Recent Bookings Table -->
-        <div class="admin-card" style="background: white; border-radius: 16px; padding: 1.75rem; border: 1px solid #E2E8F0;">
-            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-                <h3 class="card-title" style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #0F172A;">Recent Bookings</h3>
-                <a href="/admin/bookings/booking/" class="view-all" style="color: #4F46E5; font-weight: 600; text-decoration: none; font-size: 0.85rem;">View All Bookings &rarr;</a>
+        <!-- Recent Bookings Table Card with Slide System -->
+        <div class="admin-card dashboard-recent-bookings-card" style="background: white; border-radius: 16px; border: 1px solid #E2E8F0;">
+            <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 class="card-title" style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #0F172A;">Recent Bookings</h3>
+                <a href="/admin/bookings/booking/" class="view-all" style="color: #4F46E5; font-weight: 600; text-decoration: none; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.25rem;">View All Bookings <i class="ph-bold ph-arrow-right"></i></a>
+            </div>
+
+            <!-- Slide System Header Hint -->
+            <div class="admin-table-swipe-hint" style="margin-bottom: 0.4rem;">
+                <i class="ph-bold ph-arrows-left-right"></i> <span>Slide / Swipe horizontally to view full booking details</span>
             </div>
             
-            <div class="table-responsive">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+            <div class="table-responsive dashboard-table-slider" id="recentBookingsSlider">
+                <table style="width: 100%; min-width: 580px; border-collapse: collapse; font-size: 0.88rem;">
                     <thead>
-                        <tr style="border-bottom: 1px solid #E2E8F0; text-align: left; color: #64748B;">
-                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Reference</th>
-                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Customer</th>
-                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Amount</th>
-                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Status</th>
-                            <th style="padding: 0.6rem 0.5rem; font-weight: 600;">Action</th>
+                        <tr style="border-bottom: 1.5px solid #E2E8F0; text-align: left; color: #475569; background: #F8FAFC;">
+                            <th style="padding: 0.55rem 0.65rem; font-weight: 700; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;">Reference</th>
+                            <th style="padding: 0.55rem 0.65rem; font-weight: 700; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;">Customer</th>
+                            <th style="padding: 0.55rem 0.65rem; font-weight: 700; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;">Amount</th>
+                            <th style="padding: 0.55rem 0.65rem; font-weight: 700; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;">Status</th>
+                            <th style="padding: 0.55rem 0.65rem; font-weight: 700; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; text-align: right;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% if recent_bookings %}
                             {% for b in recent_bookings %}
                             <tr style="border-bottom: 1px solid #F1F5F9;">
-                                <td style="padding: 0.75rem 0.5rem; font-weight: 700; color: #0F172A;">{{ b.booking_ref }}</td>
-                                <td style="padding: 0.75rem 0.5rem; color: #475569;">{{ b.customer.get_full_name|default:b.customer.email|truncatechars:20 }}</td>
-                                <td style="padding: 0.75rem 0.5rem; font-weight: 600; color: #0F172A;">{{ site_settings.currency_symbol }}{{ b.total_amount|floatformat:2 }}</td>
-                                <td style="padding: 0.75rem 0.5rem;">
+                                <td style="padding: 0.65rem 0.65rem; font-weight: 700; color: #0F172A; white-space: nowrap;">
+                                    <a href="/admin/bookings/booking/{{ b.id }}/change/" style="color: #4F46E5; text-decoration: none;">{{ b.booking_ref }}</a>
+                                </td>
+                                <td style="padding: 0.65rem 0.65rem; color: #475569; white-space: nowrap;">{{ b.customer.get_full_name|default:b.customer.email|truncatechars:24 }}</td>
+                                <td style="padding: 0.65rem 0.65rem; font-weight: 700; color: #0F172A; white-space: nowrap;">{{ site_settings.currency_symbol }}{{ b.total_amount|floatformat:2 }}</td>
+                                <td style="padding: 0.65rem 0.65rem; white-space: nowrap;">
                                     {% if b.status == 'CONFIRMED' %}
-                                    <span style="padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: #ECFDF5; color: #065F46;">Confirmed</span>
+                                    <span style="padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0;">Confirmed</span>
                                     {% elif b.status == 'PENDING' %}
-                                    <span style="padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: #FEF3C7; color: #92400E;">Pending</span>
+                                    <span style="padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A;">Pending</span>
                                     {% else %}
-                                    <span style="padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: #FEF2F2; color: #991B1B;">{{ b.status }}</span>
+                                    <span style="padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA;">{{ b.status }}</span>
                                     {% endif %}
                                 </td>
-                                <td style="padding: 0.75rem 0.5rem;">
-                                    <a href="/admin/bookings/booking/{{ b.id }}/change/" style="color: #4F46E5; font-weight: 600; text-decoration: none; font-size: 0.85rem;">Edit</a>
+                                <td style="padding: 0.65rem 0.65rem; text-align: right; white-space: nowrap;">
+                                    <a href="/admin/bookings/booking/{{ b.id }}/change/" style="color: #4F46E5; font-weight: 700; text-decoration: none; font-size: 0.78rem; background: rgba(79, 70, 229, 0.08); padding: 0.2rem 0.55rem; border-radius: 4px;">Edit &rarr;</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -192,6 +199,24 @@
                         {% endif %}
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Slide Indicator Bar & Navigation Controls at bottom (Slide System) -->
+            <div class="dashboard-table-slide-footer">
+                <div class="slide-indicator-track" id="recentBookingsTrack">
+                    <div class="slide-indicator-bar" id="recentBookingsIndicatorBar"></div>
+                </div>
+                <div class="slide-footer-controls">
+                    <button type="button" class="slide-nav-btn slide-nav-left" id="recentBookingsSlideLeft" aria-label="Slide Left" title="Slide Left">
+                        <i class="ph-bold ph-caret-left"></i>
+                    </button>
+                    <div class="slide-hint-text">
+                        <i class="ph-bold ph-arrows-left-right"></i> <span>Slide or swipe table to view all columns</span>
+                    </div>
+                    <button type="button" class="slide-nav-btn slide-nav-right" id="recentBookingsSlideRight" aria-label="Slide Right" title="Slide Right">
+                        <i class="ph-bold ph-caret-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -387,5 +412,107 @@
             }
         }
     });
+
+    // =========================================================================
+    // Slide System: Dynamic Horizontal Indicator & Controls for Recent Bookings
+    // =========================================================================
+    (function() {
+        const slider = document.getElementById('recentBookingsSlider');
+        const bar = document.getElementById('recentBookingsIndicatorBar');
+        const track = document.getElementById('recentBookingsTrack');
+        const btnLeft = document.getElementById('recentBookingsSlideLeft');
+        const btnRight = document.getElementById('recentBookingsSlideRight');
+
+        if (!slider || !bar) return;
+
+        function updateSlideIndicator() {
+            const scrollWidth = slider.scrollWidth;
+            const clientWidth = slider.clientWidth;
+            const maxScroll = scrollWidth - clientWidth;
+
+            if (maxScroll <= 4) {
+                // Table fits entirely without scrolling
+                bar.style.width = '100%';
+                bar.style.transform = 'translateX(0px)';
+                if (btnLeft) btnLeft.disabled = true;
+                if (btnRight) btnRight.disabled = true;
+                return;
+            }
+
+            const scrollLeft = Math.max(0, slider.scrollLeft);
+            if (btnLeft) btnLeft.disabled = (scrollLeft <= 2);
+            if (btnRight) btnRight.disabled = (scrollLeft >= maxScroll - 2);
+
+            // Calculate indicator width proportional to visible fraction (minimum 25%)
+            const visibleRatio = clientWidth / scrollWidth;
+            const barWidthPercent = Math.max(25, Math.min(80, visibleRatio * 100));
+            bar.style.width = barWidthPercent + '%';
+
+            // Calculate translateX in pixels within track
+            const trackWidth = track ? track.clientWidth : clientWidth;
+            const barWidthPx = (barWidthPercent / 100) * trackWidth;
+            const availableTravelPx = trackWidth - barWidthPx;
+            const progress = Math.min(1, Math.max(0, scrollLeft / maxScroll));
+            const translateX = progress * availableTravelPx;
+
+            bar.style.transform = `translateX(${translateX}px)`;
+        }
+
+        // Live scroll sync
+        slider.addEventListener('scroll', updateSlideIndicator, { passive: true });
+        window.addEventListener('resize', updateSlideIndicator);
+        setTimeout(updateSlideIndicator, 150);
+
+        // Slide navigation buttons
+        if (btnLeft) {
+            btnLeft.addEventListener('click', function() {
+                slider.scrollBy({ left: -220, behavior: 'smooth' });
+            });
+        }
+        if (btnRight) {
+            btnRight.addEventListener('click', function() {
+                slider.scrollBy({ left: 220, behavior: 'smooth' });
+            });
+        }
+
+        // Mouse Drag to Slide support for desktop/trackpad
+        let isDown = false;
+        let startX = 0;
+        let startScrollLeft = 0;
+
+        slider.addEventListener('mousedown', function(e) {
+            if (e.target.closest('a') || e.target.closest('button')) return;
+            isDown = true;
+            slider.classList.add('is-dragging');
+            startX = e.pageX - slider.offsetLeft;
+            startScrollLeft = slider.scrollLeft;
+        });
+
+        window.addEventListener('mouseup', function() {
+            if (isDown) {
+                isDown = false;
+                slider.classList.remove('is-dragging');
+            }
+        });
+
+        slider.addEventListener('mousemove', function(e) {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            slider.scrollLeft = startScrollLeft - walk;
+        });
+
+        // Click track to jump slide
+        if (track) {
+            track.addEventListener('click', function(e) {
+                const rect = track.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const ratio = clickX / rect.width;
+                const maxScroll = slider.scrollWidth - slider.clientWidth;
+                slider.scrollTo({ left: ratio * maxScroll, behavior: 'smooth' });
+            });
+        }
+    })();
 </script>
 {% endblock %}

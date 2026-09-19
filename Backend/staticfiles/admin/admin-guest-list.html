@@ -1,0 +1,217 @@
+{% extends 'admin/admin-base.html' %}
+{% load static %}
+
+{% block title %}Customer & Guest Directory | Nord Velocity Portal{% endblock %}
+
+{% block admin_content %}
+
+
+        <!-- Dashboard Content -->
+        <div class="admin-content-inner">            
+            <div class="admin-page-header">
+                <h2>Guest List</h2>
+                <button class="btn btn-purple" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;"><i class="ph-bold ph-file-pdf"></i> Generate Report</button>
+            </div>
+            
+            <!-- Filters Row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <div class="review-tabs">
+                    <button class="review-tab active" style="border: 1px solid #e2e8f0;">All Guests</button>
+                    <button class="review-tab" style="border: 1px solid transparent;">Booked</button>
+                    <button class="review-tab" style="border: 1px solid transparent;">Canceled</button>
+                    <button class="review-tab" style="border: 1px solid transparent;">Pending</button>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="admin-search" style="background: white;">
+                        <input type="text" placeholder="Search">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                    </div>
+                    <select style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85rem; color: #64748b; outline: none; appearance: none; background: white url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'4 6 8 10 12 6\'/></svg>') no-repeat right 0.75rem center; padding-right: 2.5rem; width: 160px;">
+                        <option>Sort by packages</option>
+                        <option>Sort by Date</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Guest List Table -->
+            <div class="admin-card" style="padding: 0; overflow: hidden; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;">
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 900px;" class="admin-detail-table">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th>Guest</th>
+                                <th>Booking Date</th>
+                                <th>Departure</th>
+                                <th>Return</th>
+                                <th>Package ID</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Row 1 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/testimonial-author-img4.png" alt="User">
+                                        <span>Lori Stevens</span>
+                                    </div>
+                                </td>
+                                <td>02 Dec 2026</td>
+                                <td>18 Dec 2026</td>
+                                <td>22 Dec 2026</td>
+                                <td>P-102</td>
+                                <td><span class="badge badge-green">Booked</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 2 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img2.png" alt="User">
+                                        <span>Carolyn Ortiz</span>
+                                    </div>
+                                </td>
+                                <td>01 Dec 2026</td>
+                                <td>16 Dec 2026</td>
+                                <td>18 Dec 2026</td>
+                                <td>P-103</td>
+                                <td><span class="badge badge-green">Booked</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 3 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img1.png" alt="User">
+                                        <span>Billy Vasquez</span>
+                                    </div>
+                                </td>
+                                <td>29 Nov 2026</td>
+                                <td>10 Dec 2026</td>
+                                <td>14 Dec 2026</td>
+                                <td>P-105</td>
+                                <td><span class="badge badge-orange">Pending</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 4 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img3.png" alt="User">
+                                        <span>Samuel Bishop</span>
+                                    </div>
+                                </td>
+                                <td>14 Nov 2026</td>
+                                <td>07 Dec 2026</td>
+                                <td>09 Dec 2026</td>
+                                <td>P-102</td>
+                                <td><span class="badge badge-orange">Pending</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 5 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/testimonial-author-img4.png" alt="User">
+                                        <span>Amanda Reed</span>
+                                    </div>
+                                </td>
+                                <td>10 Nov 2026</td>
+                                <td>02 Dec 2026</td>
+                                <td>05 Dec 2026</td>
+                                <td>P-102</td>
+                                <td><span class="badge badge-green">Booked</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 6 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img2.png" alt="User">
+                                        <span>Elena Virtanen</span>
+                                    </div>
+                                </td>
+                                <td>05 Nov 2026</td>
+                                <td>27 Nov 2026</td>
+                                <td>01 Dec 2026</td>
+                                <td>P-105</td>
+                                <td><span class="badge badge-green">Booked</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 7 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img1.png" alt="User">
+                                        <span>Joan Wallace</span>
+                                    </div>
+                                </td>
+                                <td>05 Nov 2026</td>
+                                <td>23 Nov 2026</td>
+                                <td>26 Nov 2026</td>
+                                <td>F-105</td>
+                                <td><span class="badge badge-green">Booked</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 8 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img3.png" alt="User">
+                                        <span>Dennis Stevens</span>
+                                    </div>
+                                </td>
+                                <td>14 Nov 2026</td>
+                                <td>07 Dec 2026</td>
+                                <td>09 Dec 2026</td>
+                                <td>P-102</td>
+                                <td><span style="background: #fee2e2; color: #ef4444; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">Canceled</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                            <!-- Row 9 -->
+                            <tr>
+                                <td>
+                                    <div class="table-user">
+                                        <img src="/static/images/team/travelers-img1.png" alt="User">
+                                        <span>Louis Ferguson</span>
+                                    </div>
+                                </td>
+                                <td>02 Dec 2026</td>
+                                <td>18 Dec 2026</td>
+                                <td>22 Dec 2026</td>
+                                <td>P-102</td>
+                                <td><span class="badge badge-green">Booked</span></td>
+                                <td><button class="btn btn-gray" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;">View</button></td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Table Footer -->
+                <div style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9;">
+                    <span style="font-size: 0.8rem; color: #64748b;">Showing 1 to 9 of 20 entries</span>
+                    
+                    <div style="display: flex; gap: 0.25rem;">
+                        <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #94a3b8; cursor: pointer;">Prev</button>
+                        <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 4px;">1</button>
+                        <button style="background: #4f46e5; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: white; cursor: pointer; border-radius: 4px; font-weight: 600;">2</button>
+                        <span style="padding: 0.4rem 0.25rem; font-size: 0.8rem; color: #94a3b8;">..</span>
+                        <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #64748b; cursor: pointer; border-radius: 4px;">15</button>
+                        <button style="background: transparent; border: none; padding: 0.4rem 0.75rem; font-size: 0.8rem; color: #0f172a; cursor: pointer; font-weight: 600;">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+{% endblock %}

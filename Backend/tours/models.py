@@ -1,6 +1,8 @@
 from decimal import Decimal
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
+from django.utils.text import slugify
 # --- TAXONOMY MODELS ---
 
 class Country(models.Model):
@@ -176,10 +178,19 @@ class Tour(models.Model):
     is_private_tour = models.BooleanField(default=False, verbose_name="Private Tour", help_text="Show in 'Private tours' category on homepage")
     is_family_tour = models.BooleanField(default=False, verbose_name="Family Tour", help_text="Show in 'Family tours' category on homepage")
     sort_order = models.IntegerField(default=0)
+    # Guarantee Policy (admin-configurable, not hard-coded)
+    guarantee_policy = models.ForeignKey(
+        'bookings.GuaranteePolicy', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='tours',
+        help_text="Assign a configurable guarantee policy to this tour. "
+                  "Different packages can use different guarantee policies independently."
+    )
+
+    # DEPRECATED — kept for backward compatibility during migration
     has_guaranteed_reattempt = models.BooleanField(
         default=False,
-        help_text="Enable guaranteed re-attempt policy (e.g., Northern Lights). "
-                  "Failed experiences allow customers to re-attempt on the next available day."
+        help_text="DEPRECATED: Use guarantee_policy FK instead. "
+                  "Will be removed in a future migration."
     )
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -213,6 +224,21 @@ class Tour(models.Model):
         if first_pricing:
             return first_pricing.price
         return Decimal('100.00')
+
+    def clean(self):
+        super().clean()
+        if self.slug:
+            self.slug = self.slug.strip().strip('/')
+            l = len(self.slug)
+            if l >= 6 and l % 2 == 0 and self.slug[:l//2] == self.slug[l//2:]:
+                self.slug = self.slug[:l//2]
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('tours:detail', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.title
