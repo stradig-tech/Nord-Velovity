@@ -187,9 +187,9 @@ class TourCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    list_display = ('title', 'tour_thumbnail', 'destination', 'guarantee_policy', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'status', 'is_featured')
+    list_display = ('title', 'tour_thumbnail', 'destination', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'status', 'is_featured')
     list_filter = ('status', 'is_featured', 'guarantee_policy', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'destination', 'travel_style')
-    list_editable = ('status', 'is_featured', 'guarantee_policy', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour')
+    list_editable = ('status', 'is_featured', 'is_group_tour', 'is_private_tour', 'is_family_tour')
     search_fields = ('title', 'short_summary')
     prepopulated_fields = {'slug': ('title',)}
     inlines = [
