@@ -103,7 +103,7 @@
                                 <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Select Departure Slot *</label>
                                 <select name="departure_id" id="bookingDepartureSelect" required style="width: 100%; padding: 0.85rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.95rem; font-weight: 600; background: #F8FAFC; color: #0F172A;">
                                     {% for dep in available_departures %}
-                                    <option value="{{ dep.id }}" {% if selected_departure and dep.id == selected_departure.id %}selected{% elif forloop.first and not selected_departure %}selected{% endif %}>
+                                    <option value="{{ dep.id }}" data-vehicle-ids="{% for c in dep.capacities.all %}{{ c.vehicle_type_id }}{% if not forloop.last %},{% endif %}{% endfor %}" {% if selected_departure and dep.id == selected_departure.id %}selected{% elif forloop.first and not selected_departure %}selected{% endif %}>
                                         {{ dep.date|date:"D, d M Y" }} @ {{ dep.time|time:"H:i" }}
                                     </option>
                                     {% empty %}
@@ -409,8 +409,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function filterBookingVehicles() {
+        if (!departureSelect || !vehicleTypeSelect) return;
+        const depOpt = departureSelect.selectedOptions[0];
+        if (!depOpt) return;
+
+        const rawIds = depOpt.getAttribute('data-vehicle-ids');
+        if (rawIds !== null) {
+            const allowedIds = rawIds.split(',').map(s => s.trim()).filter(Boolean);
+            let selectedStillValid = false;
+            let firstValidOpt = null;
+
+            Array.from(vehicleTypeSelect.options).forEach(opt => {
+                if (allowedIds.length === 0 || allowedIds.includes(opt.value)) {
+                    opt.hidden = false;
+                    opt.disabled = false;
+                    if (!firstValidOpt) firstValidOpt = opt;
+                    if (opt.value === vehicleTypeSelect.value) {
+                        selectedStillValid = true;
+                    }
+                } else {
+                    opt.hidden = true;
+                    opt.disabled = true;
+                }
+            });
+
+            if (!selectedStillValid && firstValidOpt) {
+                vehicleTypeSelect.value = firstValidOpt.value;
+            }
+        } else {
+            Array.from(vehicleTypeSelect.options).forEach(opt => {
+                opt.hidden = false;
+                opt.disabled = false;
+            });
+        }
+    }
+
     if (departureSelect) {
-        departureSelect.addEventListener('change', updatePricing);
+        departureSelect.addEventListener('change', () => {
+            filterBookingVehicles();
+            updatePricing();
+        });
     }
 
     if (vehicleTypeSelect) {
@@ -422,6 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderGuestInputs();
+    filterBookingVehicles();
     updatePricing();
 });
 </script>

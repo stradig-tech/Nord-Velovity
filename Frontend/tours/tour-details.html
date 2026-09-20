@@ -407,7 +407,7 @@
                     <div style="position: relative;">
                         <select id="tourDepartureSelect" style="width: 100%; padding: 0.8rem 2.2rem 0.8rem 0.9rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; font-weight: 600; color: #0F172A; background: #F8FAFC; cursor: pointer; appearance: none; -webkit-appearance: none;">
                             {% for dep in available_departures %}
-                            <option value="{{ dep.id }}" data-is-departure="1" {% if forloop.first %}selected{% endif %}>
+                            <option value="{{ dep.id }}" data-is-departure="1" data-vehicle-ids="{% for c in dep.capacities.all %}{{ c.vehicle_type_id }}{% if not forloop.last %},{% endif %}{% endfor %}" {% if forloop.first %}selected{% endif %}>
                                 {{ dep.date|date:"D, d M Y" }} @ {{ dep.time|time:"H:i" }}
                             </option>
                             {% empty %}
@@ -430,7 +430,7 @@
                         <span><i class="ph-bold ph-van" style="color: #4F46E5; margin-right: 0.35rem;"></i> Vehicle & Group Option</span>
                         <span style="font-size: 0.72rem; color: #64748B; font-weight: 600;">Small/Big Family & Group</span>
                     </label>
-                    <div class="vehicle-option-grid" id="vehicleOptionGrid">
+                    <div class="vehicle-option-grid" id="vehicleOptionGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(85px, 1fr)); gap: 0.5rem;">
                         {% for vt in vehicle_types %}
                         <div class="vehicle-option-card" 
                              data-vt-id="{{ vt.id }}" 
@@ -449,6 +449,9 @@
                             </div>
                         </div>
                         {% endfor %}
+                    </div>
+                    <div id="noVehicleWarning" style="display: none; padding: 0.75rem; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 8px; font-size: 0.8rem; color: #991B1B; text-align: center; margin-top: 0.5rem;">
+                        No vehicles configured for this departure slot.
                     </div>
                 </div>
 
@@ -530,174 +533,67 @@
             </div>
         </aside>
         
-    </div><!-- Recommended Packages Layout -->
+    </div>
+
+{% if related_tours %}
+<!-- Recommended Packages Layout (100% Dynamic Database Tours Only) -->
 <section style="background: #F8FAFC; padding: 5rem 0;">
     <div class="container">
         <h2 class="section-title text-center" style="margin-bottom: 3rem;">Recommended Packages</h2>
         <div class="tours-grid packages-grid">
-            {% if related_tours %}
-                {% for r_tour in related_tours %}
-                <div class="tour-card">
-                    <div class="tour-img-box">
-                        {% if r_tour.media.first %}
-                        <img src="{{ r_tour.media.first.file.url }}" alt="{{ r_tour.title }}" class="tour-img" style="object-fit: cover;">
-                        {% else %}
-                        <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="{{ r_tour.title }}" class="tour-img" style="object-fit: cover;">
+            {% for r_tour in related_tours %}
+            <div class="tour-card">
+                <div class="tour-img-box">
+                    {% if r_tour.media.first %}
+                    <img src="{{ r_tour.media.first.file.url }}" alt="{{ r_tour.title }}" class="tour-img" style="object-fit: cover;">
+                    {% elif r_tour.destination.hero_image %}
+                    <img src="{{ r_tour.destination.hero_image.url }}" alt="{{ r_tour.title }}" class="tour-img" style="object-fit: cover;">
+                    {% else %}
+                    <img src="{% static 'images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg' %}" alt="{{ r_tour.title }}" class="tour-img" style="object-fit: cover;">
+                    {% endif %}
+                    <div class="badge-stack-right">
+                        {% if r_tour.badge_text %}
+                        <span class="tour-badge yellow-bg text-dark">{{ r_tour.badge_text }}</span>
+                        {% elif r_tour.is_featured %}
+                        <span class="tour-badge red-bg">Featured</span>
                         {% endif %}
-                        <div class="badge-stack-right">
-                            <span class="tour-badge red-bg">Featured</span>
-                        </div>
                     </div>
-                    <div class="tour-body">
-                        <div class="tour-rating">
-                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
-                            <span class="rating-val">(5.0)</span>
-                        </div>
-                        <h4 class="tour-title">{{ r_tour.title }}</h4>
-                        <div class="tour-meta">
-                            <span class="meta-item"><i class="ph ph-map-pin"></i> {{ r_tour.destination.name }}</span>
-                            <span class="meta-item"><i class="ph ph-clock"></i> {{ r_tour.duration_text }}</span>
-                        </div>
-                        
-                        <div class="tour-footer">
-                            <div class="tour-price-box">
-                                <span class="price-label">Starting From</span>
-                                <div class="price-display">
-                                    {% with pricing=r_tour.pricing.first %}
-                                    <span class="price-main">€{{ pricing.sale_price|default:pricing.price|default:"199" }}</span>
-                                    {% endwith %}
-                                    <span class="price-sub">/per person</span>
-                                </div>
-                                <div class="hotel-flight-tag">Hotel/Flight Included <i class="ph-bold ph-check"></i></div>
+                </div>
+                <div class="tour-body">
+                    <div class="tour-rating">
+                        <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        <span class="rating-val">(5.0)</span>
+                    </div>
+                    <h4 class="tour-title">{{ r_tour.title }}</h4>
+                    <div class="tour-meta">
+                        <span class="meta-item"><i class="ph ph-map-pin"></i> {{ r_tour.destination.name }}</span>
+                        <span class="meta-item"><i class="ph ph-clock"></i> {{ r_tour.duration_text }}</span>
+                    </div>
+                    
+                    <div class="tour-footer">
+                        <div class="tour-price-box">
+                            <span class="price-label">Starting From</span>
+                            <div class="price-display">
+                                {% with pricing=r_tour.pricing.first %}
+                                <span class="price-main">€{{ pricing.sale_price|default:pricing.price|default:r_tour.base_price }}</span>
+                                {% endwith %}
+                                <span class="price-sub">/per person</span>
                             </div>
-                            <div class="tour-footer-actions">
-                                <button type="button" class="tour-wishlist-btn {% if r_tour.id in user_wishlist_ids %}active is-wishlisted{% endif %}" onclick="toggleWishlist({{ r_tour.id }}, this, event)" data-wishlist-tour-id="{{ r_tour.id }}" title="{% if r_tour.id in user_wishlist_ids %}Remove from Wishlist{% else %}Save to Wishlist{% endif %}" aria-label="Toggle Wishlist">
-                                    <i class="{% if r_tour.id in user_wishlist_ids %}ph-fill ph-heart{% else %}ph-bold ph-heart{% endif %}" style="{% if r_tour.id in user_wishlist_ids %}color: #EF4444;{% endif %}"></i>
-                                </button>
-                                <a href="{% url 'tours:detail' r_tour.slug %}" class="btn btn-primary rounded-pill">View Tour</a>
-                            </div>
+                        </div>
+                        <div class="tour-footer-actions">
+                            <button type="button" class="tour-wishlist-btn {% if r_tour.id in user_wishlist_ids %}active is-wishlisted{% endif %}" onclick="toggleWishlist({{ r_tour.id }}, this, event)" data-wishlist-tour-id="{{ r_tour.id }}" title="{% if r_tour.id in user_wishlist_ids %}Remove from Wishlist{% else %}Save to Wishlist{% endif %}" aria-label="Toggle Wishlist">
+                                <i class="{% if r_tour.id in user_wishlist_ids %}ph-fill ph-heart{% else %}ph-bold ph-heart{% endif %}" style="{% if r_tour.id in user_wishlist_ids %}color: #EF4444;{% endif %}"></i>
+                            </button>
+                            <a href="{% url 'tours:detail' r_tour.slug %}" class="btn btn-primary rounded-pill">View Tour</a>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
-            {% else %}
-                <!-- Package 1 -->
-                <div class="tour-card">
-                    <div class="tour-img-box">
-                        <img src="/static/images/packages/65535_54274700516_8d0245d0c1_b_800_600_nofilter.jpg" alt="Helsinki City" class="tour-img" style="object-fit: cover;">
-                        <div class="badge-stack-right">
-                            <span class="tour-badge red-bg">Sale on!</span>
-                            <span class="tour-badge yellow-bg text-dark">Best seller</span>
-                        </div>
-                    </div>
-                    <div class="tour-body">
-                        <div class="tour-rating">
-                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
-                            <span class="rating-val">(5.0)</span>
-                        </div>
-                        <h4 class="tour-title">Helsinki City & Suomenlinna Tour</h4>
-                        <div class="tour-meta">
-                            <span class="meta-item"><i class="ph ph-map-pin"></i> Helsinki, Finland</span>
-                            <span class="meta-item"><i class="ph ph-clock"></i> 7 Days</span>
-                        </div>
-                        
-                        <div class="tour-footer">
-                            <div class="tour-price-box">
-                                <span class="price-label">Starting From</span>
-                                <div class="price-display">
-                                    <span class="price-main">€299</span><span class="price-sub">/per person</span>
-                                </div>
-                                <div class="hotel-flight-tag">Hotel/Flight Included <i class="ph-bold ph-check"></i></div>
-                            </div>
-                            <div class="tour-footer-actions">
-                                <button type="button" class="tour-wishlist-btn" onclick="toggleWishlist(1, this, event)" data-wishlist-tour-id="1" title="Save to Wishlist" aria-label="Toggle Wishlist">
-                                    <i class="ph-bold ph-heart"></i>
-                                </button>
-                                <a href="{% url 'tours:list' %}" class="btn btn-primary rounded-pill">View Tour</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Package 2 -->
-                <div class="tour-card">
-                    <div class="tour-img-box">
-                        <img src="/static/images/packages/7111_13901216855_cca37b8607_b_800_600_nofilter.jpg" alt="Lakeland" class="tour-img" style="object-fit: cover;">
-                        <div class="badge-stack-right">
-                            <span class="tour-badge red-bg">15% off</span>
-                            <span class="tour-badge yellow-bg text-dark">Group tour</span>
-                        </div>
-                    </div>
-                    <div class="tour-body">
-                        <div class="tour-rating">
-                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star-half"></i>
-                            <span class="rating-val">(4.8)</span>
-                        </div>
-                        <h4 class="tour-title">Finnish Lakeland Summer Retreat</h4>
-                        <div class="tour-meta">
-                            <span class="meta-item"><i class="ph ph-map-pin"></i> Lakeland, Finland</span>
-                            <span class="meta-item"><i class="ph ph-clock"></i> 5 Days</span>
-                        </div>
-                        
-                        <div class="tour-footer">
-                            <div class="tour-price-box">
-                                <span class="price-label">Starting From</span>
-                                <div class="price-display">
-                                    <span class="price-main">€389</span><span class="price-sub">/per person</span>
-                                </div>
-                                <div class="hotel-flight-tag">Hotel/Flight Included <i class="ph-bold ph-check"></i></div>
-                            </div>
-                            <div class="tour-footer-actions">
-                                <button type="button" class="tour-wishlist-btn" onclick="toggleWishlist(2, this, event)" data-wishlist-tour-id="2" title="Save to Wishlist" aria-label="Toggle Wishlist">
-                                    <i class="ph-bold ph-heart"></i>
-                                </button>
-                                <a href="{% url 'tours:list' %}" class="btn btn-primary rounded-pill">View Tour</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Package 3 -->
-                <div class="tour-card">
-                    <div class="tour-img-box">
-                        <img src="/static/images/citys/1-Snowmobile-Reindeer-Husky-5-550x358.jpg" alt="Rovaniemi" class="tour-img" style="object-fit: cover;">
-                        <div class="badge-stack-right">
-                            <span class="tour-badge red-bg">10% off</span>
-                            <span class="tour-badge yellow-bg text-dark">Best seller</span>
-                        </div>
-                    </div>
-                    <div class="tour-body">
-                        <div class="tour-rating">
-                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star-half"></i>
-                            <span class="rating-val">(4.7)</span>
-                        </div>
-                        <h4 class="tour-title">Rovaniemi Santa Claus Village</h4>
-                        <div class="tour-meta">
-                            <span class="meta-item"><i class="ph ph-map-pin"></i> Rovaniemi, Finland</span>
-                            <span class="meta-item"><i class="ph ph-clock"></i> 4 Days</span>
-                        </div>
-                        
-                        <div class="tour-footer">
-                            <div class="tour-price-box">
-                                <span class="price-label">Starting From</span>
-                                <div class="price-display">
-                                    <span class="price-main">€450</span><span class="price-sub">/per person</span>
-                                </div>
-                                <div class="hotel-flight-tag">Hotel/Flight Included <i class="ph-bold ph-check"></i></div>
-                            </div>
-                            <div class="tour-footer-actions">
-                                <button type="button" class="tour-wishlist-btn" onclick="toggleWishlist(3, this, event)" data-wishlist-tour-id="3" title="Save to Wishlist" aria-label="Toggle Wishlist">
-                                    <i class="ph-bold ph-heart"></i>
-                                </button>
-                                <a href="{% url 'tours:list' %}" class="btn btn-primary rounded-pill">View Tour</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+            </div>
+            {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
 
 
 <!-- Inquiry Modal Dialog -->
@@ -772,14 +668,70 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedVehicleTypeId = null;
     let selectedVehicleCapacity = 12;
 
-    // Default vehicle selection (prefers Micro or first card)
-    vehicleCards.forEach(c => {
-        if (c.classList.contains('active') || c.getAttribute('data-vt-slug') === 'micro') {
-            selectedVehicleTypeId = c.getAttribute('data-vt-id');
-            selectedVehicleCapacity = parseInt(c.getAttribute('data-capacity')) || 12;
-            c.style.borderColor = '#4F46E5';
-            c.style.background = '#EEF2FF';
+    function filterVehiclesForDeparture() {
+        const depOpt = departureSelect ? departureSelect.selectedOptions[0] : null;
+        const noVehWarning = document.getElementById('noVehicleWarning');
+        if (!depOpt) return;
+
+        const isDep = depOpt.getAttribute('data-is-departure') === '1';
+        const rawIds = depOpt.getAttribute('data-vehicle-ids');
+
+        if (isDep && rawIds !== null) {
+            const allowedIds = rawIds.split(',').map(s => s.trim()).filter(Boolean);
+            let activeStillVisible = false;
+            let firstVisibleCard = null;
+            let preferredVisibleCard = null;
+            let visibleCount = 0;
+
+            vehicleCards.forEach(c => {
+                const vtId = c.getAttribute('data-vt-id');
+                const vtSlug = c.getAttribute('data-vt-slug');
+                if (allowedIds.includes(vtId)) {
+                    c.style.display = '';
+                    visibleCount++;
+                    if (!firstVisibleCard) firstVisibleCard = c;
+                    if (vtSlug === 'micro') preferredVisibleCard = c;
+                    if (vtId === selectedVehicleTypeId) {
+                        activeStillVisible = true;
+                    }
+                } else {
+                    c.style.display = 'none';
+                    c.classList.remove('active');
+                    c.style.borderColor = '#E2E8F0';
+                    c.style.background = '#FFFFFF';
+                }
+            });
+
+            if (visibleCount === 0) {
+                if (noVehWarning) noVehWarning.style.display = 'block';
+                selectedVehicleTypeId = null;
+            } else {
+                if (noVehWarning) noVehWarning.style.display = 'none';
+                if (!activeStillVisible) {
+                    const cardToSelect = preferredVisibleCard || firstVisibleCard;
+                    if (cardToSelect) {
+                        vehicleCards.forEach(other => {
+                            other.style.borderColor = '#E2E8F0';
+                            other.style.background = '#FFFFFF';
+                            other.classList.remove('active');
+                        });
+                        cardToSelect.classList.add('active');
+                        cardToSelect.style.borderColor = '#4F46E5';
+                        cardToSelect.style.background = '#EEF2FF';
+                        selectedVehicleTypeId = cardToSelect.getAttribute('data-vt-id');
+                        selectedVehicleCapacity = parseInt(cardToSelect.getAttribute('data-capacity')) || 12;
+                    }
+                }
+            }
+        } else {
+            if (noVehWarning) noVehWarning.style.display = 'none';
+            vehicleCards.forEach(c => {
+                c.style.display = '';
+            });
         }
+    }
+
+    vehicleCards.forEach(c => {
         c.addEventListener('click', () => {
             vehicleCards.forEach(other => {
                 other.style.borderColor = '#E2E8F0';
@@ -795,9 +747,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    if (!selectedVehicleTypeId && vehicleCards.length > 0) {
-        selectedVehicleTypeId = vehicleCards[0].getAttribute('data-vt-id');
-    }
+    // Run filter immediately for default departure
+    filterVehiclesForDeparture();
 
     let adults = 2;
     let children = 0;
@@ -904,6 +855,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (departureSelect) {
         departureSelect.addEventListener('change', () => {
+            filterVehiclesForDeparture();
             recalculatePrice();
         });
     }
@@ -916,6 +868,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (departureSelect) departureSelect.focus();
                 return;
             }
+            if (!selectedVehicleTypeId) {
+                alert("Please select an available vehicle option before proceeding.");
+                return;
+            }
             const isDep = depOpt.getAttribute('data-is-departure') === '1';
             let targetUrl = `{% url 'bookings:create' tour.slug %}?adults=${adults}&children=${children}`;
             if (isDep) {
@@ -923,9 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 targetUrl += `&date_id=${depOpt.value}`;
             }
-            if (selectedVehicleTypeId) {
-                targetUrl += `&vehicle_type_id=${selectedVehicleTypeId}`;
-            }
+            targetUrl += `&vehicle_type_id=${selectedVehicleTypeId}`;
             window.location.href = targetUrl;
         });
     }

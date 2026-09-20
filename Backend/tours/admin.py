@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from .models import (
     Country, Destination, Season, ExperienceType, TravelStyle, DurationBand,
     Tour, TourMedia, TourHighlight, TourItinerary, TourInclusion, 
@@ -8,7 +10,6 @@ from .models import (
 )
 
 # --- Taxonomy Admins ---
-from django.utils.safestring import mark_safe
 
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
@@ -31,6 +32,7 @@ class CountryAdmin(admin.ModelAdmin):
     def packages_count(self, obj):
         return Tour.objects.filter(destination__country=obj).count()
     packages_count.short_description = "Packages"
+
 
 @admin.register(Destination)
 class DestinationAdmin(admin.ModelAdmin):
@@ -58,10 +60,12 @@ class DestinationAdmin(admin.ModelAdmin):
         return mark_safe('<span style="color: #94A3B8; font-size: 0.8rem;">No icon</span>')
     circle_preview.short_description = "Nav Icon"
 
+
 @admin.register(Season)
 class SeasonAdmin(admin.ModelAdmin):
     list_display = ('name', 'sort_order')
     prepopulated_fields = {'slug': ('name',)}
+
 
 @admin.register(ExperienceType)
 class ExperienceTypeAdmin(admin.ModelAdmin):
@@ -78,17 +82,21 @@ class ExperienceTypeAdmin(admin.ModelAdmin):
         return mark_safe('<span style="color: #94A3B8; font-size: 0.8rem;">No icon</span>')
     circle_preview.short_description = "Nav Icon"
 
+
 @admin.register(TravelStyle)
 class TravelStyleAdmin(admin.ModelAdmin):
     list_display = ('name', 'sort_order')
     prepopulated_fields = {'slug': ('name',)}
+
 
 @admin.register(DurationBand)
 class DurationBandAdmin(admin.ModelAdmin):
     list_display = ('name', 'min_hours', 'max_hours')
     prepopulated_fields = {'slug': ('name',)}
 
-# --- Tour Inlines (Allows editing related data on the same page) ---
+
+# --- Tour Inlines ---
+
 class TourMediaInline(admin.TabularInline):
     model = TourMedia
     extra = 1
@@ -103,9 +111,11 @@ class TourMediaInline(admin.TabularInline):
         return mark_safe('<span style="color:#94A3B8; font-size:0.85rem;">No preview</span>')
     image_preview.short_description = "Preview"
 
+
 class TourHighlightInline(admin.TabularInline):
     model = TourHighlight
     extra = 1
+
 
 class TourItineraryInline(admin.StackedInline):
     model = TourItinerary
@@ -118,38 +128,47 @@ class TourItineraryInline(admin.StackedInline):
         return mark_safe('<span style="color:#94A3B8; font-size:0.85rem;">No image uploaded</span>')
     itinerary_image_preview.short_description = "Image Preview"
 
+
 class TourInclusionInline(admin.TabularInline):
     model = TourInclusion
     extra = 1
+
 
 class TourFAQInline(admin.StackedInline):
     model = TourFAQ
     extra = 1
 
+
 class TourPickupInline(admin.TabularInline):
     model = TourPickup
     extra = 1
 
+
 class TourDateInline(admin.TabularInline):
     model = TourDate
     extra = 1
+
 
 class TourOptionPricingInline(admin.TabularInline):
     model = TourOptionPricing
     extra = 1
     fields = ('vehicle_type', 'adult_price', 'child_price', 'currency', 'early_bird_price', 'early_bird_deadline', 'is_active')
 
+
 class TourPricingInline(admin.TabularInline):
     model = TourPricing
     extra = 1
+
 
 class TourSurroundingInline(admin.TabularInline):
     model = TourSurrounding
     extra = 1
 
+
 class TourExtraServiceInline(admin.TabularInline):
     model = TourExtraService
     extra = 1
+
 
 @admin.register(TourCategory)
 class TourCategoryAdmin(admin.ModelAdmin):
@@ -163,7 +182,9 @@ class TourCategoryAdmin(admin.ModelAdmin):
         return mark_safe('<span style="color:#94A3B8; font-size:0.8rem;">No image</span>')
     category_thumbnail.short_description = "Image"
 
+
 # --- Main Tour Admin ---
+
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
     list_display = ('title', 'tour_thumbnail', 'destination', 'guarantee_policy', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'status', 'is_featured')
@@ -191,11 +212,9 @@ class TourAdmin(admin.ModelAdmin):
         import uuid
         duplicated_count = 0
         for tour in queryset:
-            # Capture M2M
             seasons = list(tour.seasons.all())
             experience_types = list(tour.experience_types.all())
 
-            # Clone tour
             old_tour_id = tour.id
             old_tour = Tour.objects.get(id=old_tour_id)
             
@@ -207,11 +226,9 @@ class TourAdmin(admin.ModelAdmin):
             tour.status = 'DRAFT'
             tour.save()
 
-            # Assign M2M
             tour.seasons.set(seasons)
             tour.experience_types.set(experience_types)
 
-            # Deep copy inlines
             for m in old_tour.media.all():
                 m.pk = None; m.tour = tour; m.save()
             for h in old_tour.highlights.all():
@@ -237,6 +254,7 @@ class TourAdmin(admin.ModelAdmin):
 
         self.message_user(request, f"{duplicated_count} tour(s) duplicated successfully with all itineraries, inclusions, and pricing as Drafts.")
 
+
 @admin.register(TourDate)
 class TourDateAdmin(admin.ModelAdmin):
     list_display = ('tour', 'tour_date_thumbnail', 'start_date', 'end_date', 'total_capacity', 'booked_count', 'available_seats', 'status')
@@ -260,6 +278,7 @@ class TourDateAdmin(admin.ModelAdmin):
         return f"{rem} seats"
     available_seats.short_description = "Available"
 
+
 @admin.register(TourPricing)
 class TourPricingAdmin(admin.ModelAdmin):
     list_display = ('tour', 'label', 'price', 'currency', 'season', 'early_bird_price', 'early_bird_deadline')
@@ -267,10 +286,12 @@ class TourPricingAdmin(admin.ModelAdmin):
     list_editable = ('price',)
     search_fields = ('tour__title', 'label')
 
+
 @admin.register(TourReview)
 class TourReviewAdmin(admin.ModelAdmin):
     list_display = ('tour', 'customer', 'rating', 'is_approved', 'created_at')
     list_filter = ('is_approved', 'rating')
+
 
 @admin.register(Wishlist)
 class WishlistAdmin(admin.ModelAdmin):
@@ -298,9 +319,41 @@ class TourOptionPricingAdmin(admin.ModelAdmin):
     ordering = ('tour', 'vehicle_type__sort_order')
 
 
+class DepartureCapacityForm(forms.ModelForm):
+    class Meta:
+        model = DepartureCapacity
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'total_capacity' in self.fields:
+            self.fields['total_capacity'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        vt = cleaned_data.get('vehicle_type')
+        tot = cleaned_data.get('total_capacity')
+        if vt and (tot is None or tot == ''):
+            cleaned_data['total_capacity'] = vt.default_capacity or 12
+        return cleaned_data
+
+    def validate_unique(self):
+        if not self.instance.pk:
+            dep = self.cleaned_data.get('departure') or getattr(self.instance, 'departure', None)
+            vt = self.cleaned_data.get('vehicle_type')
+            if dep and vt:
+                existing = DepartureCapacity.objects.filter(departure=dep, vehicle_type=vt).first()
+                if existing:
+                    self.instance = existing
+                    return
+        super().validate_unique()
+
+
 class DepartureCapacityInline(admin.TabularInline):
     model = DepartureCapacity
-    extra = 0
+    form = DepartureCapacityForm
+    extra = 1
+    max_num = 3
     fields = ('vehicle_type', 'total_capacity', 'booked_count', 'blocked_seats', 'reattempt_reserved', 'price_override_adult', 'price_override_child', 'sellable_display')
     readonly_fields = ('sellable_display',)
 
@@ -340,4 +393,8 @@ class DepartureAdmin(admin.ModelAdmin):
         return mark_safe(''.join(badges))
     capacity_overview.short_description = "Capacity (Sellable / Total)"
 
-
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        obj = self.get_object(request, object_id)
+        if obj and obj.capacities.count() == 0:
+            obj.auto_init_capacities()
+        return super().change_view(request, object_id, form_url, extra_context)

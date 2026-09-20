@@ -21,7 +21,7 @@ def booking_create_view(request, tour_slug):
         slug=tour_slug,
         status='PUBLISHED'
     )
-    available_departures = tour.departures.filter(status='OPEN').order_by('date', 'time')
+    available_departures = tour.departures.filter(status='OPEN').prefetch_related('capacities__vehicle_type').order_by('date', 'time')
     available_dates = tour.dates.filter(status='AVAILABLE').order_by('start_date')
     vehicle_types = VehicleType.objects.filter(is_active=True).order_by('sort_order', 'default_capacity')
 
@@ -80,6 +80,7 @@ def booking_create_view(request, tour_slug):
                         time=default_time,
                         status='OPEN'
                     )
+                    departure.auto_init_capacities()
 
         if vehicle_type_id:
             vehicle_type = VehicleType.objects.filter(id=vehicle_type_id, is_active=True).first()

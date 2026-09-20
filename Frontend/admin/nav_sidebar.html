@@ -14,200 +14,346 @@
     <!-- Navigation Menu -->
     <div class="admin-nav" style="padding: 1rem 0.75rem max(3.5rem, calc(env(safe-area-inset-bottom) + 2rem)) 0.75rem; flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #334155 #0F172A; -webkit-overflow-scrolling: touch;">
         
-        <!-- Section: Core Operations -->
-        <p class="admin-nav-title" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 800; padding: 0 0.75rem; margin: 0.35rem 0 0.5rem 0;">Core Operations</p>
-        <ul style="list-style: none; padding: 0; margin: 0 0 1.25rem 0; display: flex; flex-direction: column; gap: 0.25rem;">
+        <!-- Embedded Accordion & Submenu CSS -->
+        <style>
+            details.nav-accordion {
+                margin: 0.15rem 0;
+            }
+            details.nav-accordion summary.nav-accordion-toggle {
+                display: flex;
+                align-items: center;
+                gap: 0.85rem;
+                padding: 0.65rem 0.85rem;
+                border-radius: 8px;
+                color: #CBD5E1;
+                font-weight: 600;
+                font-size: 0.88rem;
+                cursor: pointer;
+                user-select: none;
+                list-style: none;
+                transition: all 0.15s ease;
+            }
+            details.nav-accordion summary.nav-accordion-toggle::-webkit-details-marker {
+                display: none;
+            }
+            details.nav-accordion summary.nav-accordion-toggle:hover {
+                background: #1E293B;
+                color: #FFFFFF;
+            }
+            details.nav-accordion[open] summary.nav-accordion-toggle {
+                background: rgba(30, 41, 59, 0.7);
+                color: #FFFFFF;
+            }
+            details.nav-accordion summary.nav-accordion-toggle .nav-caret {
+                margin-left: auto;
+                font-size: 0.85rem;
+                color: #64748B;
+                transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            details.nav-accordion[open] summary.nav-accordion-toggle .nav-caret {
+                transform: rotate(180deg);
+                color: #CBD5E1;
+            }
+            .nav-submenu {
+                list-style: none;
+                padding: 0.25rem 0 0.4rem 0.5rem;
+                margin: 0.2rem 0 0.4rem 1.15rem;
+                border-left: 1.5px solid #1E293B;
+                display: flex;
+                flex-direction: column;
+                gap: 0.15rem;
+            }
+            .nav-subitem {
+                display: flex;
+                align-items: center;
+                gap: 0.65rem;
+                padding: 0.45rem 0.75rem;
+                border-radius: 6px;
+                color: #94A3B8;
+                text-decoration: none;
+                font-size: 0.82rem;
+                font-weight: 500;
+                transition: all 0.15s ease;
+            }
+            .nav-subitem:hover {
+                background: #1E293B;
+                color: #F8FAFC;
+                transform: translateX(2px);
+            }
+            .nav-subitem.active {
+                background: #4F46E5;
+                color: #FFFFFF;
+                font-weight: 700;
+                box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+            }
+            .nav-subitem i {
+                font-size: 1rem;
+                opacity: 0.85;
+            }
+            .nav-subitem.active i {
+                opacity: 1;
+            }
+        </style>
+        
+        <!-- Direct Dashboard Link -->
+        <ul style="list-style: none; padding: 0; margin: 0 0 0.75rem 0;">
             <li>
                 <a href="/admin/" class="nav-item {% if request.path == '/admin/' %}active{% endif %}">
                     <i class="ph-bold ph-squares-four" style="font-size: 1.2rem; color: #6366F1;"></i> 
                     <span>Dashboard</span>
                 </a>
             </li>
-            <li>
-                <a href="/admin/bookings/booking/" class="nav-item {% if '/bookings/booking/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-calendar-check" style="font-size: 1.2rem; color: #10B981;"></i> 
-                    <span>Bookings</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/operations/calendar/" class="nav-item {% if '/operations/calendar/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-calendar" style="font-size: 1.2rem; color: #38BDF8;"></i> 
-                    <span>Departure Calendar</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/tours/departure/" class="nav-item {% if '/tours/departure/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-airplane-takeoff" style="font-size: 1.2rem; color: #F43F5E;"></i> 
-                    <span>Tour Departures</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/tours/vehicletype/" class="nav-item {% if '/tours/vehicletype/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-van" style="font-size: 1.2rem; color: #8B5CF6;"></i> 
-                    <span>Vehicle Types</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/bookings/guaranteepolicy/" class="nav-item {% if '/guaranteepolicy/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-shield-check" style="font-size: 1.2rem; color: #059669;"></i> 
-                    <span>Guarantee Policies</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/bookings/guaranteeoutcome/" class="nav-item {% if '/guaranteeoutcome/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-arrow-counter-clockwise" style="font-size: 1.2rem; color: #10B981;"></i> 
-                    <span>Guarantee Outcomes</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/tours/tour/" class="nav-item {% if '/tours/tour/' in request.path and not '/tourdate/' in request.path and not '/tourreview/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-compass" style="font-size: 1.2rem; color: #F59E0B;"></i> 
-                    <span>Tour Packages</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/tours/country/" class="nav-item {% if '/tours/country/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-globe" style="font-size: 1.2rem; color: #38BDF8;"></i> 
-                    <span>Countries</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/tours/destination/" class="nav-item {% if '/tours/destination/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-map-pin" style="font-size: 1.2rem; color: #34D399;"></i> 
-                    <span>Tour Places & Cities</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/tours/experiencetype/" class="nav-item {% if '/tours/experiencetype/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-sparkle" style="font-size: 1.2rem; color: #A78BFA;"></i> 
-                    <span>Tour Categories</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/tours/tourdate/" class="nav-item {% if '/tours/tourdate/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-clock-countdown" style="font-size: 1.2rem; color: #FBBF24;"></i> 
-                    <span>Tour Inventory & Dates</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/chauffeur/vehicleclass/" class="nav-item {% if '/chauffeur/vehicleclass/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-shield-star" style="font-size: 1.2rem; color: #EC4899;"></i> 
-                    <span>Fleet Classes (Luxury Fleet)</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/chauffeur/vehicle/" class="nav-item {% if '/chauffeur/vehicle/' in request.path and not '/vehicleclass/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-car" style="font-size: 1.2rem; color: #F43F5E;"></i> 
-                    <span>VIP Chauffeur Vehicles</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/chauffeur/fixedroute/" class="nav-item {% if '/chauffeur/fixedroute/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-arrows-left-right" style="font-size: 1.2rem; color: #A855F7;"></i> 
-                    <span>Fixed Price Transfers</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/accounts/customuser/" class="nav-item {% if '/accounts/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-users" style="font-size: 1.2rem; color: #3B82F6;"></i> 
-                    <span>Guests & Users</span>
-                </a>
-            </li>
         </ul>
 
-        <!-- Section: Marketing & Homepage Content -->
-        <p class="admin-nav-title" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 800; padding: 0 0.75rem; margin: 1.25rem 0 0.5rem 0;">Marketing & Content</p>
-        <ul style="list-style: none; padding: 0; margin: 0 0 1.25rem 0; display: flex; flex-direction: column; gap: 0.25rem;">
-            <li>
-                <a href="/admin/core/valueproposition/" class="nav-item {% if '/valueproposition/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-seal-check" style="font-size: 1.2rem; color: #10B981;"></i> 
-                    <span>Features & Value Props</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/homeoffercard/" class="nav-item {% if '/homeoffercard/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-percent" style="font-size: 1.2rem; color: #F43F5E;"></i> 
-                    <span>Discounts & Offers</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/partnerlogo/" class="nav-item {% if '/partnerlogo/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-handshake" style="font-size: 1.2rem; color: #0EA5E9;"></i> 
-                    <span>Partner Logos</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/payments/coupon/" class="nav-item {% if '/payments/' in request.path or '/coupon/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-tag" style="font-size: 1.2rem; color: #14B8A6;"></i> 
-                    <span>Promo Coupons</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/tours/tourreview/" class="nav-item {% if '/tourreview/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-star" style="font-size: 1.2rem; color: #EAB308;"></i> 
-                    <span>Reviews & Ratings</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/content/blogpost/" class="nav-item {% if '/content/' in request.path or '/blogpost/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-article" style="font-size: 1.2rem; color: #8B5CF6;"></i> 
-                    <span>Blog & Stories</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/contactsubmission/" class="nav-item {% if '/contactsubmission/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-envelope" style="font-size: 1.2rem; color: #38BDF8;"></i> 
-                    <span>Inquiries & Leads</span>
-                </a>
-            </li>
-        </ul>
+        <p class="admin-nav-title" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 800; padding: 0 0.75rem; margin: 0.5rem 0 0.4rem 0;">Management Modules</p>
 
-        <!-- Section: Platform Configuration -->
-        <p class="admin-nav-title" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #64748B; font-weight: 800; padding: 0 0.75rem; margin: 1.25rem 0 0.5rem 0;">Platform Configuration</p>
-        <ul style="list-style: none; padding: 0; margin: 0 0 0.5rem 0; display: flex; flex-direction: column; gap: 0.25rem;">
-            <li>
-                <a href="/admin/core/sitesetting/1/change/" class="nav-item {% if '/sitesetting/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-gear" style="font-size: 1.2rem; color: #94A3B8;"></i> 
-                    <span>Site Settings (Mission & Stats)</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/navbaritem/" class="nav-item {% if '/navbaritem/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-navigation-arrow" style="font-size: 1.2rem; color: #38BDF8;"></i> 
-                    <span>Navigation Icons</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/megamenupromo/" class="nav-item {% if '/megamenupromo/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-megaphone" style="font-size: 1.2rem; color: #F59E0B;"></i> 
-                    <span>Mega Menu Promos</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/companymenuitem/" class="nav-item {% if '/companymenuitem/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-compass" style="font-size: 1.2rem; color: #EC4899;"></i> 
-                    <span>Company Menu Items</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/faqitem/" class="nav-item {% if '/faqitem/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-question" style="font-size: 1.2rem; color: #64748B;"></i> 
-                    <span>FAQs</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/testimonial/" class="nav-item {% if '/testimonial/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-quotes" style="font-size: 1.2rem; color: #64748B;"></i> 
-                    <span>Testimonials</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/core/teammember/" class="nav-item {% if '/teammember/' in request.path %}active{% endif %}">
-                    <i class="ph-bold ph-users-three" style="font-size: 1.2rem; color: #A78BFA;"></i> 
-                    <span>Team Leadership</span>
-                </a>
-            </li>
-        </ul>
+        <!-- 1. Tour Packages & Taxonomy Dropdown -->
+        <details class="nav-accordion" {% if '/tours/' in request.path and not '/tours/departure/' and not '/tours/vehicletype/' and not '/tours/tourreview/' %}open{% endif %}>
+            <summary class="nav-accordion-toggle">
+                <i class="ph-bold ph-compass" style="font-size: 1.2rem; color: #F59E0B;"></i>
+                <span>Tour Packages</span>
+                <i class="ph-bold ph-caret-down nav-caret"></i>
+            </summary>
+            <ul class="nav-submenu">
+                <li>
+                    <a href="/admin/tours/tour/" class="nav-subitem {% if '/tours/tour/' in request.path and not '/tourdate/' in request.path and not '/tourreview/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-package"></i>
+                        <span>All Tour Packages</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/destination/" class="nav-subitem {% if '/tours/destination/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-map-pin"></i>
+                        <span>Destinations & Cities</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/country/" class="nav-subitem {% if '/tours/country/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-globe"></i>
+                        <span>Countries</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/experiencetype/" class="nav-subitem {% if '/tours/experiencetype/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-sparkle"></i>
+                        <span>Experience Types</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/travelstyle/" class="nav-subitem {% if '/tours/travelstyle/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-compass-tool"></i>
+                        <span>Travel Styles</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/durationband/" class="nav-subitem {% if '/tours/durationband/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-timer"></i>
+                        <span>Duration Bands</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/season/" class="nav-subitem {% if '/tours/season/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-snowflake"></i>
+                        <span>Seasons</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/tourdate/" class="nav-subitem {% if '/tours/tourdate/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-calendar-blank"></i>
+                        <span>Tour Dates & Inventory</span>
+                    </a>
+                </li>
+            </ul>
+        </details>
+
+        <!-- 2. Chauffeur & VIP Fleet Dropdown -->
+        <details class="nav-accordion" {% if '/chauffeur/' in request.path or '/tours/vehicletype/' in request.path %}open{% endif %}>
+            <summary class="nav-accordion-toggle">
+                <i class="ph-bold ph-car-profile" style="font-size: 1.2rem; color: #EC4899;"></i>
+                <span>Chauffeur & Fleet</span>
+                <i class="ph-bold ph-caret-down nav-caret"></i>
+            </summary>
+            <ul class="nav-submenu">
+                <li>
+                    <a href="/admin/chauffeur/vehicle/" class="nav-subitem {% if '/chauffeur/vehicle/' in request.path and not '/vehicleclass/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-car"></i>
+                        <span>VIP Fleet Vehicles</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/chauffeur/vehicleclass/" class="nav-subitem {% if '/chauffeur/vehicleclass/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-shield-star"></i>
+                        <span>Fleet Classes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/chauffeur/fixedroute/" class="nav-subitem {% if '/chauffeur/fixedroute/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-arrows-left-right"></i>
+                        <span>Fixed Price Transfers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/vehicletype/" class="nav-subitem {% if '/tours/vehicletype/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-van"></i>
+                        <span>Departure Vehicle Types</span>
+                    </a>
+                </li>
+            </ul>
+        </details>
+
+        <!-- 3. Bookings & Operations Dropdown -->
+        <details class="nav-accordion" {% if '/bookings/' in request.path or '/operations/' in request.path or '/tours/departure/' in request.path or '/accounts/' in request.path %}open{% endif %}>
+            <summary class="nav-accordion-toggle">
+                <i class="ph-bold ph-calendar-check" style="font-size: 1.2rem; color: #10B981;"></i>
+                <span>Bookings & Ops</span>
+                <i class="ph-bold ph-caret-down nav-caret"></i>
+            </summary>
+            <ul class="nav-submenu">
+                <li>
+                    <a href="/admin/bookings/booking/" class="nav-subitem {% if '/bookings/booking/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-receipt"></i>
+                        <span>All Reservations</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/operations/calendar/" class="nav-subitem {% if '/operations/calendar/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-calendar"></i>
+                        <span>Departure Calendar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/departure/" class="nav-subitem {% if '/tours/departure/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-airplane-takeoff"></i>
+                        <span>Tour Departures</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/bookings/guaranteepolicy/" class="nav-subitem {% if '/guaranteepolicy/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-shield-check"></i>
+                        <span>Guarantee Policies</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/bookings/guaranteeoutcome/" class="nav-subitem {% if '/guaranteeoutcome/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                        <span>Guarantee Outcomes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/accounts/customuser/" class="nav-subitem {% if '/accounts/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-users"></i>
+                        <span>Guests & Users</span>
+                    </a>
+                </li>
+            </ul>
+        </details>
+
+        <!-- 4. Marketing & Content Dropdown -->
+        <details class="nav-accordion" {% if '/valueproposition/' in request.path or '/homeoffercard/' in request.path or '/partnerlogo/' in request.path or '/coupon/' in request.path or '/payments/' in request.path or '/tourreview/' in request.path or '/blogpost/' in request.path or '/content/' in request.path or '/contactsubmission/' in request.path %}open{% endif %}>
+            <summary class="nav-accordion-toggle">
+                <i class="ph-bold ph-megaphone" style="font-size: 1.2rem; color: #8B5CF6;"></i>
+                <span>Marketing & Content</span>
+                <i class="ph-bold ph-caret-down nav-caret"></i>
+            </summary>
+            <ul class="nav-submenu">
+                <li>
+                    <a href="/admin/payments/coupon/" class="nav-subitem {% if '/payments/' in request.path or '/coupon/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-tag"></i>
+                        <span>Promo Coupons</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/homeoffercard/" class="nav-subitem {% if '/homeoffercard/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-percent"></i>
+                        <span>Discounts & Offers</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/valueproposition/" class="nav-subitem {% if '/valueproposition/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-seal-check"></i>
+                        <span>Features & Value Props</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/tourreview/" class="nav-subitem {% if '/tourreview/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-star"></i>
+                        <span>Reviews & Ratings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/content/blogpost/" class="nav-subitem {% if '/content/' in request.path or '/blogpost/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-article"></i>
+                        <span>Blog & Stories</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/contactsubmission/" class="nav-subitem {% if '/contactsubmission/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-envelope"></i>
+                        <span>Inquiries & Leads</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/partnerlogo/" class="nav-subitem {% if '/partnerlogo/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-handshake"></i>
+                        <span>Partner Logos</span>
+                    </a>
+                </li>
+            </ul>
+        </details>
+
+        <!-- 5. Platform Configuration Dropdown -->
+        <details class="nav-accordion" {% if '/sitesetting/' in request.path or '/navbaritem/' in request.path or '/megamenupromo/' in request.path or '/companymenuitem/' in request.path or '/faqitem/' in request.path or '/testimonial/' in request.path or '/teammember/' in request.path %}open{% endif %}>
+            <summary class="nav-accordion-toggle">
+                <i class="ph-bold ph-gear" style="font-size: 1.2rem; color: #38BDF8;"></i>
+                <span>Site & Layout</span>
+                <i class="ph-bold ph-caret-down nav-caret"></i>
+            </summary>
+            <ul class="nav-submenu">
+                <li>
+                    <a href="/admin/core/sitesetting/1/change/" class="nav-subitem {% if '/sitesetting/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-sliders"></i>
+                        <span>Site Settings (Brand & Hero)</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/navbaritem/" class="nav-subitem {% if '/navbaritem/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-navigation-arrow"></i>
+                        <span>Navigation Icons</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/megamenupromo/" class="nav-subitem {% if '/megamenupromo/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-ticket"></i>
+                        <span>Mega Menu Promos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/companymenuitem/" class="nav-subitem {% if '/companymenuitem/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-list-dashes"></i>
+                        <span>Company Menu Items</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/faqitem/" class="nav-subitem {% if '/faqitem/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-question"></i>
+                        <span>FAQs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/testimonial/" class="nav-subitem {% if '/testimonial/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-quotes"></i>
+                        <span>Testimonials</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/core/teammember/" class="nav-subitem {% if '/teammember/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-users-three"></i>
+                        <span>Team Leadership</span>
+                    </a>
+                </li>
+            </ul>
+        </details>
+
 
     </div>
 

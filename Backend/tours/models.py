@@ -323,6 +323,25 @@ class TourDate(models.Model):
     def available_spots(self):
         return max(0, self.total_capacity - self.booked_count)
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        try:
+            import datetime
+            dep_status = 'OPEN' if self.status == 'AVAILABLE' else ('SOLD_OUT' if self.status == 'SOLD_OUT' else 'CLOSED')
+            dep, _ = Departure.objects.get_or_create(
+                tour=self.tour,
+                date=self.start_date,
+                defaults={
+                    'time': datetime.time(9, 0),
+                    'status': dep_status,
+                    'notes': self.notes or ''
+                }
+            )
+            dep.auto_init_capacities()
+        except Exception:
+            pass
+
     def __str__(self):
         return f"{self.tour.title} ({self.start_date})"
 
@@ -453,6 +472,32 @@ class Departure(models.Model):
         verbose_name = "Departure"
         verbose_name_plural = "Departures"
 
+    def auto_init_capacities(self):
+        """
+        Ensures all active vehicle types have DepartureCapacity records.
+        Uses VehicleType.default_capacity for total_capacity if not set.
+        """
+        try:
+            for vt in VehicleType.objects.filter(is_active=True):
+                DepartureCapacity.objects.get_or_create(
+                    departure=self,
+                    vehicle_type=vt,
+                    defaults={
+                        'total_capacity': vt.default_capacity or 12,
+                        'booked_count': 0,
+                        'blocked_seats': 0,
+                        'reattempt_reserved': 0,
+                    }
+                )
+        except Exception:
+            pass
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            self.auto_init_capacities()
+
     def __str__(self):
         return f"{self.tour.title} — {self.date} @ {self.time.strftime('%H:%M')}"
 
@@ -483,6 +528,15 @@ class DepartureCapacity(models.Model):
         unique_together = ('departure', 'vehicle_type')
         verbose_name = "Departure Capacity"
         verbose_name_plural = "Departure Capacities"
+
+    def clean(self):
+        if not self.total_capacity and self.vehicle_type_id:
+            self.total_capacity = self.vehicle_type.default_capacity or 12
+
+    def save(self, *args, **kwargs):
+        if not self.total_capacity and self.vehicle_type_id:
+            self.total_capacity = self.vehicle_type.default_capacity or 12
+        super().save(*args, **kwargs)
 
     @property
     def public_sellable(self):

@@ -185,7 +185,8 @@ class DepartureService:
         except DepartureCapacity.DoesNotExist:
             return {
                 "available": False,
-                "error": f"No capacity configured for {vehicle_type.name} on this departure."
+                "error": f"{vehicle_type.name} is not offered for this departure.",
+                "sellable": 0
             }
 
         sellable = dc.public_sellable

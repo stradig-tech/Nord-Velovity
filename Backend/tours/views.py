@@ -257,8 +257,9 @@ def api_calculate_tour_price(request, tour_id):
         vehicle_type = VehicleType.objects.filter(slug='micro').first() or VehicleType.objects.first()
 
     if departure and vehicle_type:
-        departure_capacity = departure.capacities.filter(vehicle_type=vehicle_type).first()
         try:
+            avail_res = DepartureService.check_availability(departure, vehicle_type, adults + children)
+            departure_capacity = avail_res.get('capacity') or departure.capacities.filter(vehicle_type=vehicle_type).first()
             pricing_data = DepartureService.calculate_price(
                 tour=tour,
                 vehicle_type=vehicle_type,
@@ -266,7 +267,6 @@ def api_calculate_tour_price(request, tour_id):
                 adults=adults,
                 children=children
             )
-            avail_res = DepartureService.check_availability(departure, vehicle_type, adults + children)
             pricing_data['is_available'] = avail_res['available']
             pricing_data['sellable_seats'] = avail_res.get('sellable', 0)
             pricing_data['availability_error'] = avail_res.get('error', '')

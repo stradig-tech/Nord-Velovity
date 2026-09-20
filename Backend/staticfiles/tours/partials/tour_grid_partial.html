@@ -18,7 +18,7 @@
                 <a href="{% url 'tours:list' %}?{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
                    hx-get="{% url 'tours:list' %}?{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
                    hx-target="#packagesLayout"
-                   hx-swap="innerHTML transition:true"
+                   hx-swap="innerHTML transition:true show:#packagesLayout:top"
                    hx-push-url="true"
                    hx-indicator="#htmx-indicator"
                    style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; background: #EEF2FF; color: #4F46E5; padding: 0.2rem 0.55rem; border-radius: 999px; text-decoration: none; font-weight: 700;">
@@ -31,7 +31,7 @@
                 <a href="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
                    hx-get="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
                    hx-target="#packagesLayout"
-                   hx-swap="innerHTML transition:true"
+                   hx-swap="innerHTML transition:true show:#packagesLayout:top"
                    hx-push-url="true"
                    hx-indicator="#htmx-indicator"
                    style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; background: #EEF2FF; color: #4F46E5; padding: 0.2rem 0.55rem; border-radius: 999px; text-decoration: none; font-weight: 700;">
@@ -44,7 +44,7 @@
                 <a href="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
                    hx-get="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
                    hx-target="#packagesLayout"
-                   hx-swap="innerHTML transition:true"
+                   hx-swap="innerHTML transition:true show:#packagesLayout:top"
                    hx-push-url="true"
                    hx-indicator="#htmx-indicator"
                    style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; background: #EEF2FF; color: #4F46E5; padding: 0.2rem 0.55rem; border-radius: 999px; text-decoration: none; font-weight: 700;">
@@ -57,7 +57,7 @@
                 <a href="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
                    hx-get="{% url 'tours:list' %}?{% if selected_country %}country={{ selected_country }}&{% endif %}{% if selected_dest %}destination={{ selected_dest }}&{% endif %}{% if selected_style %}style={{ selected_style }}&{% endif %}{% if selected_sort %}sort={{ selected_sort }}&{% endif %}"
                    hx-target="#packagesLayout"
-                   hx-swap="innerHTML transition:true"
+                   hx-swap="innerHTML transition:true show:#packagesLayout:top"
                    hx-push-url="true"
                    hx-indicator="#htmx-indicator"
                    style="display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; background: #FEF3C7; color: #92400E; padding: 0.2rem 0.55rem; border-radius: 999px; text-decoration: none; font-weight: 700;">
@@ -96,6 +96,98 @@
         </div>
     </div>
     
+    <!-- Destination-Related Locations Showcase -->
+    {% if country_destinations %}
+    <div class="dest-showcase-container" style="margin-bottom: 2.25rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.03);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+                <div style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 700; color: #4F46E5; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem;">
+                    <i class="ph-bold ph-map-pin"></i> Destination Related Locations
+                </div>
+                <h3 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>Active Destinations in {% if matched_country %}{{ matched_country.name }}{% else %}the Nordics{% endif %}</span>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: #64748B; background: #F1F5F9; padding: 0.15rem 0.6rem; border-radius: 999px;">{{ country_destinations|length }} active place{{ country_destinations|length|pluralize }}</span>
+                </h3>
+            </div>
+
+            {% if matched_country %}
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <a href="{% url 'tours:list' %}?country={{ matched_country.slug }}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}"
+                   hx-get="{% url 'tours:list' %}?country={{ matched_country.slug }}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}"
+                   hx-target="#packagesLayout"
+                   hx-swap="innerHTML transition:true show:#packagesLayout:top"
+                   hx-push-url="true"
+                   hx-indicator="#htmx-indicator"
+                   style="font-size: 0.82rem; font-weight: 700; padding: 0.35rem 0.85rem; border-radius: 8px; text-decoration: none; transition: all 0.2s; {% if not selected_dest %}background: #4F46E5; color: #FFFFFF;{% else %}background: #F1F5F9; color: #475569;{% endif %}">
+                    All {{ matched_country.name }}
+                </a>
+                {% if matched_country.slug %}
+                <a href="{% url 'tours:country_detail' matched_country.slug %}" 
+                   style="font-size: 0.82rem; font-weight: 600; color: #4F46E5; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.35rem 0.65rem;">
+                    <span>Country Guide</span>
+                    <i class="ph-bold ph-arrow-up-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Cards Grid for Destination Locations -->
+        <div class="dest-showcase-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem;">
+            {% for dest in country_destinations %}
+            <a href="{% url 'tours:list' %}?destination={{ dest.slug }}{% if matched_country %}&country={{ matched_country.slug }}{% endif %}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}"
+               hx-get="{% url 'tours:list' %}?destination={{ dest.slug }}{% if matched_country %}&country={{ matched_country.slug }}{% endif %}{% if selected_sort and selected_sort != 'default' %}&sort={{ selected_sort }}{% endif %}"
+               hx-target="#packagesLayout"
+               hx-swap="innerHTML transition:true show:#packagesLayout:top"
+               hx-push-url="true"
+               hx-indicator="#htmx-indicator"
+               class="dest-showcase-card {% if selected_dest == dest.slug %}active-dest-card{% endif %}"
+               style="display: flex; flex-direction: column; text-decoration: none; border-radius: 12px; overflow: hidden; border: 1.5px solid {% if selected_dest == dest.slug %}#4F46E5{% else %}#E2E8F0{% endif %}; background: #FFFFFF; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; position: relative;"
+               onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 18px rgba(0,0,0,0.06)';"
+               onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+               
+                <!-- Thumbnail -->
+                <div style="height: 110px; width: 100%; position: relative; background: #0F172A; overflow: hidden;">
+                    {% if dest.hero_image %}
+                    <img src="{{ dest.hero_image.url }}" alt="{{ dest.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% elif dest.nav_icon %}
+                    <img src="{{ dest.nav_icon.url }}" alt="{{ dest.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <img src="{% static 'images/hero/Winter-landscape-19-2-scaled.jpg' %}" alt="{{ dest.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% endif %}
+                    
+                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15, 23, 42, 0.75) 0%, transparent 60%);"></div>
+
+                    {% if selected_dest == dest.slug %}
+                    <span style="position: absolute; top: 0.5rem; right: 0.5rem; background: #4F46E5; color: #FFFFFF; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 999px; letter-spacing: 0.5px; text-transform: uppercase;">
+                        Selected
+                    </span>
+                    {% endif %}
+
+                    <span style="position: absolute; bottom: 0.45rem; left: 0.65rem; font-size: 0.72rem; color: #F1F5F9; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                        <i class="ph-bold ph-map-pin" style="color: #60A5FA;"></i>
+                        {{ dest.country.name|default:matched_country.name }}
+                    </span>
+                </div>
+
+                <!-- Info -->
+                <div style="padding: 0.75rem 0.85rem; display: flex; flex-direction: column; justify-content: space-between; flex: 1; background: {% if selected_dest == dest.slug %}#EEF2FF{% else %}#FFFFFF{% endif %};">
+                    <div style="font-weight: 800; font-size: 0.95rem; color: #0F172A; margin-bottom: 0.35rem; line-height: 1.25;">
+                        {{ dest.name }}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                        <span style="font-size: 0.75rem; font-weight: 700; color: {% if dest.tour_count %}#059669{% else %}#64748B{% endif %};">
+                            {% if dest.tour_count %}{{ dest.tour_count }} Package{{ dest.tour_count|pluralize }}{% else %}Active Place{% endif %}
+                        </span>
+                        <i class="ph-bold ph-arrow-right" style="font-size: 0.85rem; color: #4F46E5;"></i>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Tour Cards Grid: 100% Dynamic -->
     {% if tours %}
     <div class="tours-grid packages-grid">                    
@@ -171,7 +263,7 @@
         <a href="?page={{ page_obj.previous_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
            hx-get="{% url 'tours:list' %}?page={{ page_obj.previous_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
            hx-target="#tourResultsContainer"
-           hx-swap="innerHTML show:window:top"
+           hx-swap="innerHTML show:#packagesLayout:top"
            hx-push-url="true"
            hx-indicator="#htmx-indicator"
            style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFFFFF; color: #0F172A; text-decoration: none; font-weight: 600;">
@@ -183,7 +275,7 @@
         <a href="?page={{ num }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
            hx-get="{% url 'tours:list' %}?page={{ num }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
            hx-target="#tourResultsContainer"
-           hx-swap="innerHTML show:window:top"
+           hx-swap="innerHTML show:#packagesLayout:top"
            hx-push-url="true"
            hx-indicator="#htmx-indicator"
            style="width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: 700; font-size: 0.9rem; {% if page_obj.number == num %}background: #4F46E5; color: #FFFFFF;{% else %}background: #FFFFFF; border: 1px solid #E2E8F0; color: #475569;{% endif %}">
@@ -195,7 +287,7 @@
         <a href="?page={{ page_obj.next_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" 
            hx-get="{% url 'tours:list' %}?page={{ page_obj.next_page_number }}{% if selected_country %}&country={{ selected_country }}{% endif %}{% if selected_dest %}&destination={{ selected_dest }}{% endif %}{% if selected_style %}&style={{ selected_style }}{% endif %}{% if selected_sort %}&sort={{ selected_sort }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}"
            hx-target="#tourResultsContainer"
-           hx-swap="innerHTML show:window:top"
+           hx-swap="innerHTML show:#packagesLayout:top"
            hx-push-url="true"
            hx-indicator="#htmx-indicator"
            style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #E2E8F0; background: #FFFFFF; color: #0F172A; text-decoration: none; font-weight: 600;">
@@ -218,7 +310,7 @@
         <a href="{% url 'tours:list' %}" 
            hx-get="{% url 'tours:list' %}"
            hx-target="#packagesLayout"
-           hx-swap="innerHTML transition:true"
+           hx-swap="innerHTML transition:true show:#packagesLayout:top"
            hx-push-url="true"
            hx-indicator="#htmx-indicator"
            style="background: #4F46E5; color: #FFFFFF; padding: 0.75rem 1.75rem; border-radius: 999px; font-weight: 700; text-decoration: none; display: inline-block;">

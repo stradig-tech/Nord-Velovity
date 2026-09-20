@@ -1005,11 +1005,12 @@ select:focus, .form-row select:focus {
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
 }
 
-/* Checkbox Rows - Ultra Compact & Inline */
-.checkbox-row,
-.form-row.checkbox-row,
-.form-row:has(input[type="checkbox"]),
-.aligned .checkbox-row {
+/* Checkbox Rows - Ultra Compact & Inline (Applies ONLY to div.form-row, NEVER table tr!) */
+.checkbox-row:not(tr),
+div.form-row.checkbox-row,
+div.form-row:has(input[type="checkbox"]),
+.form-row:not(tr):has(input[type="checkbox"]),
+.aligned .checkbox-row:not(tr) {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: wrap !important;
@@ -1019,8 +1020,9 @@ select:focus, .form-row select:focus {
     min-height: auto !important;
 }
 
-.checkbox-row input[type="checkbox"],
-.form-row input[type="checkbox"] {
+.checkbox-row:not(tr) input[type="checkbox"],
+div.form-row input[type="checkbox"],
+.form-row:not(tr) input[type="checkbox"] {
     width: 16px !important;
     height: 16px !important;
     min-width: 16px !important;
@@ -1032,10 +1034,11 @@ select:focus, .form-row select:focus {
     vertical-align: middle !important;
 }
 
-.checkbox-row label,
+.checkbox-row:not(tr) label,
 label.vCheckboxLabel,
-.form-row:has(input[type="checkbox"]) label.vCheckboxLabel,
-.form-row:has(input[type="checkbox"]) label {
+div.form-row:has(input[type="checkbox"]) label.vCheckboxLabel,
+div.form-row:has(input[type="checkbox"]) label,
+.form-row:not(tr):has(input[type="checkbox"]) label {
     display: inline-flex !important;
     align-items: center !important;
     width: auto !important;
@@ -1048,12 +1051,13 @@ label.vCheckboxLabel,
     line-height: 1.2 !important;
 }
 
-.checkbox-row .help,
-.checkbox-row p.help,
-.checkbox-row div.help,
-.form-row:has(input[type="checkbox"]) .help,
-.form-row:has(input[type="checkbox"]) p.help,
-.form-row:has(input[type="checkbox"]) div.help {
+.checkbox-row:not(tr) .help,
+.checkbox-row:not(tr) p.help,
+.checkbox-row:not(tr) div.help,
+div.form-row:has(input[type="checkbox"]) .help,
+div.form-row:has(input[type="checkbox"]) p.help,
+div.form-row:has(input[type="checkbox"]) div.help,
+.form-row:not(tr):has(input[type="checkbox"]) .help {
     display: block !important;
     width: 100% !important;
     font-size: 0.7rem !important;
@@ -1063,6 +1067,242 @@ label.vCheckboxLabel,
     padding: 0 !important;
     font-weight: 400 !important;
 }
+
+/* ==========================================================================
+   Tabular Inlines Global & Desktop Table Layout Enforcement
+   Prevents table rows from turning into flex columns and stops td.original overlap
+   ========================================================================== */
+.inline-group {
+    background: #FFFFFF !important;
+    border: 1px solid var(--nord-border) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    margin-bottom: 1.25rem !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.inline-group h2 {
+    background: #0F172A !important;
+    color: #FFFFFF !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.4px !important;
+    text-transform: uppercase !important;
+    padding: 0.55rem 0.85rem !important;
+    margin: 0 !important;
+    border-top-left-radius: 7px !important;
+    border-top-right-radius: 7px !important;
+}
+
+.inline-group .tabular {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    display: block !important;
+    position: relative !important;
+}
+
+.inline-group .tabular fieldset.module {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+.inline-group .tabular table,
+.tabular table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 600px !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+    table-layout: auto !important;
+}
+
+.inline-group .tabular thead,
+.tabular thead {
+    display: table-header-group !important;
+    background: #F8FAFC !important;
+}
+
+.inline-group .tabular thead tr,
+.tabular thead tr {
+    display: table-row !important;
+}
+
+.inline-group .tabular thead th,
+.tabular thead th {
+    display: table-cell !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.4px !important;
+    color: #475569 !important;
+    padding: 0.55rem 0.75rem !important;
+    border-bottom: 1.5px solid #E2E8F0 !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+    text-align: left !important;
+    background: #F8FAFC !important;
+}
+
+.inline-group .tabular thead th.original,
+.tabular thead th.original {
+    width: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+.inline-group .tabular tbody,
+.tabular tbody {
+    display: table-row-group !important;
+}
+
+.inline-group .tabular tr.form-row,
+.inline-group .tabular table tr,
+.tabular tr.form-row,
+.tabular table tr,
+table.tabular tr {
+    display: table-row !important;
+    flex-direction: row !important;
+    align-items: initial !important;
+    width: auto !important;
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+}
+
+.inline-group .tabular tbody tr:nth-child(even) {
+    background: #FBFDFE !important;
+}
+
+.inline-group .tabular tbody tr:hover {
+    background: #F8FAFC !important;
+}
+
+.inline-group .tabular td,
+.tabular td,
+.tabular table td {
+    display: table-cell !important;
+    vertical-align: middle !important;
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.82rem !important;
+    color: #1E293B !important;
+    white-space: nowrap !important;
+    border: none !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    box-sizing: border-box !important;
+}
+
+/* Eliminate td.original paragraph overlap completely */
+.inline-group .tabular td.original,
+.tabular td.original {
+    width: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+    position: static !important;
+}
+
+.inline-group .tabular td.original p,
+.tabular td.original p {
+    display: none !important;
+}
+
+/* Remove verbose timezone warning from tabular inline date fields */
+.tabular .timezonewarning,
+.inline-group .tabular .timezonewarning {
+    display: none !important;
+}
+
+/* Clean date shortcuts inside tabular inlines */
+.inline-group .tabular td .vDateField,
+.tabular td .vDateField {
+    width: 105px !important;
+    min-width: 100px !important;
+    max-width: 115px !important;
+    display: inline-block !important;
+    height: 32px !important;
+}
+
+.inline-group .tabular td .datetimeshortcuts,
+.tabular td .datetimeshortcuts {
+    font-size: 0.75rem !important;
+    color: #64748B !important;
+    margin-left: 0.35rem !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+}
+
+.inline-group .tabular td.field-total_capacity input,
+.tabular td.field-total_capacity input,
+.inline-group .tabular td.field-booked_count input,
+.tabular td.field-booked_count input {
+    width: 65px !important;
+    min-width: 60px !important;
+    text-align: center !important;
+}
+
+.inline-group .tabular td select,
+.tabular td select {
+    min-width: 110px !important;
+    height: 32px !important;
+}
+
+.inline-group .tabular td textarea,
+.tabular td textarea {
+    min-width: 140px !important;
+    width: 180px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 70px !important;
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+    line-height: 1.3 !important;
+    resize: vertical !important;
+}
+
+.inline-group .tabular td.delete,
+.tabular td.delete {
+    text-align: center !important;
+    width: 50px !important;
+}
+
+.inline-group .tabular td.delete input[type="checkbox"],
+.tabular td.delete input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    margin: 0 auto !important;
+    accent-color: #EF4444 !important;
+    cursor: pointer !important;
+}
+
+.inline-group .tabular tr.add-row td,
+.inline-group tr.add-row td {
+    background: #F8FAFC !important;
+    padding: 0.55rem 0.85rem !important;
+    border-top: 1px solid #E2E8F0 !important;
+}
+
+.inline-group .tabular tr.add-row td a,
+.inline-group tr.add-row td a,
+.inline-group .add-row a {
+    color: #4F46E5 !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+}
+
 
 /* Help text across all form rows */
 .form-row p.help,
@@ -2201,12 +2441,12 @@ label.vCheckboxLabel,
         border-radius: 6px !important;
     }
 
-    /* Checkbox Rows on Mobile - CRITICAL COMPACT OVERRIDE */
-    .form-row.checkbox-row,
-    .form-row .checkbox-row,
-    .form-row:has(input[type="checkbox"]),
-    .checkbox-row,
-    .aligned .checkbox-row {
+    /* Checkbox Rows on Mobile - CRITICAL COMPACT OVERRIDE (Applies ONLY to div.form-row, NEVER table tr!) */
+    .checkbox-row:not(tr),
+    div.form-row.checkbox-row,
+    div.form-row:has(input[type="checkbox"]),
+    .form-row:not(tr):has(input[type="checkbox"]),
+    .aligned .checkbox-row:not(tr) {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: wrap !important;
@@ -2216,9 +2456,9 @@ label.vCheckboxLabel,
         min-height: auto !important;
     }
 
-    .form-row.checkbox-row label,
-    .form-row .checkbox-row label,
-    .form-row:has(input[type="checkbox"]) label,
+    .checkbox-row:not(tr) label,
+    div.form-row:has(input[type="checkbox"]) label,
+    .form-row:not(tr):has(input[type="checkbox"]) label,
     .form-row label.vCheckboxLabel,
     label.vCheckboxLabel {
         display: inline-flex !important;
@@ -2233,9 +2473,9 @@ label.vCheckboxLabel,
         line-height: 1.2 !important;
     }
 
-    .form-row.checkbox-row input[type="checkbox"],
-    .form-row .checkbox-row input[type="checkbox"],
-    .form-row:has(input[type="checkbox"]) input[type="checkbox"],
+    .checkbox-row:not(tr) input[type="checkbox"],
+    div.form-row:has(input[type="checkbox"]) input[type="checkbox"],
+    .form-row:not(tr):has(input[type="checkbox"]) input[type="checkbox"],
     input[type="checkbox"] {
         width: 17px !important;
         height: 17px !important;
@@ -2247,13 +2487,11 @@ label.vCheckboxLabel,
         accent-color: var(--nord-primary) !important;
     }
 
-    .form-row.checkbox-row .help,
-    .form-row .checkbox-row .help,
-    .form-row:has(input[type="checkbox"]) .help,
-    .form-row:has(input[type="checkbox"]) p.help,
-    .form-row:has(input[type="checkbox"]) div.help,
-    .checkbox-row div.help,
-    .checkbox-row p.help {
+    .checkbox-row:not(tr) .help,
+    div.form-row:has(input[type="checkbox"]) .help,
+    div.form-row:has(input[type="checkbox"]) p.help,
+    div.form-row:has(input[type="checkbox"]) div.help,
+    .form-row:not(tr):has(input[type="checkbox"]) .help {
         display: block !important;
         width: 100% !important;
         font-size: 0.68rem !important;
@@ -2838,26 +3076,25 @@ label.vCheckboxLabel,
         border-radius: 5px !important;
     }
 
-    .form-row.checkbox-row,
-    .form-row .checkbox-row,
-    .form-row:has(input[type="checkbox"]),
-    .checkbox-row,
-    .aligned .checkbox-row {
+    .checkbox-row:not(tr),
+    div.form-row.checkbox-row,
+    div.form-row:has(input[type="checkbox"]),
+    .form-row:not(tr):has(input[type="checkbox"]),
+    .aligned .checkbox-row:not(tr) {
         padding: 0.2rem 0.5rem !important;
         gap: 0.35rem !important;
     }
 
-    .form-row.checkbox-row label,
-    .form-row .checkbox-row label,
-    .form-row:has(input[type="checkbox"]) label,
+    .checkbox-row:not(tr) label,
+    div.form-row:has(input[type="checkbox"]) label,
+    .form-row:not(tr):has(input[type="checkbox"]) label,
     .form-row label.vCheckboxLabel,
     label.vCheckboxLabel {
         font-size: 0.78rem !important;
     }
 
-    .form-row.checkbox-row .help,
-    .form-row .checkbox-row .help,
-    .form-row:has(input[type="checkbox"]) .help,
+    .checkbox-row:not(tr) .help,
+    div.form-row:has(input[type="checkbox"]) .help,
     .checkbox-row div.help,
     .checkbox-row p.help {
         font-size: 0.66rem !important;
@@ -2934,17 +3171,23 @@ label.vCheckboxLabel,
 }
 
 .admin-table-swipe-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.74rem;
-    font-weight: 600;
-    color: #4F46E5;
-    background: rgba(79, 70, 229, 0.08);
-    padding: 0.25rem 0.6rem;
-    border-radius: 6px;
-    margin-bottom: 0.55rem;
-    border: 1px solid rgba(79, 70, 229, 0.15);
+    display: none !important;
+}
+
+@media (max-width: 1024px) {
+    .admin-table-swipe-hint {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.74rem;
+        font-weight: 600;
+        color: #4F46E5;
+        background: rgba(79, 70, 229, 0.08);
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        margin-bottom: 0.55rem;
+        border: 1px solid rgba(79, 70, 229, 0.15);
+    }
 }
 
 .admin-table-swipe-hint i {

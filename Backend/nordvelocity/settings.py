@@ -137,7 +137,7 @@ DATABASES = {
 if 'mysql' in DATABASES['default'].get('ENGINE', ''):
     DATABASES['default'].setdefault('OPTIONS', {})
     DATABASES['default']['OPTIONS']['charset'] = 'utf8mb4'
-    DATABASES['default']['OPTIONS']['init_command'] = "SET sql_mode='STRICT_TRANS_TABLES', names='utf8mb4'"
+    DATABASES['default']['OPTIONS']['init_command'] = "SET sql_mode='STRICT_TRANS_TABLES'"
 
 
 # Password validation

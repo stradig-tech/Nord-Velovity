@@ -18,13 +18,13 @@
 <link rel="stylesheet" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
 {% block extrastyle %}{% endblock %}
 
-<!-- Nord Velocity Executive Master Theme (Highest Priority) -->
-<link rel="stylesheet" href="/static/admin/luxury_admin.css?v=2.3">
-
 {% block extrahead %}{% endblock %}
 {% block responsive %}
     <link rel="stylesheet" href="{% static "admin/css/responsive.css" %}">
 {% endblock %}
+
+<!-- Nord Velocity Executive Master Theme (Highest Priority - loaded last to override responsive.css) -->
+<link rel="stylesheet" href="/static/admin/luxury_admin.css?v=3.3">
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
 </head>
 
@@ -159,10 +159,46 @@ document.addEventListener("DOMContentLoaded", function() {
             filterHeader.appendChild(closeBtn);
         }
 
-        // Insert before changelist form container
-        var targetContainer = changelist.querySelector('.changelist-form-container') || changelist;
-        targetContainer.insertBefore(filterToggleBtn, targetContainer.firstChild);
+        // Move filterToggleBtn ABOVE next to + Add button (object-tools / titles-and-tools)
+        var objectTools = document.querySelector('.titles-and-tools .object-tools') || document.querySelector('.object-tools');
+        var titlesAndTools = document.querySelector('.titles-and-tools');
+        
+        if (objectTools) {
+            var filterLi = document.createElement('li');
+            filterLi.className = 'admin-filter-tool-li';
+            filterLi.appendChild(filterToggleBtn);
+            objectTools.appendChild(filterLi);
+        } else if (titlesAndTools) {
+            titlesAndTools.appendChild(filterToggleBtn);
+        } else {
+            var targetContainer = changelist.querySelector('.changelist-form-container') || changelist;
+            targetContainer.insertBefore(filterToggleBtn, targetContainer.firstChild);
+        }
     }
+
+    // Ensure .actions on mobile has select cleanly ordered before Run button
+    var actionsContainer = document.querySelector('.actions');
+    if (actionsContainer) {
+        var actionLabel = actionsContainer.querySelector('label');
+        var actionBtn = actionsContainer.querySelector('button[name="index"], button.button');
+        if (actionLabel && actionBtn && actionBtn.compareDocumentPosition(actionLabel) & Node.DOCUMENT_POSITION_FOLLOWING) {
+            // Already ordered
+        } else if (actionLabel && actionBtn) {
+            actionsContainer.insertBefore(actionLabel, actionBtn);
+        }
+    }
+
+    // Add mobile swipe hint for changelist tables and tabular inlines
+    var tables = document.querySelectorAll('.results table, #result_list, .inline-group .tabular table');
+    tables.forEach(function(tbl) {
+        var wrapper = tbl.closest('.results') || tbl.closest('.tabular') || tbl.parentElement;
+        if (wrapper && !wrapper.parentElement.querySelector('.admin-table-swipe-hint') && !wrapper.querySelector('.admin-table-swipe-hint')) {
+            var swipeHint = document.createElement('div');
+            swipeHint.className = 'admin-table-swipe-hint';
+            swipeHint.innerHTML = '<i class="ph-bold ph-arrows-left-right"></i> <span>Swipe horizontally to view all columns</span>';
+            wrapper.parentNode.insertBefore(swipeHint, wrapper);
+        }
+    });
 });
 </script>
 </body>
