@@ -4,8 +4,8 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-from .models import Booking, TourBooking
-from tours.models import Tour, TourDate, Departure, DepartureCapacity, VehicleType
+from .models import Booking, TourBooking, BookingAnswer, ChildSeatRequest, BookingAddon
+from tours.models import Tour, TourDate, Departure, DepartureCapacity, VehicleType, TourPickup, BookingQuestion, TourExtraService
 from accounts.models import CustomUser, CustomerProfile
 from .services import BookingService
 from payments.services import CouponService
@@ -106,6 +106,10 @@ def booking_create_view(request, tour_slug):
             name = request.POST.get(f'guest_child_{i}_name', f"Child Guest {i}")
             guests_info.append({'full_name': name, 'guest_type': 'CHILD'})
 
+        # Pickup location
+        pickup_id = request.POST.get('pickup_location')
+        pickup_notes = request.POST.get('pickup_notes', '')
+
         result = BookingService.create_tour_booking(
             customer=customer,
             tour=tour,
@@ -121,6 +125,81 @@ def booking_create_view(request, tour_slug):
         )
 
         if result['success']:
+            booking = Booking.objects.filter(booking_ref=result['booking_ref']).first()
+            tb = getattr(booking, 'tour_booking', None) if booking else None
+
+            # Save pickup location on TourBooking
+            if tb and pickup_id:
+                pickup = TourPickup.objects.filter(id=pickup_id, tour=tour).first()
+                if pickup:
+                    tb.pickup_location = pickup
+                    tb.pickup_notes = pickup_notes
+                    tb.save(update_fields=['pickup_location', 'pickup_notes'])
+
+            # Save booking question answers
+            if tb:
+                questions = tour.booking_questions.filter(is_active=True)
+                for q in questions:
+                    answer_val = request.POST.get(f'bq_{q.id}', '').strip()
+                    if answer_val:
+                        BookingAnswer.objects.create(
+                            tour_booking=tb,
+                            question=q,
+                            answer_text=answer_val
+                        )
+
+            # Save child seat requests
+            if booking:
+                seat_count = int(request.POST.get('child_seat_count', 0))
+                for i in range(1, seat_count + 1):
+                    seat_type = request.POST.get(f'child_seat_{i}_type', '')
+                    quantity = int(request.POST.get(f'child_seat_{i}_qty', 1))
+                    child_age = int(request.POST.get(f'child_seat_{i}_age', 0))
+                    weight = request.POST.get(f'child_seat_{i}_weight', '')
+                    if seat_type:
+                        ChildSeatRequest.objects.create(
+                            booking=booking,
+                            seat_type=seat_type,
+                            quantity=quantity,
+                            child_age=child_age,
+                            approx_weight_kg=weight if weight else None,
+                        )
+
+            # Save selected add-ons
+            if booking:
+                addon_total = Decimal('0.00')
+                for extra in tour.extra_services.filter(is_active=True):
+                    if request.POST.get(f'addon_{extra.id}'):
+                        try:
+                            qty = max(1, int(request.POST.get(f'addon_{extra.id}_qty', 1)))
+                        except (ValueError, TypeError):
+                            qty = 1
+                        unit_p = extra.price
+                        tot_p = (unit_p * (adults + children)) if extra.price_type == 'PER_PERSON' else (unit_p * qty)
+                        BookingAddon.objects.create(
+                            booking=booking,
+                            extra_service=extra,
+                            quantity=qty,
+                            unit_price=unit_p,
+                            total_price=tot_p
+                        )
+                        addon_total += tot_p
+
+                if addon_total > 0 and not tour.is_free:
+                    booking.total_amount += addon_total
+                    booking.subtotal += addon_total
+                    booking.save(update_fields=['total_amount', 'subtotal'])
+
+            # Free booking: skip payment, go directly to success
+            if tour.is_free and booking:
+                booking.is_free_booking = True
+                booking.total_amount = 0
+                booking.subtotal = 0
+                booking.status = 'CONFIRMED'
+                booking.payment_status = 'NOT_REQUIRED'
+                booking.save(update_fields=['is_free_booking', 'total_amount', 'subtotal', 'status', 'payment_status'])
+                return redirect('bookings:success') + f'?ref={booking.booking_ref}&method=free'
+
             return redirect('bookings:summary', booking_ref=result['booking_ref'])
         else:
             messages.error(request, result.get('error', 'Booking could not be created.'))
@@ -180,6 +259,12 @@ def booking_create_view(request, tour_slug):
     except Exception:
         pass
 
+    # Pickup points, booking questions, and extra services for this tour
+    pickup_points = tour.pickups.filter(type='PICKUP').order_by('pickup_time', 'location_name', 'id')
+    booking_questions = tour.booking_questions.filter(is_active=True).order_by('sort_order', 'id')
+
+    extra_services = tour.extra_services.filter(is_active=True).order_by('sort_order', 'id')
+
     context = {
         'tour': tour,
         'available_departures': available_departures,
@@ -191,6 +276,9 @@ def booking_create_view(request, tour_slug):
         'initial_adults': initial_adults,
         'initial_children': initial_children,
         'pricing': pricing,
+        'pickup_points': pickup_points,
+        'booking_questions': booking_questions,
+        'extra_services': extra_services,
     }
     return render(request, 'bookings/tour-booking.html', context)
 

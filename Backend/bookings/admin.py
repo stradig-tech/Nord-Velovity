@@ -5,9 +5,10 @@ from django.utils import timezone
 from .models import (
     Booking, ChauffeurBooking, TourBooking, TourBookingGuest, BookingStatusLog,
     GuaranteedReattempt, GuaranteePolicy, GuaranteeOutcome, GuaranteeAuditLog,
-    GuestInfo
+    GuestInfo, ChildSeatRequest, BookingAnswer, BookingAddon
 )
 from .services import BookingService
+from .cancellation_service import CancellationService
 from tours.models import Departure, DepartureCapacity
 
 class ChauffeurBookingInline(admin.StackedInline):
@@ -24,14 +25,25 @@ class BookingStatusLogInline(admin.TabularInline):
     extra = 0
     readonly_fields = ('old_status', 'new_status', 'changed_by', 'timestamp')
 
+class ChildSeatRequestInline(admin.TabularInline):
+    model = ChildSeatRequest
+    extra = 0
+    fields = ('seat_type', 'quantity', 'child_age', 'approx_weight_kg', 'notes')
+
+class BookingAddonInline(admin.TabularInline):
+    model = BookingAddon
+    extra = 0
+    readonly_fields = ('extra_service', 'quantity', 'unit_price', 'total_price')
+
+
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = ('booking_ref', 'booking_type', 'source_badge', 'customer', 'status', 'payment_method', 'payment_status', 'total_amount', 'created_at')
     list_filter = ('status', 'source', 'payment_method', 'payment_status', 'booking_type', 'created_at')
     list_editable = ('status', 'payment_status')
     search_fields = ('booking_ref', 'external_reference', 'customer__email', 'customer__first_name', 'customer__last_name')
-    inlines = [ChauffeurBookingInline, TourBookingInline, BookingStatusLogInline]
-    actions = ['mark_as_paid', 'mark_as_unpaid', 'cancel_and_restore_capacity', 'mark_failed_experience']
+    inlines = [ChauffeurBookingInline, TourBookingInline, BookingStatusLogInline, ChildSeatRequestInline, BookingAddonInline]
+    actions = ['mark_as_paid', 'mark_as_unpaid', 'cancel_and_restore_capacity', 'cancel_with_refund_calc', 'mark_failed_experience']
 
     def source_badge(self, obj):
         colors = {
@@ -80,6 +92,21 @@ class BookingAdmin(admin.ModelAdmin):
                 cancelled_count += 1
         self.message_user(request, f"{cancelled_count} booking(s) cancelled and capacity released back to departure inventory.")
 
+    @admin.action(description="📋 Cancel with refund calculation (Cancellation Policy)")
+    def cancel_with_refund_calc(self, request, queryset):
+        results = []
+        for b in queryset:
+            if b.status != 'CANCELLED':
+                refund_calc = CancellationService.process_cancellation(b, user=request.user)
+                results.append(
+                    f"{b.booking_ref}: {refund_calc['refund_percentage']}% refund = €{refund_calc['refund_amount']} "
+                    f"({refund_calc['description']})"
+                )
+        if results:
+            self.message_user(request, f"Cancelled {len(results)} booking(s). " + ' | '.join(results))
+        else:
+            self.message_user(request, "No bookings were cancelled (already cancelled or empty).")
+
     @admin.action(description="🌌 Mark as Failed Experience (Create Guaranteed Re-attempt)")
     def mark_failed_experience(self, request, queryset):
         created_count = 0
@@ -104,10 +131,17 @@ class BookingAdmin(admin.ModelAdmin):
 
 @admin.register(TourBooking)
 class TourBookingAdmin(admin.ModelAdmin):
-    list_display = ('booking', 'tour', 'departure', 'vehicle_type', 'adults', 'children', 'total_guests')
+    list_display = ('booking', 'tour', 'departure', 'vehicle_type', 'pickup_location', 'adults', 'children', 'total_guests')
     list_filter = ('tour', 'vehicle_type')
     search_fields = ('booking__booking_ref', 'tour__title')
     raw_id_fields = ('booking', 'departure', 'departure_capacity', 'tour_date')
+
+
+class BookingAnswerInline(admin.TabularInline):
+    model = BookingAnswer
+    extra = 0
+    readonly_fields = ('question', 'answer_text')
+
 
 
 @admin.register(GuaranteedReattempt)

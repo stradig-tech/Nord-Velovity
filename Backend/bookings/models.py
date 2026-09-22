@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from chauffeur.models import Vehicle
-from tours.models import Tour, TourDate
+from tours.models import Tour, TourDate, TourPickup
 
 class Booking(models.Model):
     booking_ref = models.CharField(max_length=50, unique=True) # e.g. NV-2026-00001
@@ -56,6 +56,10 @@ class Booking(models.Model):
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3, default='EUR')
+    is_free_booking = models.BooleanField(
+        default=False,
+        help_text="If True, this is a free booking — no payment required, info collection only"
+    )
     
     customer_notes = models.TextField(blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True)
@@ -106,6 +110,13 @@ class TourBooking(models.Model):
     children = models.IntegerField(default=0)
     total_guests = models.IntegerField()
     
+    pickup_location = models.ForeignKey(
+        TourPickup, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='tour_bookings',
+        help_text="Selected pickup point for this booking"
+    )
+    pickup_notes = models.TextField(blank=True, default='', help_text="Customer's pickup instructions or hotel name")
+    
     special_requests = models.TextField(blank=True, null=True)
     dietary_requirements = models.TextField(blank=True, null=True)
 
@@ -124,6 +135,69 @@ class GuestInfo(TourBookingGuest):
         proxy = True
         verbose_name = "Guest Info"
         verbose_name_plural = "Guest Info"
+
+
+class ChildSeatRequest(models.Model):
+    """Child seat request for chauffeur or tour bookings."""
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='child_seat_requests')
+    SEAT_TYPE_CHOICES = (
+        ('INFANT', 'Infant Carrier (0-12 months)'),
+        ('TODDLER', 'Toddler Seat (1-4 years)'),
+        ('CHILD', 'Child Seat (4-7 years)'),
+        ('BOOSTER', 'Booster Seat (7-12 years)'),
+    )
+    seat_type = models.CharField(max_length=10, choices=SEAT_TYPE_CHOICES)
+    quantity = models.PositiveIntegerField(default=1)
+    child_age = models.PositiveIntegerField(help_text="Child's age in years")
+    approx_weight_kg = models.DecimalField(
+        max_digits=5, decimal_places=1, null=True, blank=True,
+        help_text="Approximate weight in kg"
+    )
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Child Seat Request"
+        verbose_name_plural = "Child Seat Requests"
+
+    def __str__(self):
+        return f"{self.get_seat_type_display()} x{self.quantity} (Age: {self.child_age})"
+
+
+class BookingAnswer(models.Model):
+    """Customer's answer to a per-tour BookingQuestion."""
+    tour_booking = models.ForeignKey(TourBooking, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(
+        'tours.BookingQuestion', on_delete=models.CASCADE, related_name='answers'
+    )
+    answer_text = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('tour_booking', 'question')
+        verbose_name = "Booking Answer"
+        verbose_name_plural = "Booking Answers"
+
+    def __str__(self):
+        return f"{self.question.question_text}: {self.answer_text[:80]}"
+
+
+class BookingAddon(models.Model):
+    """Records which add-ons (TourExtraService) were selected for a booking."""
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='addons')
+    extra_service = models.ForeignKey(
+        'tours.TourExtraService', on_delete=models.SET_NULL, null=True, related_name='booking_addons'
+    )
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        verbose_name = "Booking Add-on"
+        verbose_name_plural = "Booking Add-ons"
+
+    def __str__(self):
+        name = self.extra_service.name if self.extra_service else "Deleted Add-on"
+        return f"{name} x{self.quantity} (€{self.total_price})"
+
 
 
 class BookingStatusLog(models.Model):

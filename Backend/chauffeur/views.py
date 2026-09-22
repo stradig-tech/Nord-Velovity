@@ -311,12 +311,51 @@ def chauffeur_booking_create_view(request, slug):
         )
 
         if res["success"]:
+            booking = res["booking"]
+            # Save child seat requests
+            from bookings.models import ChildSeatRequest
+            try:
+                seat_count = int(request.POST.get('child_seat_count', 0))
+            except (ValueError, TypeError):
+                seat_count = 0
+            for i in range(1, seat_count + 1):
+                seat_type = request.POST.get(f'child_seat_{i}_type', '')
+                try:
+                    qty = int(request.POST.get(f'child_seat_{i}_qty', 1))
+                except (ValueError, TypeError):
+                    qty = 1
+                try:
+                    age = int(request.POST.get(f'child_seat_{i}_age', 0))
+                except (ValueError, TypeError):
+                    age = 0
+                weight = request.POST.get(f'child_seat_{i}_weight', '').strip()
+                if seat_type:
+                    ChildSeatRequest.objects.create(
+                        booking=booking,
+                        seat_type=seat_type,
+                        quantity=qty,
+                        child_age=age,
+                        approx_weight_kg=Decimal(weight) if weight else None,
+                    )
+
+            # Free transfer check: if quote_fare is 0 or explicitly flagged
+            is_free = (quote_fare is not None and quote_fare == Decimal('0.00')) or (request.POST.get('is_free_transfer') == '1')
+            if is_free:
+                booking.is_free_booking = True
+                booking.total_amount = Decimal('0.00')
+                booking.subtotal = Decimal('0.00')
+                booking.status = 'CONFIRMED'
+                booking.payment_status = 'NOT_REQUIRED'
+                booking.save(update_fields=['is_free_booking', 'total_amount', 'subtotal', 'status', 'payment_status'])
+                return redirect('bookings:success') + f'?ref={booking.booking_ref}&method=free'
+
             return redirect('bookings:summary', booking_ref=res["booking_ref"])
         else:
             messages.error(request, res.get("error", "Failed to create chauffeur reservation."))
             return redirect('chauffeur:detail', slug=slug)
 
     return redirect('chauffeur:detail', slug=slug)
+
 
 
 def api_calculate_chauffeur_fare(request):

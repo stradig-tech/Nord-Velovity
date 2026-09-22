@@ -142,6 +142,161 @@
                         </div>
                     </div>
 
+                    <!-- Pickup Location & Meeting Point Card -->
+                    {% if pickup_points or tour.pickups.exists %}
+                    <div style="background: white; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 0.4rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="ph-bold ph-map-pin" style="color: #4F46E5;"></i> Pickup &amp; Meeting Point
+                        </h4>
+                        <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem;">Select your preferred pickup location or designated central meeting point.</p>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Select Pickup Point</label>
+                            <select name="pickup_location" id="pickupLocationSelect" style="width: 100%; padding: 0.8rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.95rem; font-weight: 600; background: #F8FAFC; color: #0F172A;">
+                                <option value="">-- Choose a pickup location --</option>
+                                {% for p in pickup_points %}
+                                <option value="{{ p.id }}">{{ p.location_name }}{% if p.pickup_time %} ({{ p.pickup_time|time:"H:i" }}){% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Pickup Notes / Hotel Details (Optional)</label>
+                            <input type="text" name="pickup_notes" placeholder="e.g. Hotel Kämp Lobby, Room 304, or arriving by train" style="width: 100%; padding: 0.8rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC;">
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Custom Booking Questions Card -->
+                    {% if booking_questions %}
+                    <div style="background: white; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 0.4rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="ph-bold ph-question" style="color: #4F46E5;"></i> Tour Experience Information
+                        </h4>
+                        <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem;">Please answer the following questions to help us tailor your experience.</p>
+
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            {% for q in booking_questions %}
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+                                    {{ q.question_text }} {% if q.is_required %}<span style="color: #EF4444;">*</span>{% endif %}
+                                </label>
+                                {% if q.field_type == 'TEXT' %}
+                                <input type="text" name="bq_{{ q.id }}" {% if q.is_required %}required{% endif %} placeholder="Your answer" style="width: 100%; padding: 0.8rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC;">
+                                {% elif q.field_type == 'TEXTAREA' %}
+                                <textarea name="bq_{{ q.id }}" rows="2" {% if q.is_required %}required{% endif %} placeholder="Your answer" style="width: 100%; padding: 0.8rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC; resize: vertical;"></textarea>
+                                {% elif q.field_type == 'SELECT' %}
+                                <select name="bq_{{ q.id }}" {% if q.is_required %}required{% endif %} style="width: 100%; padding: 0.8rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC;">
+                                    <option value="">-- Please select an option --</option>
+                                    {% for opt in q.options_list %}
+                                    <option value="{{ opt }}">{{ opt }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% elif q.field_type == 'NUMBER' %}
+                                <input type="number" name="bq_{{ q.id }}" {% if q.is_required %}required{% endif %} placeholder="e.g. 42" style="width: 100%; padding: 0.8rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; background: #F8FAFC;">
+                                {% elif q.field_type == 'YES_NO' %}
+                                <div style="display: flex; gap: 1.5rem; align-items: center; padding-top: 0.25rem;">
+                                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: #334155; cursor: pointer;">
+                                        <input type="radio" name="bq_{{ q.id }}" value="Yes" {% if q.is_required %}required{% endif %}> Yes
+                                    </label>
+                                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.92rem; color: #334155; cursor: pointer;">
+                                        <input type="radio" name="bq_{{ q.id }}" value="No"> No
+                                    </label>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Child Seat Section: Safe & Comfortable Travel -->
+                    <div style="background: white; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="ph-bold ph-baby" style="color: #4F46E5;"></i> Child Seat – Safe &amp; Comfortable Travel
+                            </h4>
+                            <span style="background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700;">Complimentary Service</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem;">
+                            We provide certified, safety-inspected child seats free of charge. Please specify your child's age, seat type, and approximate weight.
+                        </p>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; font-size: 0.92rem; font-weight: 700; color: #1E293B;">
+                                <input type="checkbox" id="toggleChildSeat" onchange="toggleChildSeatSection(this)" style="width: 18px; height: 18px; accent-color: #4F46E5;">
+                                <span>Request Child Safety Seat(s) for this booking</span>
+                            </label>
+                        </div>
+
+                        <div id="childSeatSection" style="display: none; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 1.25rem;">
+                            <input type="hidden" name="child_seat_count" id="childSeatCount" value="1">
+                            
+                            <div id="childSeatsContainer">
+                                <div class="child-seat-row" id="childSeatRow_1" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: flex-end; margin-bottom: 0.75rem;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Seat Type *</label>
+                                        <select name="child_seat_1_type" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: white;">
+                                            <option value="INFANT">Infant Carrier (0–12 mos, &lt;13kg)</option>
+                                            <option value="TODDLER" selected>Toddler Seat (1–4 yrs, 9–18kg)</option>
+                                            <option value="CHILD">Child Seat (4–7 yrs, 15–25kg)</option>
+                                            <option value="BOOSTER">Booster Seat (7–12 yrs, 22–36kg)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Qty</label>
+                                        <input type="number" name="child_seat_1_qty" min="1" max="4" value="1" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: white;">
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Child Age</label>
+                                        <input type="number" name="child_seat_1_age" min="0" max="12" value="2" placeholder="Age (yrs)" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: white;">
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Approx. Wt</label>
+                                        <input type="number" step="0.5" name="child_seat_1_weight" min="2" max="60" value="14" placeholder="kg" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: white;">
+                                    </div>
+                                    <div>
+                                        <!-- spacer -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="addChildSeatRow()" style="background: none; border: 1px dashed #4F46E5; color: #4F46E5; padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.5rem;">
+                                <i class="ph-bold ph-plus"></i> Add Another Child Seat
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tour Add-ons Card -->
+                    {% if extra_services %}
+                    <div style="background: white; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 0.4rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="ph-bold ph-sparkle" style="color: #4F46E5;"></i> Optional Experience Add-ons
+                        </h4>
+                        <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1.25rem;">Enhance your journey with premium extras &amp; gear.</p>
+
+                        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                            {% for extra in extra_services %}
+                            <label style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1.5px solid #E2E8F0; border-radius: 12px; cursor: pointer; background: #F8FAFC; transition: all 0.2s;" class="addon-card">
+                                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                    <input type="checkbox" name="addon_{{ extra.id }}" value="1" style="width: 18px; height: 18px; accent-color: #4F46E5;" class="addon-checkbox" data-price="{{ extra.price }}" data-type="{{ extra.price_type }}" onchange="updateAddonPricing()">
+                                    <div>
+                                        <div style="font-weight: 700; color: #0F172A; font-size: 0.95rem;">{{ extra.name }}</div>
+                                        {% if extra.description %}
+                                        <div style="font-size: 0.82rem; color: #64748B;">{{ extra.description }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="font-weight: 800; color: #4F46E5; font-size: 1rem;">+€{{ extra.price }}</span>
+                                    <span style="font-size: 0.75rem; color: #64748B; display: block;">{% if extra.price_type == 'PER_PERSON' %}/ person{% else %}/ booking{% endif %}</span>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- Primary Contact Details Card -->
                     <div style="background: white; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
                         <h4 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 0.4rem 0; display: flex; align-items: center; gap: 0.5rem;">
@@ -232,9 +387,19 @@
                             <span style="color: #10B981; font-weight: 700;">Included</span>
                         </div>
 
+                        <div id="summaryAddonsRow" style="display: none; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.92rem; color: #4F46E5;">
+                            <span><i class="ph-fill ph-sparkle"></i> Add-ons Selected</span>
+                            <span id="summaryAddonsPrice" style="font-weight: 700;">+€0.00</span>
+                        </div>
+
                         <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem;">
+                            {% if tour.is_free %}
+                            <span style="font-size: 1.1rem; font-weight: 800; color: #10B981;">Total Payable</span>
+                            <span id="summaryFinalTotal" style="font-size: 2rem; font-weight: 900; color: #10B981; line-height: 1;">FREE</span>
+                            {% else %}
                             <span style="font-size: 1.1rem; font-weight: 800; color: #0F172A;">Total Payable</span>
                             <span id="summaryFinalTotal" style="font-size: 2rem; font-weight: 900; color: #4F46E5; line-height: 1;">€{{ pricing.final_total|default:tour.base_price }}</span>
+                            {% endif %}
                         </div>
 
                         <!-- Real-time Capacity Status Banners -->
@@ -247,9 +412,15 @@
                             <span id="capacitySuccessText"></span>
                         </div>
 
+                        {% if tour.is_free %}
+                        <button type="submit" id="btnSubmitBooking" style="width: 100%; padding: 1.1rem; background: #059669; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.6rem; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35); transition: all 0.2s;">
+                            <i class="ph-bold ph-check-circle" style="font-size: 1.25rem;"></i> Complete Free Reservation
+                        </button>
+                        {% else %}
                         <button type="submit" id="btnSubmitBooking" style="width: 100%; padding: 1.1rem; background: #4F46E5; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.6rem; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35); transition: all 0.2s;">
                             <i class="ph-bold ph-lock-key" style="font-size: 1.25rem;"></i> Proceed to Checkout
                         </button>
+                        {% endif %}
 
                         <div style="margin-top: 1.25rem; text-align: center;">
                             <span style="font-size: 0.78rem; color: #64748B; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
@@ -330,11 +501,109 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let baseTourPrice = {% if tour.is_free %}0{% else %}{{ pricing.final_total|default:tour.base_price }}{% endif %};
+    const isTourFree = {% if tour.is_free %}true{% else %}false{% endif %};
+
+    window.updateAddonPricing = function() {
+        let addonSum = 0;
+        const adults = parseInt(inputAdults ? inputAdults.value : 1) || 1;
+        const children = parseInt(inputChildren ? inputChildren.value : 0) || 0;
+        const totalGuests = adults + children;
+
+        document.querySelectorAll('.addon-checkbox:checked').forEach(cb => {
+            const p = parseFloat(cb.getAttribute('data-price')) || 0;
+            const t = cb.getAttribute('data-type');
+            if (t === 'PER_PERSON') {
+                addonSum += p * totalGuests;
+            } else {
+                addonSum += p;
+            }
+        });
+
+        const addonRow = document.getElementById('summaryAddonsRow');
+        const addonPrice = document.getElementById('summaryAddonsPrice');
+        if (addonRow && addonPrice) {
+            if (addonSum > 0) {
+                addonRow.style.display = 'flex';
+                addonPrice.textContent = `+€${addonSum.toFixed(2)}`;
+            } else {
+                addonRow.style.display = 'none';
+            }
+        }
+
+        if (summaryFinalTotal) {
+            if (isTourFree && addonSum === 0) {
+                summaryFinalTotal.textContent = 'FREE';
+            } else {
+                const total = parseFloat(baseTourPrice) + addonSum;
+                summaryFinalTotal.textContent = `€${total.toFixed(2)}`;
+            }
+        }
+    };
+
+    window.toggleChildSeatSection = function(checkbox) {
+        const sec = document.getElementById('childSeatSection');
+        if (!sec) return;
+        if (checkbox.checked) {
+            sec.style.display = 'block';
+            document.getElementById('childSeatCount').value = window.childSeatCounter || 1;
+        } else {
+            sec.style.display = 'none';
+            document.getElementById('childSeatCount').value = '0';
+        }
+    };
+
+    window.childSeatCounter = 1;
+    window.addChildSeatRow = function() {
+        window.childSeatCounter++;
+        document.getElementById('childSeatCount').value = window.childSeatCounter;
+        const container = document.getElementById('childSeatsContainer');
+        const row = document.createElement('div');
+        row.className = 'child-seat-row';
+        row.id = `childSeatRow_${window.childSeatCounter}`;
+        row.style = 'display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: flex-end; margin-bottom: 0.75rem;';
+        row.innerHTML = `
+            <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Seat Type *</label>
+                <select name="child_seat_${window.childSeatCounter}_type" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: white;">
+                    <option value="INFANT">Infant Carrier (0–12 mos, &lt;13kg)</option>
+                    <option value="TODDLER" selected>Toddler Seat (1–4 yrs, 9–18kg)</option>
+                    <option value="CHILD">Child Seat (4–7 yrs, 15–25kg)</option>
+                    <option value="BOOSTER">Booster Seat (7–12 yrs, 22–36kg)</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Qty</label>
+                <input type="number" name="child_seat_${window.childSeatCounter}_qty" min="1" max="4" value="1" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: white;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Child Age</label>
+                <input type="number" name="child_seat_${window.childSeatCounter}_age" min="0" max="12" value="2" placeholder="Age (yrs)" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: white;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Approx. Wt</label>
+                <input type="number" step="0.5" name="child_seat_${window.childSeatCounter}_weight" min="2" max="60" value="14" placeholder="kg" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: white;">
+            </div>
+            <div>
+                <button type="button" onclick="removeChildSeatRow(${window.childSeatCounter})" style="background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; padding: 0.65rem 0.8rem; cursor: pointer; font-size: 0.88rem;">
+                    <i class="ph-bold ph-trash"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(row);
+    };
+
+    window.removeChildSeatRow = function(idx) {
+        const row = document.getElementById(`childSeatRow_${idx}`);
+        if (row) row.remove();
+    };
+
     async function updatePricing() {
         const adults = parseInt(inputAdults.value) || 1;
         const children = parseInt(inputChildren.value) || 0;
         let depId = departureSelect ? departureSelect.value : '';
         let dateId = dateSelect ? dateSelect.value : '';
+        const vtId = vehicleTypeSelect ? vehicleTypeSelect.value : '';
         if (depId && depId.startsWith('date_')) {
             dateId = depId.replace('date_', '');
             depId = '';
@@ -363,7 +632,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     summaryDiscountRow.style.display = 'none';
                 }
 
-                summaryFinalTotal.textContent = `€${p.final_total}`;
+                baseTourPrice = p.final_total;
+                if (isTourFree) {
+                    summaryFinalTotal.textContent = 'FREE';
+                } else {
+                    summaryFinalTotal.textContent = `€${p.final_total}`;
+                }
+                updateAddonPricing();
 
                 // Capacity & Availability Validation
                 if (p.is_available === false) {

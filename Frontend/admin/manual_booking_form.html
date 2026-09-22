@@ -134,9 +134,64 @@
         </div>
       </div>
 
+      <!-- Pickup Location -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Pickup Location (Optional)
+          </label>
+          <select id="pickupSelect" name="pickup_location" style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+            <option value="">-- No pickup / Direct meeting --</option>
+            {% for p in pickups %}
+            <option value="{{ p.id }}" data-tour-id="{{ p.tour_id }}">{{ p.tour.title|truncatechars:30 }} — {{ p.location_name }}{% if p.pickup_time %} ({{ p.pickup_time|time:"H:i" }}){% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
+            Pickup Notes / Hotel Room (Optional)
+          </label>
+          <input type="text" name="pickup_notes" placeholder="e.g. Hotel Kämp Lobby, Room 402" style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;">
+        </div>
+      </div>
+
+      <!-- Child Seat Requests -->
+      <div style="margin-bottom: 1.25rem; padding: 1rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px;">
+        <label style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 700; color: #1E293B; cursor: pointer;">
+          <input type="checkbox" id="toggleAdminChildSeat" onchange="toggleAdminChildSeats(this)" style="width: 16px; height: 16px; accent-color: #0F172A;">
+          <span>Child Safety Seat(s) Requested (Complimentary)</span>
+        </label>
+        <div id="adminChildSeatContainer" style="display: none; margin-top: 0.75rem;">
+          <input type="hidden" name="child_seat_count" id="adminChildSeatCount" value="1">
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.75rem; align-items: flex-end;">
+            <div>
+              <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #64748B; margin-bottom: 0.25rem;">Seat Type</label>
+              <select name="child_seat_1_type" style="width: 100%; padding: 0.5rem; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.85rem; background: white;">
+                <option value="INFANT">Infant Carrier (0–12 mos)</option>
+                <option value="TODDLER" selected>Toddler Seat (1–4 yrs)</option>
+                <option value="CHILD">Child Seat (4–7 yrs)</option>
+                <option value="BOOSTER">Booster Seat (7–12 yrs)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #64748B; margin-bottom: 0.25rem;">Qty</label>
+              <input type="number" name="child_seat_1_qty" min="1" max="5" value="1" style="width: 100%; padding: 0.5rem; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.85rem; background: white;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #64748B; margin-bottom: 0.25rem;">Child Age</label>
+              <input type="number" name="child_seat_1_age" min="0" max="12" value="2" style="width: 100%; padding: 0.5rem; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.85rem; background: white;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #64748B; margin-bottom: 0.25rem;">Weight (kg)</label>
+              <input type="number" step="0.5" name="child_seat_1_weight" min="2" max="60" value="14" style="width: 100%; padding: 0.5rem; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.85rem; background: white;">
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div>
         <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">
-          Special Notes & Concierge Requests
+          Special Notes &amp; Concierge Requests
         </label>
         <textarea name="customer_notes" rows="3" placeholder="Dietary restrictions, pickup requirements, hotel room number..." style="width: 100%; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #CBD5E1; font-family: inherit; font-size: 0.9rem;"></textarea>
       </div>
@@ -156,7 +211,29 @@
 </div>
 
 <script>
+  function filterAdminPickups(selectedTourId) {
+    const pickupSelect = document.getElementById('pickupSelect');
+    if (!pickupSelect) return;
+    Array.from(pickupSelect.options).forEach((opt, idx) => {
+      if (idx === 0) return; // default option
+      const tId = opt.getAttribute('data-tour-id');
+      if (!selectedTourId || tId === selectedTourId) {
+        opt.hidden = false;
+      } else {
+        opt.hidden = true;
+      }
+    });
+  }
+
+  function toggleAdminChildSeats(cb) {
+    const c = document.getElementById('adminChildSeatContainer');
+    if (!c) return;
+    c.style.display = cb.checked ? 'block' : 'none';
+    document.getElementById('adminChildSeatCount').value = cb.checked ? '1' : '0';
+  }
+
   document.getElementById('tourSelect').addEventListener('change', function() {
+    filterAdminPickups(this.value);
     const tourId = this.value;
     const depSelect = document.getElementById('departureSelect');
     depSelect.innerHTML = '<option value="">Loading departures...</option>';

@@ -261,16 +261,62 @@ def admin_manual_booking_view(request):
         )
 
         if result['success']:
+            booking = result['booking']
+            tb = getattr(booking, 'tour_booking', None)
+
+            # Pickup location
+            pickup_id = request.POST.get('pickup_location')
+            pickup_notes = request.POST.get('pickup_notes', '').strip()
+            if tb and pickup_id:
+                from tours.models import TourPickup
+                pickup = TourPickup.objects.filter(id=pickup_id, tour=tour).first()
+                if pickup:
+                    tb.pickup_location = pickup
+                    tb.pickup_notes = pickup_notes
+                    tb.save(update_fields=['pickup_location', 'pickup_notes'])
+
+            # Child seat requests
+            from bookings.models import ChildSeatRequest
+            try:
+                seat_count = int(request.POST.get('child_seat_count', 0))
+            except (ValueError, TypeError):
+                seat_count = 0
+            for i in range(1, seat_count + 1):
+                seat_type = request.POST.get(f'child_seat_{i}_type', '')
+                try:
+                    qty = int(request.POST.get(f'child_seat_{i}_qty', 1))
+                except (ValueError, TypeError):
+                    qty = 1
+                try:
+                    age = int(request.POST.get(f'child_seat_{i}_age', 0))
+                except (ValueError, TypeError):
+                    age = 0
+                weight = request.POST.get(f'child_seat_{i}_weight', '').strip()
+                if seat_type:
+                    ChildSeatRequest.objects.create(
+                        booking=booking,
+                        seat_type=seat_type,
+                        quantity=qty,
+                        child_age=age,
+                        approx_weight_kg=Decimal(weight) if weight else None,
+                    )
+
             messages.success(request, f"Manual booking {result['booking_ref']} created successfully on {departure} via {vehicle_type.name}.")
             return redirect('/admin/bookings/booking/')
         else:
             messages.error(request, f"Failed to create manual booking: {result.get('error')}")
 
+    from tours.models import TourPickup
+    pickups = TourPickup.objects.filter(type='PICKUP').select_related('tour').order_by('tour_id', 'pickup_time', 'id')
+
+
     return render(request, 'admin/manual_booking_form.html', {
         'title': 'Create Manual Agent / Phone Booking',
         'tours': tours,
         'vehicle_types': vehicle_types,
+        'pickups': pickups,
     })
+
 
 
 @staff_member_required

@@ -245,6 +245,24 @@
                         <span>Guests & Users</span>
                     </a>
                 </li>
+                <li>
+                    <a href="/admin/tours/cancellationpolicy/" class="nav-subitem {% if '/cancellationpolicy/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-x-circle"></i>
+                        <span>Cancellation Policies</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/tours/guide/" class="nav-subitem {% if '/tours/guide/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-user-circle-gear"></i>
+                        <span>Tour Guides</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/payments/paymentintent/" class="nav-subitem {% if '/paymentintent/' in request.path %}active{% endif %}">
+                        <i class="ph-bold ph-credit-card"></i>
+                        <span>Payments & Refunds</span>
+                    </a>
+                </li>
             </ul>
         </details>
 

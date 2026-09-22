@@ -6,7 +6,9 @@ from .models import (
     Tour, TourMedia, TourHighlight, TourItinerary, TourInclusion, 
     TourFAQ, TourPickup, TourDate, TourPricing, TourReview, RelatedTour,
     TourCategory, TourSurrounding, TourExtraService, Wishlist,
-    VehicleType, TourOptionPricing, Departure, DepartureCapacity
+    VehicleType, TourOptionPricing, Departure, DepartureCapacity,
+    CancellationPolicy, CancellationRule, BookingQuestion,
+    Guide, DepartureGuideAssignment
 )
 
 # --- Taxonomy Admins ---
@@ -95,6 +97,70 @@ class DurationBandAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+# --- Cancellation Policy Admin ---
+
+class CancellationRuleInline(admin.TabularInline):
+    model = CancellationRule
+    extra = 1
+    fields = ('hours_before_departure', 'refund_percentage', 'description', 'is_active', 'sort_order')
+    ordering = ['-hours_before_departure']
+
+
+@admin.register(CancellationPolicy)
+class CancellationPolicyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_default', 'rules_summary', 'tours_count', 'is_active')
+    list_filter = ('is_default', 'is_active')
+    list_editable = ('is_default', 'is_active')
+    search_fields = ('name',)
+    prepopulated_fields = {'slug': ('name',)}
+    inlines = [CancellationRuleInline]
+
+    def rules_summary(self, obj):
+        rules = obj.rules.filter(is_active=True).order_by('-hours_before_departure')
+        if not rules:
+            return mark_safe('<span style="color:#94A3B8;">No rules</span>')
+        badges = []
+        for r in rules:
+            color = '#10B981' if r.refund_percentage >= 100 else ('#F59E0B' if r.refund_percentage > 0 else '#EF4444')
+            badges.append(
+                f'<span style="display:inline-block; margin-right:6px; padding:2px 8px; border-radius:4px; '
+                f'background:{color}15; color:{color}; border:1px solid {color}40; font-size:0.75rem; font-weight:600;">'
+                f'{r.hours_before_departure}h+ → {r.refund_percentage}%</span>'
+            )
+        return mark_safe(''.join(badges))
+    rules_summary.short_description = "Refund Tiers"
+
+    def tours_count(self, obj):
+        return obj.tours.count()
+    tours_count.short_description = "Tours Using This"
+
+
+# --- Guide Admin ---
+
+@admin.register(Guide)
+class GuideAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'phone', 'languages_display', 'assignments_count', 'is_active')
+    list_filter = ('is_active',)
+    list_editable = ('is_active',)
+    search_fields = ('full_name', 'email', 'phone')
+
+    def languages_display(self, obj):
+        if obj.languages:
+            return ', '.join(obj.languages)
+        return '-'
+    languages_display.short_description = "Languages"
+
+    def assignments_count(self, obj):
+        return obj.assignments.count()
+    assignments_count.short_description = "Assignments"
+
+
+class DepartureGuideAssignmentInline(admin.TabularInline):
+    model = DepartureGuideAssignment
+    extra = 1
+    fields = ('guide', 'role', 'confirmed', 'notes')
+
+
 # --- Tour Inlines ---
 
 class TourMediaInline(admin.TabularInline):
@@ -170,6 +236,12 @@ class TourExtraServiceInline(admin.TabularInline):
     extra = 1
 
 
+class BookingQuestionInline(admin.TabularInline):
+    model = BookingQuestion
+    extra = 1
+    fields = ('question_text', 'field_type', 'options', 'is_required', 'sort_order', 'is_active')
+
+
 @admin.register(TourCategory)
 class TourCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'category_thumbnail', 'parent', 'is_active', 'sort_order')
@@ -187,15 +259,16 @@ class TourCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    list_display = ('title', 'tour_thumbnail', 'destination', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'status', 'is_featured')
-    list_filter = ('status', 'is_featured', 'guarantee_policy', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'destination', 'travel_style')
-    list_editable = ('status', 'is_featured', 'is_group_tour', 'is_private_tour', 'is_family_tour')
+    list_display = ('title', 'tour_thumbnail', 'destination', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'cutoff_hours', 'is_free', 'status', 'is_featured')
+    list_filter = ('status', 'is_featured', 'guarantee_policy', 'cancellation_policy', 'is_free', 'has_guaranteed_reattempt', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'destination', 'travel_style')
+    list_editable = ('status', 'is_featured', 'is_group_tour', 'is_private_tour', 'is_family_tour', 'cutoff_hours', 'is_free')
     search_fields = ('title', 'short_summary')
     prepopulated_fields = {'slug': ('title',)}
     inlines = [
         TourMediaInline, TourHighlightInline, TourItineraryInline,
         TourInclusionInline, TourFAQInline, TourPickupInline,
-        TourOptionPricingInline, TourPricingInline, TourExtraServiceInline, TourDateInline, TourSurroundingInline
+        TourOptionPricingInline, TourPricingInline, TourExtraServiceInline,
+        BookingQuestionInline, TourDateInline, TourSurroundingInline
     ]
     filter_horizontal = ('seasons', 'experience_types')
     actions = ['duplicate_tour']
@@ -369,13 +442,29 @@ class DepartureCapacityInline(admin.TabularInline):
 
 @admin.register(Departure)
 class DepartureAdmin(admin.ModelAdmin):
-    list_display = ('tour', 'date', 'time', 'status', 'capacity_overview', 'created_at')
+    list_display = ('tour', 'date', 'time', 'status', 'cutoff_hours_override', 'guides_display', 'capacity_overview', 'created_at')
     list_filter = ('status', 'date', 'tour')
-    list_editable = ('status',)
+    list_editable = ('status', 'cutoff_hours_override')
     search_fields = ('tour__title', 'notes')
     ordering = ('date', 'time')
     date_hierarchy = 'date'
-    inlines = [DepartureCapacityInline]
+    inlines = [DepartureCapacityInline, DepartureGuideAssignmentInline]
+
+    def guides_display(self, obj):
+        assignments = obj.guide_assignments.select_related('guide').all()
+        if not assignments:
+            return mark_safe('<span style="color:#94A3B8; font-size:0.8rem;">No guides</span>')
+        badges = []
+        for a in assignments:
+            icon = '✓' if a.confirmed else '⏳'
+            color = '#10B981' if a.confirmed else '#F59E0B'
+            badges.append(
+                f'<span style="display:inline-block; margin-right:6px; padding:2px 8px; border-radius:4px; '
+                f'background:{color}15; color:{color}; border:1px solid {color}40; font-size:0.75rem; font-weight:600;">'
+                f'{icon} {a.guide.full_name}</span>'
+            )
+        return mark_safe(''.join(badges))
+    guides_display.short_description = "Guides"
 
     def capacity_overview(self, obj):
         caps = obj.capacities.select_related('vehicle_type').all()

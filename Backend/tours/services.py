@@ -1,9 +1,10 @@
 from decimal import Decimal
-from datetime import date
+from datetime import date, datetime
 from typing import Dict, Any, Optional, List
 from django.db import transaction
 from django.db.models import F
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from .models import Tour, TourDate, TourPricing, Departure, DepartureCapacity, VehicleType, TourOptionPricing
 
 class TourPricingService:
@@ -22,6 +23,19 @@ class TourPricingService:
 
         if tour_date.status != 'AVAILABLE':
             return {"available": False, "error": f"This date is currently {tour_date.get_status_display()}."}
+
+        # --- Cut-off Time Enforcement ---
+        if tour.cutoff_hours and tour.cutoff_hours > 0:
+            start_dt = datetime.combine(tour_date.start_date, datetime.min.time())
+            if timezone.is_naive(start_dt):
+                start_dt = timezone.make_aware(start_dt)
+            hours_remaining = (start_dt - timezone.now()).total_seconds() / 3600
+            if hours_remaining < tour.cutoff_hours:
+                return {
+                    "available": False,
+                    "error": f"Bookings close {tour.cutoff_hours} hours before departure. This date is no longer accepting bookings."
+                }
+
 
         remaining_capacity = tour_date.total_capacity - tour_date.booked_count
         if remaining_capacity < requested_guests:
@@ -179,6 +193,19 @@ class DepartureService:
                 "available": False,
                 "error": f"This departure is currently {departure.get_status_display().lower()}."
             }
+
+        # --- Cut-off Time Enforcement ---
+        cutoff = departure.cutoff_hours_override if departure.cutoff_hours_override is not None else departure.tour.cutoff_hours
+        if cutoff and cutoff > 0:
+            dep_dt = datetime.combine(departure.date, departure.time)
+            if timezone.is_naive(dep_dt):
+                dep_dt = timezone.make_aware(dep_dt)
+            hours_remaining = (dep_dt - timezone.now()).total_seconds() / 3600
+            if hours_remaining < cutoff:
+                return {
+                    "available": False,
+                    "error": f"Bookings close {cutoff} hours before departure. This departure is no longer accepting bookings."
+                }
 
         try:
             dc = departure.capacities.get(vehicle_type=vehicle_type)

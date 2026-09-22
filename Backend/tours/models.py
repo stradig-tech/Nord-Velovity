@@ -148,6 +148,69 @@ class VehicleType(models.Model):
         return f"{self.name} ({self.default_capacity} seats)"
 
 
+# --- CANCELLATION POLICY ---
+
+class CancellationPolicy(models.Model):
+    """Admin-configurable cancellation policy with tiered refund rules."""
+    name = models.CharField(max_length=200, help_text="e.g. Standard 48h Policy, Flexible Policy")
+    slug = models.SlugField(unique=True)
+    description = models.TextField(blank=True, help_text="Customer-facing description shown on tour page")
+    is_default = models.BooleanField(default=False, help_text="If True, this policy applies to tours without an explicit policy")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-is_default', 'name']
+        verbose_name = "Cancellation Policy"
+        verbose_name_plural = "Cancellation Policies"
+
+    def __str__(self):
+        default_tag = " (Default)" if self.is_default else ""
+        return f"{self.name}{default_tag}"
+
+    def save(self, *args, **kwargs):
+        # Ensure only one default policy exists
+        if self.is_default:
+            CancellationPolicy.objects.filter(is_default=True).exclude(pk=self.pk).update(is_default=False)
+        super().save(*args, **kwargs)
+
+    def get_applicable_rule(self, hours_until_departure):
+        """Returns the cancellation rule that applies for the given hours before departure."""
+        rules = self.rules.filter(is_active=True).order_by('-hours_before_departure')
+        for rule in rules:
+            if hours_until_departure >= rule.hours_before_departure:
+                return rule
+        # If no rule matches (too close to departure), return the last rule (lowest threshold)
+        return rules.last()
+
+
+class CancellationRule(models.Model):
+    """A single tier within a cancellation policy."""
+    policy = models.ForeignKey(CancellationPolicy, on_delete=models.CASCADE, related_name='rules')
+    hours_before_departure = models.PositiveIntegerField(
+        help_text="Minimum hours before departure for this rule to apply. E.g., 48 = rule applies if cancelled 48+ hours before."
+    )
+    refund_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, default=100.00,
+        help_text="Refund percentage. 100 = full refund, 50 = half refund, 0 = no refund"
+    )
+    description = models.CharField(
+        max_length=250, blank=True,
+        help_text="Customer-facing description, e.g. 'Free cancellation', '50% refund', 'No refund'"
+    )
+    is_active = models.BooleanField(default=True)
+    sort_order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-hours_before_departure']
+        verbose_name = "Cancellation Rule"
+        verbose_name_plural = "Cancellation Rules"
+
+    def __str__(self):
+        return f"{self.policy.name}: {self.hours_before_departure}h+ → {self.refund_percentage}% refund"
+
+
 # --- TOUR PRODUCT MODELS ---
 
 class Tour(models.Model):
@@ -168,7 +231,20 @@ class Tour(models.Model):
     accommodation_info = models.TextField(blank=True, null=True)
     meal_info = models.TextField(blank=True, null=True)
     event_ticket_info = models.TextField(blank=True, null=True)
-    cancellation_terms = models.TextField()
+    cancellation_terms = models.TextField(blank=True, default='', help_text="Legacy free-text cancellation terms (displayed if no CancellationPolicy assigned)")
+    cancellation_policy = models.ForeignKey(
+        'tours.CancellationPolicy', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='tours',
+        help_text="Assign a structured cancellation policy with tiered refund rules"
+    )
+    cutoff_hours = models.PositiveIntegerField(
+        default=24,
+        help_text="Minimum hours before departure that bookings are accepted. 0 = no cutoff."
+    )
+    is_free = models.BooleanField(
+        default=False,
+        help_text="If True, this tour/transfer is free — collect customer info only, skip payment"
+    )
     
     STATUS_CHOICES = (('DRAFT', 'Draft'), ('PUBLISHED', 'Published'), ('ARCHIVED', 'Archived'))
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='DRAFT')
@@ -285,17 +361,65 @@ class TourExtraService(models.Model):
     def __str__(self):
         return f"{self.name} (+€{self.price} {self.get_price_type_display()})"
 
+
+class BookingQuestion(models.Model):
+    """Custom per-tour questions to collect from customers during booking."""
+    tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='booking_questions')
+    question_text = models.CharField(max_length=300, help_text="e.g. 'What hotel are you staying at?', 'What is your shoe size?'")
+    FIELD_TYPE_CHOICES = (
+        ('TEXT', 'Short Text'),
+        ('TEXTAREA', 'Long Text'),
+        ('SELECT', 'Dropdown Select'),
+        ('NUMBER', 'Number'),
+        ('YES_NO', 'Yes / No'),
+    )
+    field_type = models.CharField(max_length=10, choices=FIELD_TYPE_CHOICES, default='TEXT')
+    options = models.JSONField(
+        default=list, blank=True,
+        help_text='For SELECT type: list of options, e.g. ["Small", "Medium", "Large"]'
+    )
+    is_required = models.BooleanField(default=False, help_text="If True, customer must answer before booking")
+    sort_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def options_list(self):
+        if isinstance(self.options, list):
+            return self.options
+        if isinstance(self.options, str):
+            import json
+            try:
+                parsed = json.loads(self.options)
+                if isinstance(parsed, list):
+                    return parsed
+            except Exception:
+                return [s.strip() for s in self.options.split(',') if s.strip()]
+        return []
+
+    class Meta:
+        ordering = ['sort_order', 'id']
+        verbose_name = "Booking Question"
+        verbose_name_plural = "Booking Questions"
+
+    def __str__(self):
+        req = " *" if self.is_required else ""
+        return f"{self.question_text}{req} ({self.get_field_type_display()})"
+
+
 class TourInclusion(models.Model):
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='inclusions')
     text = models.CharField(max_length=200)
     is_included = models.BooleanField(default=True, help_text="True=Included, False=Excluded")
     sort_order = models.IntegerField(default=0)
 
+
 class TourFAQ(models.Model):
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='faqs')
     question = models.CharField(max_length=250)
     answer = models.TextField()
     sort_order = models.IntegerField(default=0)
+
 
 class TourPickup(models.Model):
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='pickups')
@@ -306,6 +430,7 @@ class TourPickup(models.Model):
     notes = models.TextField(null=True, blank=True)
     TYPE_CHOICES = (('PICKUP', 'Pickup'), ('DROPOFF', 'Dropoff'))
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='PICKUP')
+
 
 class TourDate(models.Model):
     tour = models.ForeignKey(Tour, on_delete=models.CASCADE, related_name='dates')
@@ -461,6 +586,10 @@ class Departure(models.Model):
         ('OPERATIONALLY_RESERVED', 'Operationally Reserved'),
     )
     status = models.CharField(max_length=25, choices=STATUS_CHOICES, default='OPEN')
+    cutoff_hours_override = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Override tour-level cutoff hours for this specific departure. Leave blank to use tour default."
+    )
     notes = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -553,3 +682,57 @@ class DepartureCapacity(models.Model):
 
     def __str__(self):
         return f"{self.departure} — {self.vehicle_type.name}: {self.public_sellable}/{self.total_capacity} available"
+
+
+# --- GUIDE ASSIGNMENT ---
+
+class Guide(models.Model):
+    """Tour guide / driver who can be assigned to departures."""
+    full_name = models.CharField(max_length=200)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+    languages = models.JSONField(
+        default=list, blank=True,
+        help_text='List of languages, e.g. ["English", "Finnish", "Swedish"]'
+    )
+    certifications = models.TextField(blank=True, help_text="Certifications, licenses, qualifications")
+    photo = models.ImageField(upload_to='guides/', blank=True, null=True)
+    notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['full_name']
+        verbose_name = "Guide"
+        verbose_name_plural = "Guides"
+
+    def __str__(self):
+        langs = ', '.join(self.languages) if self.languages else 'N/A'
+        return f"{self.full_name} ({langs})"
+
+
+class DepartureGuideAssignment(models.Model):
+    """Links a guide to a specific departure with a role."""
+    departure = models.ForeignKey(Departure, on_delete=models.CASCADE, related_name='guide_assignments')
+    guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='assignments')
+    ROLE_CHOICES = (
+        ('LEAD_GUIDE', 'Lead Guide'),
+        ('ASSISTANT', 'Assistant Guide'),
+        ('DRIVER', 'Driver'),
+        ('PHOTOGRAPHER', 'Photographer'),
+    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='LEAD_GUIDE')
+    confirmed = models.BooleanField(default=False, help_text="Guide has confirmed availability")
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('departure', 'guide')
+        ordering = ['role', 'guide__full_name']
+        verbose_name = "Guide Assignment"
+        verbose_name_plural = "Guide Assignments"
+
+    def __str__(self):
+        status = "✓" if self.confirmed else "⏳"
+        return f"{status} {self.guide.full_name} — {self.get_role_display()} on {self.departure}"

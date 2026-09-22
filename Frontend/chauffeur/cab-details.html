@@ -123,7 +123,64 @@
                         </div>
                         <div class="form-group">
                             <label>Special Instructions / Flight Number</label>
-                            <input type="text" name="special_requests" class="form-input" placeholder="e.g. Flight AY123, 2 booster child seats needed">
+                            <input type="text" name="special_requests" class="form-input" placeholder="e.g. Flight AY123, requested early arrival">
+                        </div>
+                    </div>
+
+                    <!-- Child Seat Section: Safe & Comfortable Travel -->
+                    <div style="margin-top: 2rem; padding: 1.25rem; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="ph-bold ph-baby" style="color: #4F46E5;"></i> Child Seat – Safe &amp; Comfortable Travel
+                            </h4>
+                            <span style="background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700;">Complimentary Service</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 1rem;">
+                            We provide certified, safety-inspected child seats free of charge for all transfers. Please specify your child's age, seat type, and approximate weight.
+                        </p>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; font-size: 0.92rem; font-weight: 700; color: #1E293B;">
+                                <input type="checkbox" id="toggleChauffeurChildSeat" onchange="toggleChauffeurChildSeatSection(this)" style="width: 18px; height: 18px; accent-color: #4F46E5;">
+                                <span>Request Child Safety Seat(s) for this transfer</span>
+                            </label>
+                        </div>
+
+                        <div id="chauffeurChildSeatSection" style="display: none; background: white; border: 1px solid #CBD5E1; border-radius: 10px; padding: 1rem;">
+                            <input type="hidden" name="child_seat_count" id="chauffeurChildSeatCount" value="1">
+                            
+                            <div id="chauffeurChildSeatsContainer">
+                                <div class="child-seat-row" id="chauffeurChildSeatRow_1" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: flex-end; margin-bottom: 0.75rem;">
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Seat Type *</label>
+                                        <select name="child_seat_1_type" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: #F8FAFC;">
+                                            <option value="INFANT">Infant Carrier (0–12 mos, &lt;13kg)</option>
+                                            <option value="TODDLER" selected>Toddler Seat (1–4 yrs, 9–18kg)</option>
+                                            <option value="CHILD">Child Seat (4–7 yrs, 15–25kg)</option>
+                                            <option value="BOOSTER">Booster Seat (7–12 yrs, 22–36kg)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Qty</label>
+                                        <input type="number" name="child_seat_1_qty" min="1" max="4" value="1" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: #F8FAFC;">
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Child Age</label>
+                                        <input type="number" name="child_seat_1_age" min="0" max="12" value="2" placeholder="Age (yrs)" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: #F8FAFC;">
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Approx. Wt</label>
+                                        <input type="number" step="0.5" name="child_seat_1_weight" min="2" max="60" value="14" placeholder="kg" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: #F8FAFC;">
+                                    </div>
+                                    <div>
+                                        <!-- spacer -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" onclick="addChauffeurChildSeatRow()" style="background: none; border: 1px dashed #4F46E5; color: #4F46E5; padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.5rem;">
+                                <i class="ph-bold ph-plus"></i> Add Another Child Seat
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -256,4 +313,66 @@
 </section>
 
 <!-- Footer Section -->     
+{% endblock %}
+
+{% block extra_js %}
+<script>
+window.chauffeurChildSeatCounter = 1;
+
+function toggleChauffeurChildSeatSection(checkbox) {
+    const sec = document.getElementById('chauffeurChildSeatSection');
+    if (!sec) return;
+    if (checkbox.checked) {
+        sec.style.display = 'block';
+        document.getElementById('chauffeurChildSeatCount').value = window.chauffeurChildSeatCounter || 1;
+    } else {
+        sec.style.display = 'none';
+        document.getElementById('chauffeurChildSeatCount').value = '0';
+    }
+}
+
+function addChauffeurChildSeatRow() {
+    window.chauffeurChildSeatCounter++;
+    document.getElementById('chauffeurChildSeatCount').value = window.chauffeurChildSeatCounter;
+    const container = document.getElementById('chauffeurChildSeatsContainer');
+    const row = document.createElement('div');
+    row.className = 'child-seat-row';
+    row.id = `chauffeurChildSeatRow_${window.chauffeurChildSeatCounter}`;
+    row.style = 'display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: flex-end; margin-bottom: 0.75rem;';
+    row.innerHTML = `
+        <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Seat Type *</label>
+            <select name="child_seat_${window.chauffeurChildSeatCounter}_type" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: #F8FAFC;">
+                <option value="INFANT">Infant Carrier (0–12 mos, &lt;13kg)</option>
+                <option value="TODDLER" selected>Toddler Seat (1–4 yrs, 9–18kg)</option>
+                <option value="CHILD">Child Seat (4–7 yrs, 15–25kg)</option>
+                <option value="BOOSTER">Booster Seat (7–12 yrs, 22–36kg)</option>
+            </select>
+        </div>
+        <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Qty</label>
+            <input type="number" name="child_seat_${window.chauffeurChildSeatCounter}_qty" min="1" max="4" value="1" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: #F8FAFC;">
+        </div>
+        <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Child Age</label>
+            <input type="number" name="child_seat_${window.chauffeurChildSeatCounter}_age" min="0" max="12" value="2" placeholder="Age (yrs)" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: #F8FAFC;">
+        </div>
+        <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #475569; margin-bottom: 0.3rem;">Approx. Wt</label>
+            <input type="number" step="0.5" name="child_seat_${window.chauffeurChildSeatCounter}_weight" min="2" max="60" value="14" placeholder="kg" style="width: 100%; padding: 0.65rem; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem; background: #F8FAFC;">
+        </div>
+        <div>
+            <button type="button" onclick="removeChauffeurChildSeatRow(${window.chauffeurChildSeatCounter})" style="background: #FEE2E2; color: #DC2626; border: none; border-radius: 8px; padding: 0.65rem 0.8rem; cursor: pointer; font-size: 0.88rem;">
+                <i class="ph-bold ph-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function removeChauffeurChildSeatRow(idx) {
+    const row = document.getElementById(`chauffeurChildSeatRow_${idx}`);
+    if (row) row.remove();
+}
+</script>
 {% endblock %}
