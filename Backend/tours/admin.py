@@ -1,4 +1,5 @@
 from django import forms
+from django.db import models
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from .models import (
@@ -208,22 +209,58 @@ class TourFAQInline(admin.StackedInline):
 class TourPickupInline(admin.TabularInline):
     model = TourPickup
     extra = 1
+    formfield_overrides = {
+        models.TimeField: {
+            'widget': forms.TimeInput(attrs={
+                'type': 'time',
+                'style': 'padding: 0.45rem 0.75rem; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 0.9rem; font-weight: 600; color: #0F172A; background: #FFFFFF;'
+            })
+        },
+    }
 
 
 class TourDateInline(admin.TabularInline):
     model = TourDate
     extra = 1
+    formfield_overrides = {
+        models.DateField: {
+            'widget': forms.DateInput(attrs={
+                'type': 'date',
+                'style': 'padding: 0.45rem 0.75rem; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 0.9rem; font-weight: 600; color: #0F172A; background: #FFFFFF;'
+            })
+        },
+    }
 
 
 class TourOptionPricingInline(admin.TabularInline):
     model = TourOptionPricing
     extra = 1
     fields = ('vehicle_type', 'adult_price', 'child_price', 'currency', 'early_bird_price', 'early_bird_deadline', 'is_active')
+    verbose_name = "Vehicle Option Price (Primary OTA Dynamic)"
+    verbose_name_plural = "Vehicle Option Pricing (Primary OTA Dynamic — Controls Private Car, Micro & Bus)"
+    formfield_overrides = {
+        models.DateField: {
+            'widget': forms.DateInput(attrs={
+                'type': 'date',
+                'style': 'padding: 0.45rem 0.75rem; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 0.9rem; font-weight: 600; color: #0F172A; background: #FFFFFF;'
+            })
+        },
+    }
 
 
 class TourPricingInline(admin.TabularInline):
     model = TourPricing
-    extra = 1
+    extra = 0
+    verbose_name = "Legacy Pricing (Optional Fallback)"
+    verbose_name_plural = "Legacy Pricing (Optional Fallback — Not needed if Vehicle Pricing is set)"
+    formfield_overrides = {
+        models.DateField: {
+            'widget': forms.DateInput(attrs={
+                'type': 'date',
+                'style': 'padding: 0.45rem 0.75rem; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 0.9rem; font-weight: 600; color: #0F172A; background: #FFFFFF;'
+            })
+        },
+    }
 
 
 class TourSurroundingInline(admin.TabularInline):
@@ -336,6 +373,14 @@ class TourDateAdmin(admin.ModelAdmin):
     search_fields = ('tour__title', 'notes')
     ordering = ('start_date',)
     date_hierarchy = 'start_date'
+    formfield_overrides = {
+        models.DateField: {
+            'widget': forms.DateInput(attrs={
+                'type': 'date',
+                'style': 'padding: 0.45rem 0.75rem; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 0.9rem; font-weight: 600; color: #0F172A; background: #FFFFFF;'
+            })
+        },
+    }
 
     def tour_date_thumbnail(self, obj):
         hero = obj.tour.media.filter(is_hero=True).first() or obj.tour.media.first()

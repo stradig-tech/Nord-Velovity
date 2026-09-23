@@ -42,13 +42,7 @@
                         <div class="tour-price-box">
                             <span class="price-label">Starting From</span>
                             <div class="price-display">
-                                {% with p=tour.pricing.first %}
-                                {% if p %}
-                                <span class="price-main">€{{ p.sale_price|default:p.base_price }}</span><span class="price-sub">/per person</span>
-                                {% else %}
-                                <span class="price-main">Inquire</span>
-                                {% endif %}
-                                {% endwith %}
+                                <span class="price-main">€{{ tour.base_price|floatformat:0 }}</span><span class="price-sub">/per person</span>
                             </div>
                         </div>
                         <a href="{% url 'tours:detail' tour.slug %}" class="btn btn-primary rounded-pill" style="text-decoration: none; display: inline-block;">View Tour</a>

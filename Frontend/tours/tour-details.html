@@ -379,7 +379,7 @@
                     <!-- Row 1: Big Total Price & Availability Badge -->
                     <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.45rem; flex-wrap: nowrap;">
                         <div style="display: flex; align-items: baseline; gap: 0.35rem; white-space: nowrap; flex-shrink: 0;">
-                            <span id="sidebarTotalPrice" style="font-size: 1.85rem; font-weight: 900; color: #0F172A; line-height: 1; letter-spacing: -0.5px;">€{{ base_price }}</span>
+                            <span id="sidebarTotalPrice" style="font-size: 1.85rem; font-weight: 900; color: #0F172A; line-height: 1; letter-spacing: -0.5px;">€{{ default_adult_price|default:base_price|floatformat:2 }}</span>
                             <span id="sidebarPriceUnit" style="font-size: 0.88rem; color: #64748B; font-weight: 600; white-space: nowrap;">/ total</span>
                         </div>
                         <span id="spotsBadge" style="font-size: 0.76rem; font-weight: 700; color: #065F46; background: #D1FAE5; padding: 0.28rem 0.65rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; flex-shrink: 0; line-height: 1;">
@@ -389,7 +389,7 @@
                     
                     <!-- Row 2: Starting Per Adult Price & Star Rating -->
                     <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.84rem; flex-wrap: nowrap;">
-                        <span style="color: #64748B; white-space: nowrap;">From <strong style="color: #0F172A; font-weight: 700;">€{{ base_price }}</strong> per adult</span>
+                        <span style="color: #64748B; white-space: nowrap;">From <strong id="headerAdultPriceDisplay" style="color: #0F172A; font-weight: 700;">€{{ default_adult_price|default:base_price|floatformat:2 }}</strong> per adult</span>
                         <div style="display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0;">
                             <i class="ph-fill ph-star" style="color: #F59E0B; font-size: 0.88rem;"></i>
                             <span style="font-weight: 800; color: #0F172A;">5.0</span>
@@ -407,7 +407,7 @@
                     <div style="position: relative;">
                         <select id="tourDepartureSelect" style="width: 100%; padding: 0.8rem 2.2rem 0.8rem 0.9rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 0.92rem; font-weight: 600; color: #0F172A; background: #F8FAFC; cursor: pointer; appearance: none; -webkit-appearance: none;">
                             {% for dep in available_departures %}
-                            <option value="{{ dep.id }}" data-is-departure="1" data-vehicle-ids="{% for c in dep.capacities.all %}{{ c.vehicle_type_id }}{% if not forloop.last %},{% endif %}{% endfor %}" {% if forloop.first %}selected{% endif %}>
+                            <option value="{{ dep.id }}" data-is-departure="1" data-vehicle-ids="{% for c in dep.capacities.all %}{% if not priced_vehicle_type_ids or c.vehicle_type_id in priced_vehicle_type_ids %}{{ c.vehicle_type_id }},{% endif %}{% endfor %}" {% if forloop.first %}selected{% endif %}>
                                 {{ dep.date|date:"D, d M Y" }} @ {{ dep.time|time:"H:i" }}
                             </option>
                             {% empty %}
@@ -432,12 +432,13 @@
                     </label>
                     <div class="vehicle-option-grid" id="vehicleOptionGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(85px, 1fr)); gap: 0.5rem;">
                         {% for vt in vehicle_types %}
-                        <div class="vehicle-option-card" 
+                        {% if vt.id in priced_vehicle_type_ids or not priced_vehicle_type_ids %}
+                        <div class="vehicle-option-card{% if default_vehicle_type and vt.id == default_vehicle_type.id %} active{% endif %}" 
                              data-vt-id="{{ vt.id }}" 
                              data-vt-slug="{{ vt.slug }}"
                              data-capacity="{{ vt.default_capacity }}"
-                             style="border: 2px solid {% if vt.slug == 'micro' %}#4F46E5{% else %}#E2E8F0{% endif %}; 
-                                    background: {% if vt.slug == 'micro' %}#EEF2FF{% else %}#FFFFFF{% endif %}; 
+                             style="border: 2px solid {% if default_vehicle_type and vt.id == default_vehicle_type.id %}#4F46E5{% else %}#E2E8F0{% endif %}; 
+                                    background: {% if default_vehicle_type and vt.id == default_vehicle_type.id %}#EEF2FF{% else %}#FFFFFF{% endif %}; 
                                     border-radius: 10px; padding: 0.65rem 0.4rem; text-align: center; cursor: pointer; transition: all 0.2s;">
                             <div style="font-size: 1.4rem; line-height: 1; margin-bottom: 0.25rem;">{{ vt.icon|default:'🚗' }}</div>
                             <div style="font-size: 0.78rem; font-weight: 800; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ vt.name }}</div>
@@ -448,6 +449,7 @@
                                 {% else %}{{ vt.default_capacity }} seats{% endif %}
                             </div>
                         </div>
+                        {% endif %}
                         {% endfor %}
                     </div>
                     <div id="noVehicleWarning" style="display: none; padding: 0.75rem; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 8px; font-size: 0.8rem; color: #991B1B; text-align: center; margin-top: 0.5rem;">
@@ -459,17 +461,17 @@
                 <div style="display: flex; gap: 0.75rem; margin-bottom: 1.25rem;">
                     <!-- Adults -->
                     <div style="flex: 1; background: #F8FAFC; padding: 0.75rem 0.85rem; border-radius: 10px; border: 1px solid #E2E8F0;">
-                        <div style="font-size: 0.78rem; font-weight: 600; color: #64748B; margin-bottom: 0.35rem;">Adults (€{{ base_price }})</div>
+                        <div style="font-size: 0.78rem; font-weight: 600; color: #64748B; margin-bottom: 0.35rem;">Adults (<span id="adultUnitPriceDisplay">€{{ default_adult_price|floatformat:2 }}</span>)</div>
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <button type="button" id="btnDecAdults" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #CBD5E1; background: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #0F172A; transition: all 0.2s;">-</button>
-                            <span id="adultCountDisplay" style="font-weight: 800; font-size: 1.15rem; color: #0F172A;">2</span>
+                            <span id="adultCountDisplay" style="font-weight: 800; font-size: 1.15rem; color: #0F172A;">1</span>
                             <button type="button" id="btnIncAdults" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #CBD5E1; background: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #0F172A; transition: all 0.2s;">+</button>
                         </div>
                     </div>
 
                     <!-- Children -->
                     <div style="flex: 1; background: #F8FAFC; padding: 0.75rem 0.85rem; border-radius: 10px; border: 1px solid #E2E8F0;">
-                        <div style="font-size: 0.78rem; font-weight: 600; color: #64748B; margin-bottom: 0.35rem;">Children <span style="background: #EEF2FF; color: #4F46E5; font-size: 0.65rem; font-weight: 700; padding: 1px 4px; border-radius: 4px;">50% off</span></div>
+                        <div style="font-size: 0.78rem; font-weight: 600; color: #64748B; margin-bottom: 0.35rem;">Children <span id="childUnitPriceBadge" style="background: #EEF2FF; color: #4F46E5; font-size: 0.65rem; font-weight: 700; padding: 1px 4px; border-radius: 4px;">€{{ default_child_price|floatformat:2 }}/child</span></div>
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             <button type="button" id="btnDecChildren" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #CBD5E1; background: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; color: #0F172A; transition: all 0.2s;">-</button>
                             <span id="childCountDisplay" style="font-weight: 800; font-size: 1.15rem; color: #0F172A;">0</span>
@@ -486,7 +488,7 @@
                 <!-- Dynamic Price Breakdown Summary -->
                 <div style="background: #F8FAFC; border-radius: 10px; padding: 0.85rem; margin-bottom: 1.25rem; font-size: 0.85rem; border: 1px solid #E2E8F0;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; color: #64748B;">
-                        <span>Subtotal (<span id="summaryGuestsCount">2 guests</span>)</span>
+                        <span>Subtotal (<span id="summaryGuestsCount">1 guest</span>)</span>
                         <span id="summarySubtotal" style="font-weight: 700; color: #0F172A;">€0</span>
                     </div>
                     <div id="summaryDiscountRow" style="display: none; justify-content: space-between; margin-bottom: 0.35rem; color: #059669;">
@@ -575,7 +577,7 @@
                             <span class="price-label">Starting From</span>
                             <div class="price-display">
                                 {% with pricing=r_tour.pricing.first %}
-                                <span class="price-main">€{{ pricing.sale_price|default:pricing.price|default:r_tour.base_price }}</span>
+                                <span class="price-main">€{% if pricing and pricing.price %}{{ pricing.price }}{% else %}{{ r_tour.base_price }}{% endif %}</span>
                                 {% endwith %}
                                 <span class="price-sub">/per person</span>
                             </div>
@@ -665,8 +667,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const inquiryForm = document.getElementById('inquiryForm');
 
     const vehicleCards = document.querySelectorAll('.vehicle-option-card');
-    let selectedVehicleTypeId = null;
-    let selectedVehicleCapacity = 12;
+    let selectedVehicleTypeId = {% if default_vehicle_type %}'{{ default_vehicle_type.id }}'{% else %}null{% endif %};
+    let selectedVehicleCapacity = {% if default_vehicle_type %}{{ default_vehicle_type.default_capacity }}{% else %}12{% endif %};
+
+    // Pricing map: vehicle_type_id -> { adult, child, slug } for instant client-side updates
+    const pricingMap = {{ pricing_map_json|safe }};
 
     function filterVehiclesForDeparture() {
         const depOpt = departureSelect ? departureSelect.selectedOptions[0] : null;
@@ -686,7 +691,8 @@ document.addEventListener('DOMContentLoaded', () => {
             vehicleCards.forEach(c => {
                 const vtId = c.getAttribute('data-vt-id');
                 const vtSlug = c.getAttribute('data-vt-slug');
-                if (allowedIds.includes(vtId)) {
+                const isPriced = Object.keys(pricingMap).length === 0 || pricingMap[vtId] !== undefined;
+                if (allowedIds.includes(vtId) && isPriced) {
                     c.style.display = '';
                     visibleCount++;
                     if (!firstVisibleCard) firstVisibleCard = c;
@@ -726,7 +732,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             if (noVehWarning) noVehWarning.style.display = 'none';
             vehicleCards.forEach(c => {
-                c.style.display = '';
+                const vtId = c.getAttribute('data-vt-id');
+                const isPriced = Object.keys(pricingMap).length === 0 || pricingMap[vtId] !== undefined;
+                c.style.display = isPriced ? '' : 'none';
             });
         }
     }
@@ -750,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Run filter immediately for default departure
     filterVehiclesForDeparture();
 
-    let adults = 2;
+    let adults = 1;
     let children = 0;
 
     function updateSpotsBadge(sellable, isAvail) {
@@ -806,6 +814,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     summaryDiscountRow.style.display = 'none';
                     if (groupDiscountBanner) groupDiscountBanner.style.display = 'none';
+                }
+
+                if (p.adult_unit_price !== undefined) {
+                    const formattedAdult = `€${parseFloat(p.adult_unit_price).toFixed(2)}`;
+                    const adultUnitPriceEl = document.getElementById('adultUnitPriceDisplay');
+                    const headerAdultPriceEl = document.getElementById('headerAdultPriceDisplay');
+                    if (adultUnitPriceEl) adultUnitPriceEl.textContent = formattedAdult;
+                    if (headerAdultPriceEl) headerAdultPriceEl.textContent = formattedAdult;
+                }
+                if (p.child_unit_price !== undefined) {
+                    const childUnitPriceEl = document.getElementById('childUnitPriceBadge');
+                    if (childUnitPriceEl) childUnitPriceEl.textContent = `€${parseFloat(p.child_unit_price).toFixed(2)}/child`;
                 }
 
                 if ('sellable_seats' in p) {

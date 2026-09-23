@@ -33,28 +33,7 @@
             <span class="wishlist-counter-badge badge-pill" style="{% if wishlist_count == 0 %}display: none;{% else %}display: inline-flex;{% endif %} background: #FEE2E2; color: #EF4444; font-size: 0.72rem; font-weight: 800; padding: 0.12rem 0.45rem; border-radius: 999px; margin-left: 0.25rem;">{{ wishlist_count }}</span>
         </a>
     </li>
-    <li>
-        <a href="{% url 'accounts:payment_details' %}" 
-           hx-get="{% url 'accounts:payment_details' %}" 
-           hx-target="#dashboardMainContent" 
-           hx-swap="innerHTML transition:true" 
-           hx-push-url="true"
-           hx-indicator="#htmx-indicator"
-           class="{% if active_tab == 'payment' %}active{% endif %}">
-            <i class="ph ph-credit-card"></i> Payment Details
-        </a>
-    </li>
-    <li>
-        <a href="{% url 'accounts:settings' %}" 
-           hx-get="{% url 'accounts:settings' %}" 
-           hx-target="#dashboardMainContent" 
-           hx-swap="innerHTML transition:true" 
-           hx-push-url="true"
-           hx-indicator="#htmx-indicator"
-           class="{% if active_tab == 'settings' %}active{% endif %}">
-            <i class="ph ph-gear"></i> Settings
-        </a>
-    </li>
+
     
     <li class="sign-out"><a href="{% url 'accounts:logout' %}"><i class="ph-bold ph-sign-out"></i> Sign Out</a></li>
 </ul>

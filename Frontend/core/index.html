@@ -283,7 +283,7 @@
                                 <div class="tour-price-box">
                                     <span class="price-label">Starting From</span>
                                     <div class="price-display">
-                                        <span class="price-main">{{ site_settings.currency_symbol }}{{ tour.pricing.first.price|default:"750"|floatformat:0 }}</span><span class="price-sub">/per person</span>
+                                        <span class="price-main">{{ site_settings.currency_symbol }}{{ tour.base_price|floatformat:0 }}</span><span class="price-sub">/per person</span>
                                     </div>
                                 </div>
                                 <div class="tour-footer-actions">

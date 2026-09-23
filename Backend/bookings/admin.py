@@ -129,18 +129,25 @@ class BookingAdmin(admin.ModelAdmin):
         self.message_user(request, f"Created {created_count} Guaranteed Re-attempt record(s).")
 
 
+class BookingAnswerInline(admin.TabularInline):
+    model = BookingAnswer
+    extra = 0
+    readonly_fields = ('question', 'answer_text')
+
+
 @admin.register(TourBooking)
 class TourBookingAdmin(admin.ModelAdmin):
     list_display = ('booking', 'tour', 'departure', 'vehicle_type', 'pickup_location', 'adults', 'children', 'total_guests')
     list_filter = ('tour', 'vehicle_type')
     search_fields = ('booking__booking_ref', 'tour__title')
     raw_id_fields = ('booking', 'departure', 'departure_capacity', 'tour_date')
+    inlines = [BookingAnswerInline]
 
 
-class BookingAnswerInline(admin.TabularInline):
-    model = BookingAnswer
-    extra = 0
-    readonly_fields = ('question', 'answer_text')
+@admin.register(BookingAnswer)
+class BookingAnswerAdmin(admin.ModelAdmin):
+    list_display = ('tour_booking', 'question', 'answer_text')
+    search_fields = ('tour_booking__booking__booking_ref', 'question__question_text', 'answer_text')
 
 
 

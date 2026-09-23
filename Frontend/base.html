@@ -316,12 +316,7 @@
                                     <span class="wishlist-counter-badge badge-pill" style="{% if wishlist_count == 0 %}display: none;{% else %}display: inline-flex;{% endif %} background: #FEE2E2; color: #EF4444; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 999px;">{{ wishlist_count }}</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="{% url 'accounts:settings' %}" class="dropdown-item">
-                                    <i class="ph ph-gear"></i>
-                                    <span>Settings</span>
-                                </a>
-                            </li>
+
                             {% if request.user.is_staff %}
                             <li>
                                 <a href="/admin/" class="dropdown-item" style="color: #6366F1;">

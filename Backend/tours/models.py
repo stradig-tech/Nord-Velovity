@@ -293,6 +293,11 @@ class Tour(models.Model):
 
     @property
     def base_price(self):
+        # 1. Check active TourOptionPricing (lowest active adult rate across vehicle options, e.g. Group Bus)
+        min_option = self.option_pricing.filter(is_active=True).order_by('adult_price').first()
+        if min_option and min_option.adult_price is not None:
+            return min_option.adult_price
+        # 2. Legacy TourPricing fallback
         adult_pricing = self.pricing.filter(label__iexact='Adult').first()
         if adult_pricing:
             return adult_pricing.price

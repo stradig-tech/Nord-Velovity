@@ -169,7 +169,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 1rem; margin-top: auto;">
                         <div>
                             <span style="font-size: 0.78rem; color: #94A3B8; text-transform: uppercase; font-weight: 600; display: block;">Starting from</span>
-                            <span style="font-size: 1.4rem; font-weight: 800; color: #0F172A;">€{{ tour.pricing.first.price|default:"850"|floatformat:0 }}</span>
+                            <span style="font-size: 1.4rem; font-weight: 800; color: #0F172A;">€{{ tour.base_price|floatformat:0 }}</span>
                             <span style="font-size: 0.85rem; color: #64748B;">/person</span>
                         </div>
                         <a href="{% url 'tours:detail' tour.slug %}" style="background: #0F172A; color: #FFFFFF; padding: 0.6rem 1.1rem; border-radius: 10px; font-weight: 700; font-size: 0.88rem; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#4F46E5';" onmouseout="this.style.backgroundColor='#0F172A';">

@@ -133,7 +133,7 @@
                         <div class="form-row-2">
                             <div>
                                 <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Adults (Age 13+) *</label>
-                                <input type="number" name="adults" id="inputAdults" min="1" max="20" value="{{ initial_adults|default:2 }}" required style="width: 100%; padding: 0.8rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 1rem; font-weight: 700; background: #F8FAFC;">
+                                <input type="number" name="adults" id="inputAdults" min="1" max="20" value="{{ initial_adults|default:1 }}" required style="width: 100%; padding: 0.8rem; border: 1.5px solid #CBD5E1; border-radius: 10px; font-size: 1rem; font-weight: 700; background: #F8FAFC;">
                             </div>
                             <div>
                                 <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 0.4rem;">Children (Under 12, 50% off)</label>
@@ -368,12 +368,12 @@
                         </h4>
 
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.92rem; color: #475569;">
-                            <span>Adults (<span id="summaryAdultCount">{{ initial_adults|default:2 }}</span> &times; €{{ tour.base_price }})</span>
+                            <span>Adults (<span id="summaryAdultCount">{{ initial_adults|default:1 }}</span> &times; €<span id="summaryAdultUnitPrice">{{ pricing.adult_unit_price|default:tour.base_price }}</span>)</span>
                             <span id="summaryAdultPrice" style="font-weight: 700; color: #0F172A;">€{{ pricing.adults_total|default:pricing.subtotal }}</span>
                         </div>
 
                         <div id="summaryChildRow" style="display: {% if initial_children > 0 %}flex{% else %}none{% endif %}; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.92rem; color: #475569;">
-                            <span>Children (<span id="summaryChildCount">{{ initial_children|default:0 }}</span> &times; €{{ pricing.child_unit_price|default:"140.00" }})</span>
+                            <span>Children (<span id="summaryChildCount">{{ initial_children|default:0 }}</span> &times; €<span id="summaryChildUnitPrice">{{ pricing.child_unit_price|default:"0.00" }}</span>)</span>
                             <span id="summaryChildPrice" style="font-weight: 700; color: #0F172A;">€{{ pricing.children_total|default:"0.00" }}</span>
                         </div>
 
@@ -616,6 +616,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const p = data.pricing;
                 summaryAdultCount.textContent = p.adults;
                 summaryAdultPrice.textContent = `€${p.adults_total}`;
+
+                const summaryAdultUnitPrice = document.getElementById('summaryAdultUnitPrice');
+                const summaryChildUnitPrice = document.getElementById('summaryChildUnitPrice');
+                if (summaryAdultUnitPrice && p.adult_unit_price !== undefined) {
+                    summaryAdultUnitPrice.textContent = parseFloat(p.adult_unit_price).toFixed(2);
+                }
+                if (summaryChildUnitPrice && p.child_unit_price !== undefined) {
+                    summaryChildUnitPrice.textContent = parseFloat(p.child_unit_price).toFixed(2);
+                }
 
                 if (p.children > 0) {
                     summaryChildRow.style.display = 'flex';

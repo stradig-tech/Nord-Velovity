@@ -199,6 +199,63 @@ document.addEventListener("DOMContentLoaded", function() {
             wrapper.parentNode.insertBefore(swipeHint, wrapper);
         }
     });
+
+    // Viewport positioning for Django Admin DateTimeShortcuts (clock & calendar popups)
+    document.addEventListener('click', function(e) {
+        var link = e.target.closest('[id^="clocklink"], [id^="calendarlink"]');
+        if (!link) return;
+        
+        setTimeout(function() {
+            var isClock = link.id.indexOf('clocklink') === 0;
+            var num = link.id.replace('clocklink', '').replace('calendarlink', '');
+            var dialog = document.getElementById((isClock ? 'clockbox' : 'calendarbox') + num);
+            
+            if (dialog && (dialog.open || dialog.hasAttribute('open'))) {
+                var rect = link.getBoundingClientRect();
+                var dialogWidth = dialog.offsetWidth || (isClock ? 200 : 280);
+                var dialogHeight = dialog.offsetHeight || (isClock ? 220 : 310);
+                
+                var left = rect.left;
+                if (left + dialogWidth > window.innerWidth - 15) {
+                    left = window.innerWidth - dialogWidth - 15;
+                }
+                if (left < 15) left = 15;
+                
+                var top = rect.bottom + 6;
+                if (top + dialogHeight > window.innerHeight - 15) {
+                    top = Math.max(15, rect.top - dialogHeight - 6);
+                }
+                
+                dialog.style.setProperty('position', 'fixed', 'important');
+                dialog.style.setProperty('top', top + 'px', 'important');
+                dialog.style.setProperty('left', left + 'px', 'important');
+                dialog.style.setProperty('bottom', 'auto', 'important');
+                dialog.style.setProperty('right', 'auto', 'important');
+                dialog.style.setProperty('margin', '0', 'important');
+                dialog.style.setProperty('transform', 'none', 'important');
+                dialog.style.setProperty('z-index', '999999', 'important');
+            }
+        }, 20);
+    }, true); // Use capture phase so stopPropagation does not block it
+
+    // Dismiss dialog when clicking outside on the backdrop
+    document.addEventListener('click', function(e) {
+        if (e.target.tagName === 'DIALOG' && (e.target.open || e.target.hasAttribute('open'))) {
+            var rect = e.target.getBoundingClientRect();
+            if (
+                e.clientX < rect.left ||
+                e.clientX > rect.right ||
+                e.clientY < rect.top ||
+                e.clientY > rect.bottom
+            ) {
+                if (typeof e.target.close === 'function') {
+                    e.target.close();
+                } else {
+                    e.target.removeAttribute('open');
+                }
+            }
+        }
+    });
 });
 </script>
 </body>

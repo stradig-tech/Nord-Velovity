@@ -174,7 +174,41 @@ def tour_detail_view(request, slug):
     # Base pricing
     adult_pricing = tour.pricing.filter(label__iexact='Adult').first()
     child_pricing = tour.pricing.filter(label__iexact='Child').first()
-    base_price = adult_pricing.price if adult_pricing else (tour.pricing.first().price if tour.pricing.exists() else Decimal('100.00'))
+    base_price = tour.base_price
+
+    # Determine which vehicle types have pricing configured for THIS tour
+    # Only these should appear in the booking widget vehicle grid
+    priced_vehicle_type_ids = set(option_pricings.values_list('vehicle_type_id', flat=True))
+
+    # Build a pricing lookup: vehicle_type_id -> {adult_price, child_price}
+    option_pricing_map = {}
+    for op in option_pricings:
+        option_pricing_map[op.vehicle_type_id] = {
+            'adult_price': op.adult_price,
+            'child_price': op.child_price,
+            'slug': op.vehicle_type.slug,
+        }
+
+    # Pick the default vehicle: prefer 'micro' if priced, else first priced vehicle by sort_order
+    default_vehicle_type = None
+    default_adult_price = base_price
+    default_child_price = (base_price * Decimal('0.5')).quantize(Decimal('0.01'))
+
+    for vt in vehicle_types:
+        if vt.id in priced_vehicle_type_ids:
+            if default_vehicle_type is None or vt.slug == 'micro':
+                default_vehicle_type = vt
+                op_data = option_pricing_map.get(vt.id)
+                if op_data:
+                    default_adult_price = op_data['adult_price']
+                    default_child_price = op_data['child_price']
+                if vt.slug == 'micro':
+                    break  # Micro is preferred, stop searching
+
+    # If no vehicles have pricing, fall back to legacy pricing
+    if not priced_vehicle_type_ids:
+        default_adult_price = base_price
+        default_child_price = (base_price * Decimal('0.5')).quantize(Decimal('0.01'))
 
     # Approved customer reviews
     reviews = tour.reviews.filter(is_approved=True).order_by('-created_at')
@@ -208,15 +242,30 @@ def tour_detail_view(request, slug):
         })
     gallery_images_json = json.dumps(gallery_images)
 
+    # Build JSON map for frontend JS: { vehicleTypeId: { adult: X, child: Y } }
+    pricing_map_json = json.dumps({
+        str(vt_id): {
+            'adult': float(data['adult_price']),
+            'child': float(data['child_price']),
+            'slug': data['slug'],
+        }
+        for vt_id, data in option_pricing_map.items()
+    })
+
     context = {
         'tour': tour,
         'base_price': base_price,
+        'default_adult_price': default_adult_price,
+        'default_child_price': default_child_price,
+        'default_vehicle_type': default_vehicle_type,
         'adult_pricing': adult_pricing,
         'child_pricing': child_pricing,
         'available_departures': available_departures,
         'available_dates': available_dates,
         'vehicle_types': vehicle_types,
         'option_pricings': option_pricings,
+        'priced_vehicle_type_ids': priced_vehicle_type_ids,
+        'pricing_map_json': pricing_map_json,
         'reviews': reviews,
         'related_tours': related_tours,
         'gallery_images': gallery_images,

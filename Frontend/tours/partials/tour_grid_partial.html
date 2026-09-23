@@ -233,7 +233,7 @@
                     <div>
                         <span style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase; font-weight: 700; display: block;">Starting From</span>
                         <div style="display: flex; align-items: baseline; gap: 0.25rem;">
-                            <span style="font-size: 1.45rem; font-weight: 800; color: #0F172A;">€{{ tour.pricing.first.price|default:"790"|floatformat:0 }}</span>
+                            <span style="font-size: 1.45rem; font-weight: 800; color: #0F172A;">€{{ tour.base_price|floatformat:0 }}</span>
                             <span style="font-size: 0.82rem; color: #64748B;">/person</span>
                         </div>
                         <div style="color: #10B981; font-size: 0.75rem; font-weight: 700; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.25rem;">

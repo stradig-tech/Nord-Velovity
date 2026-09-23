@@ -95,7 +95,7 @@
                         </div>
                         <p class="location"><i class="ph-fill ph-map-pin"></i> {{ tour.destination.name }}, Finland &middot; {{ tour.duration_text }}</p>
                         <div class="price-actions">
-                            <p class="price"><strong>{{ site_settings.currency_symbol }}{{ tour.pricing.first.price|default:"950"|floatformat:0 }}</strong> /person</p>
+                            <p class="price"><strong>{{ site_settings.currency_symbol }}{{ tour.base_price|floatformat:0 }}</strong> /person</p>
                             <div class="action-btns">
                                 <a href="/admin/tours/tour/{{ tour.id }}/change/" class="btn-edit" title="Edit in Django Admin"><i class="ph-bold ph-pencil-simple"></i></a>
                                 <a href="/admin/tours/tourdate/?tour__id__exact={{ tour.id }}" class="btn-edit" title="Manage Departure Dates"><i class="ph-bold ph-calendar"></i></a>
